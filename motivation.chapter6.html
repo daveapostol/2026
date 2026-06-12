@@ -1,0 +1,1441 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IGCSE Business Studies - Chapter 6 Motivation Reviewer</title>
+    <!-- Tailwind CSS for rich modern UI styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Font Awesome for clean educational iconography -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts Inter -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
+        }
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col">
+
+    <!-- Custom Toast Notification Box (Replaces native alert) -->
+    <div id="custom-toast" class="fixed bottom-5 right-5 z-50 transform translate-y-20 opacity-0 transition-all duration-300 bg-slate-900 text-white px-5 py-3.5 rounded-xl shadow-2xl flex items-center gap-3 border border-slate-700 pointer-events-none">
+        <i id="toast-icon" class="fa-solid fa-circle-info text-amber-400 text-lg"></i>
+        <span id="toast-text" class="text-xs font-semibold"></span>
+    </div>
+
+    <!-- Navigation Header -->
+    <header class="bg-indigo-950 text-white shadow-lg sticky top-0 z-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row justify-between items-center gap-4">
+            <div class="flex items-center gap-3">
+                <div class="bg-amber-400 text-indigo-950 p-2.5 rounded-lg shadow-md flex items-center justify-center">
+                    <i class="fa-solid fa-graduation-cap text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="text-lg md:text-xl font-extrabold tracking-tight">IGCSE Business Studies</h1>
+                    <p class="text-xs text-indigo-200 font-medium">Interactive Exam Reviewer: Chapter 6 - Motivating Employees</p>
+                </div>
+            </div>
+            <!-- Tab Buttons -->
+            <nav class="flex flex-wrap gap-2">
+                <button onclick="switchTab('study-hub')" id="btn-study-hub" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition bg-indigo-800 text-white border border-indigo-700 shadow-sm">
+                    <i class="fa-solid fa-book-open mr-1.5"></i>Study Hub
+                </button>
+                <button onclick="switchTab('peel-builder')" id="btn-peel-builder" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition text-indigo-100 hover:bg-indigo-900/50">
+                    <i class="fa-solid fa-pen-nib mr-1.5"></i>P.E.E.L. Builder
+                </button>
+                <button onclick="switchTab('mock-exam')" id="btn-mock-exam" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition text-indigo-100 hover:bg-indigo-900/50">
+                    <i class="fa-solid fa-file-invoice mr-1.5"></i>Mock Exam
+                </button>
+                <button onclick="switchTab('progress')" id="btn-progress" class="tab-btn px-4 py-2 rounded-lg text-sm font-semibold transition text-indigo-100 hover:bg-indigo-900/50">
+                    <i class="fa-solid fa-chart-line mr-1.5"></i>My Progress
+                </button>
+            </nav>
+        </div>
+    </header>
+
+    <!-- Main Content Body -->
+    <main class="flex-grow max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 w-full">
+        
+        <!-- Active Case Study Banner -->
+        <section class="bg-gradient-to-r from-blue-50 to-indigo-50 border border-blue-200 rounded-xl p-5 mb-8 shadow-sm flex flex-col md:flex-row gap-5 items-start">
+            <div class="bg-blue-600 text-white p-3.5 rounded-xl flex items-center justify-center self-start">
+                <i class="fa-solid fa-building text-2xl"></i>
+            </div>
+            <div class="flex-grow">
+                <div class="flex flex-wrap items-center gap-2 mb-2">
+                    <span class="bg-blue-600 text-white text-xs font-bold px-2.5 py-1 rounded-full uppercase tracking-wider">IGCSE Case Study Scenario</span>
+                    <span class="text-xs text-slate-500 font-semibold"><i class="fa-solid fa-file mr-1"></i> Referenced: "Chapter 6 - Motivating employees.pdf"</span>
+                </div>
+                <h2 class="text-lg font-bold text-slate-900 mb-2">Apex Toys Ltd. (Industrial Toy Manufacturer)</h2>
+                <p class="text-sm text-slate-600 leading-relaxed">
+                    Apex Toys Ltd. operates an industrial assembly plant. Currently, workers are paid using <strong>Frederick Taylor's piece-rate system</strong> to assemble plastic model figures [cite: 1]. The plant manager is facing serious operational challenges: labor turnover has spiked to <strong>25%</strong>, toy reject rates due to poor product quality have doubled, and employees report feeling highly detached and bored with their repetitive duties [cite: 1]. The board is debating whether to keep using financial incentives or transition to non-financial motivation programs such as <strong>team working</strong> and <strong>job enrichment</strong> [cite: 1].
+                </p>
+            </div>
+        </section>
+
+        <!-- TAB 1: STUDY HUB -->
+        <div id="tab-study-hub" class="tab-content block">
+            
+            <!-- Sub-tab Navigation Panel -->
+            <div class="flex justify-start border-b border-slate-200 mb-6 gap-4">
+                <button onclick="switchStudySubTab('theories')" id="sub-btn-theories" class="sub-tab-btn pb-3 px-2 text-sm font-bold border-b-2 border-indigo-600 text-indigo-600 transition">
+                    <i class="fa-solid fa-brain mr-2"></i>1. Core Theories
+                </button>
+                <button onclick="switchStudySubTab('methods')" id="sub-btn-methods" class="sub-tab-btn pb-3 px-2 text-sm font-bold border-b-2 border-transparent text-slate-500 hover:text-indigo-600 transition">
+                    <i class="fa-solid fa-coins mr-2"></i>2. Methods of Motivation (Financial vs Non-Financial)
+                </button>
+            </div>
+
+            <!-- SUB-TAB 1: CORE THEORIES -->
+            <div id="sub-tab-theories" class="study-sub-content block">
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    <!-- Theoretical Framework Columns -->
+                    <div class="lg:col-span-2 space-y-8">
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="bg-indigo-900 px-6 py-4 flex justify-between items-center text-white">
+                                <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-brain"></i> Core Motivation Theories</h3>
+                                <span class="text-xs bg-indigo-800 text-indigo-200 px-2.5 py-1 rounded">Syllabus Guide</span>
+                            </div>
+                            <div class="p-6 space-y-6">
+                                <!-- Theory: Taylor -->
+                                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 relative">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <h4 class="font-bold text-indigo-950 flex items-center gap-2">
+                                            <span class="w-6 h-6 bg-slate-200 text-indigo-900 rounded-full text-xs flex items-center justify-center font-bold">1</span>
+                                            Frederick Winslow Taylor (Scientific Management & "Economic Man")
+                                        </h4>
+                                        <span class="text-xs bg-red-100 text-red-800 font-bold px-2 py-0.5 rounded-full">Financial Focus</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                                        Developed during the Industrial Revolution [cite: 1]. Taylor treats workers as the "economic man"—motivated purely by personal financial gain [cite: 1]. He advocates optimizing production processes, finding the quickest scientific methods, and rewarding productivity using the piece-rate pay model [cite: 1].
+                                    </p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                        <div class="bg-white p-2.5 rounded border border-slate-100">
+                                            <span class="font-semibold text-red-700 block mb-1"><i class="fa-solid fa-circle-plus mr-1"></i> Strengths</span>
+                                            Boosts output rapidly; easy performance metric mapping; rewards high-volume employees [cite: 1].
+                                        </div>
+                                        <div class="bg-white p-2.5 rounded border border-slate-100">
+                                            <span class="font-semibold text-red-700 block mb-1"><i class="fa-solid fa-triangle-exclamation mr-1"></i> Limitations</span>
+                                            Ignores worker health; repetitive work damages motivation; quality drop-offs occur under fast piece-rates [cite: 1].
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Theory: Maslow -->
+                                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <h4 class="font-bold text-indigo-950 flex items-center gap-2">
+                                            <span class="w-6 h-6 bg-slate-200 text-indigo-900 rounded-full text-xs flex items-center justify-center font-bold">2</span>
+                                            Abraham Maslow (Hierarchy of Needs)
+                                        </h4>
+                                        <span class="text-xs bg-amber-100 text-amber-800 font-bold px-2 py-0.5 rounded-full">Humanistic Priority</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                                        Argued that individuals satisfy 5 innate tiers of priorities in a specific progressive sequence (Physiological, Safety, Social, Esteem, Self-Actualization) [cite: 1]. Once a lower-tier need is met, it ceases to act as an effective motivator [cite: 1].
+                                    </p>
+                                    <div class="bg-white p-3 rounded border border-slate-100 mb-3">
+                                        <div class="flex items-center gap-1.5 mb-2 font-semibold text-xs text-slate-800">
+                                            <i class="fa-solid fa-layer-group text-amber-500"></i> Corporate Needs Ladder & Attitudes [cite: 1]
+                                        </div>
+                                        <div class="flex flex-col gap-1.5">
+                                            <div class="flex justify-between items-center bg-emerald-50 text-emerald-900 px-3 py-1 rounded text-xs border border-emerald-100">
+                                                <span class="font-medium">5. Self-Actualization</span>
+                                                <span class="italic text-[11px]">"I love working here & I inspire others" [cite: 1]</span>
+                                            </div>
+                                            <div class="flex justify-between items-center bg-blue-50 text-blue-900 px-3 py-1 rounded text-xs border border-blue-100">
+                                                <span class="font-medium">4. Esteem (Importance)</span>
+                                                <span class="italic text-[11px]">"What I do makes a difference" [cite: 1]</span>
+                                            </div>
+                                            <div class="flex justify-between items-center bg-indigo-50 text-indigo-900 px-3 py-1 rounded text-xs border border-indigo-100">
+                                                <span class="font-medium">3. Social (Camaraderie)</span>
+                                                <span class="italic text-[11px]">"I feel part of something bigger!" [cite: 1]</span>
+                                            </div>
+                                            <div class="flex justify-between items-center bg-amber-50 text-amber-900 px-3 py-1 rounded text-xs border border-amber-100">
+                                                <span class="font-medium">2. Safety needs</span>
+                                                <span class="italic text-[11px]">"I'm here for the money and job security..." [cite: 1]</span>
+                                            </div>
+                                            <div class="flex justify-between items-center bg-rose-50 text-rose-900 px-3 py-1 rounded text-xs border border-rose-100">
+                                                <span class="font-medium">1. Physiological (Basic)</span>
+                                                <span class="italic text-[11px]">"I'm only here for the money." [cite: 1]</span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <!-- Theory: Herzberg -->
+                                <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
+                                    <div class="flex justify-between items-start mb-3">
+                                        <h4 class="font-bold text-indigo-950 flex items-center gap-2">
+                                            <span class="w-6 h-6 bg-slate-200 text-indigo-900 rounded-full text-xs flex items-center justify-center font-bold">3</span>
+                                            Frederick Herzberg (Two-Factor Theory)
+                                        </h4>
+                                        <span class="text-xs bg-emerald-100 text-emerald-800 font-bold px-2 py-0.5 rounded-full">Dual Matrix</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 mb-3 leading-relaxed">
+                                        Differentiates workplace factors into **Hygiene Factors** (must exist to prevent extreme dissatisfaction but do not motivate on their own) and **Motivators** (actually encourage worker growth, pride, and active output optimization) [cite: 1].
+                                    </p>
+                                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs">
+                                        <div class="bg-white p-3 rounded border border-slate-100">
+                                            <span class="font-semibold text-rose-700 block mb-1.5"><i class="fa-solid fa-ban mr-1"></i> Hygiene (Prevents Sadness)</span>
+                                            Basic pay, administrative rules, safe/clean working conditions, leadership supervision styles, coworker relationships [cite: 1].
+                                        </div>
+                                        <div class="bg-white p-3 rounded border border-slate-100">
+                                            <span class="font-semibold text-emerald-700 block mb-1.5"><i class="fa-solid fa-arrow-trend-up mr-1"></i> Motivators (Sparks Pride)</span>
+                                            The work itself (varied/challenging), responsibility, personal achievement, advancement/promotion, management recognition [cite: 1].
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- PEEL Guide Sidebar -->
+                    <div class="space-y-8">
+                        <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                            <div class="bg-amber-500 px-6 py-4 text-white font-bold flex items-center gap-2">
+                                <i class="fa-solid fa-pen-fancy"></i> Mastery: The P.E.E.L. Framework
+                            </div>
+                            <div class="p-6 space-y-4">
+                                <p class="text-xs text-slate-600 leading-relaxed">
+                                    Examiners award the highest marks (Analysis and Evaluation) when students elaborate systematically on their answers [cite: 1]. Use the P.E.E.L. structure to ensure your writing is fully developed:
+                                </p>
+                                
+                                <div class="space-y-3">
+                                    <!-- P -->
+                                    <div class="p-3 bg-red-50 border-l-4 border-red-500 rounded text-xs">
+                                        <strong class="text-red-900 block font-semibold text-sm mb-1">Point (What?)</strong>
+                                        Make a clear, direct, and focused analytical statement addressing the question [cite: 1].
+                                    </div>
+                                    <!-- E -->
+                                    <div class="p-3 bg-blue-50 border-l-4 border-blue-500 rounded text-xs">
+                                        <strong class="text-blue-900 block font-semibold text-sm mb-1">Evidence (Why?)</strong>
+                                        Ground the point using specific case facts, numbers, or a motivational theory [cite: 1].
+                                    </div>
+                                    <!-- E -->
+                                    <div class="p-3 bg-emerald-50 border-l-4 border-emerald-500 rounded text-xs">
+                                        <strong class="text-emerald-900 block font-semibold text-sm mb-1">Explanation (How?)</strong>
+                                        Explain the consequence chain step-by-step. Break it down using cause-and-effect language [cite: 1].
+                                    </div>
+                                    <!-- L -->
+                                    <div class="p-3 bg-amber-50 border-l-4 border-amber-500 rounded text-xs">
+                                        <strong class="text-amber-900 block font-semibold text-sm mb-1">Link (So what?)</strong>
+                                        Connect your argument back to the main objective of the case study [cite: 1].
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SUB-TAB 2: METHODS OF MOTIVATION -->
+            <div id="sub-tab-methods" class="study-sub-content hidden">
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+                    
+                    <!-- Financial Motivation Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-red-800 to-rose-900 text-white px-6 py-4 flex justify-between items-center">
+                            <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-wallet"></i> Financial Methods of Motivation</h3>
+                            <span class="text-xs bg-red-750 text-red-200 px-2.5 py-1 rounded">Extrinsic Factors [cite: 1]</span>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                                Financial methods involve using money or tangible monetary perks to reward productivity, aligned with Taylor’s views [cite: 1]. Below are the key syllabus definitions [cite: 1]:
+                            </p>
+                            
+                            <!-- Financial methods list -->
+                            <div class="grid grid-cols-1 gap-3">
+                                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 hover:border-red-300 transition">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-xs font-bold text-red-900">Wages [cite: 1]</span>
+                                        <span class="text-[10px] text-slate-500 font-bold uppercase">Time or Piece rate</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-normal">Normally paid per hour worked and paid weekly or monthly [cite: 1]. Piece rates reward output directly [cite: 1].</p>
+                                </div>
+
+                                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 hover:border-red-300 transition">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-xs font-bold text-red-900">Salaries [cite: 1]</span>
+                                        <span class="text-[10px] text-slate-500 font-bold uppercase">Fixed Annual Rate</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-normal">An annual salary paid at the end of each month (not dependent on exact hours worked) [cite: 1].</p>
+                                </div>
+
+                                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 hover:border-red-300 transition">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-xs font-bold text-red-900">Bonuses [cite: 1]</span>
+                                        <span class="text-[10px] text-slate-500 font-bold uppercase">Performance-Related</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-normal">Extra lumpsum payments paid when certain predetermined targets have been achieved [cite: 1].</p>
+                                </div>
+
+                                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 hover:border-red-300 transition">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-xs font-bold text-red-900">Commission [cite: 1]</span>
+                                        <span class="text-[10px] text-slate-500 font-bold uppercase">Sales-Driven</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-normal">Paid according to the volume or value of sales received by an employee [cite: 1].</p>
+                                </div>
+
+                                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 hover:border-red-300 transition">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-xs font-bold text-red-900">Profit Share [cite: 1]</span>
+                                        <span class="text-[10px] text-slate-500 font-bold uppercase">Shared Profits</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-normal">Where a direct cut of a business’s corporate profits is shared amongst some or all employees [cite: 1].</p>
+                                </div>
+
+                                <div class="p-3 bg-slate-50 rounded-lg border border-slate-200 hover:border-red-300 transition">
+                                    <div class="flex justify-between items-center mb-1">
+                                        <span class="text-xs font-bold text-red-900">Fringe Benefits [cite: 1]</span>
+                                        <span class="text-[10px] text-slate-500 font-bold uppercase">Non-monetary perks</span>
+                                    </div>
+                                    <p class="text-xs text-slate-600 leading-normal">Perks in addition to basic pay: e.g. private health insurance, staff discounts, accommodation, free meals, company cars, education coverage [cite: 1].</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Non-Financial Motivation Card -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-gradient-to-r from-emerald-800 to-teal-900 text-white px-6 py-4 flex justify-between items-center">
+                            <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-users"></i> Non-Financial Methods of Motivation</h3>
+                            <span class="text-xs bg-emerald-750 text-emerald-200 px-2.5 py-1 rounded">Intrinsic Factors [cite: 1]</span>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <p class="text-xs text-slate-500 mb-4 leading-relaxed">
+                                Non-financial methods focus on job redesign, social connections, and intrinsic engagement, satisfying Maslow and Herzberg [cite: 1]:
+                            </p>
+
+                            <!-- Non-financial methods list -->
+                            <div class="grid grid-cols-1 gap-2.5 max-h-[580px] overflow-y-auto pr-1 custom-scrollbar text-xs">
+                                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 hover:border-emerald-300 transition">
+                                    <span class="font-bold text-emerald-900 block mb-1">Delegation [cite: 1]</span>
+                                    <p class="text-slate-600">Involves managers passing authority for the performance of tasks to lower-level employees (often combined with empowerment) [cite: 1].</p>
+                                </div>
+
+                                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 hover:border-emerald-300 transition">
+                                    <span class="font-bold text-emerald-900 block mb-1">Team Working [cite: 1]</span>
+                                    <p class="text-slate-600">Employees are organized into groups or teams and given direct responsibility for the completion of a whole task [cite: 1].</p>
+                                </div>
+
+                                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 hover:border-emerald-300 transition">
+                                    <span class="font-bold text-emerald-900 block mb-1">Empowerment [cite: 1]</span>
+                                    <p class="text-slate-600">Allowing employees to make decisions about how tasks are performed, fostering confidence and trust [cite: 1].</p>
+                                </div>
+
+                                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 hover:border-emerald-300 transition">
+                                    <span class="font-bold text-emerald-900 block mb-1">Consultation [cite: 1]</span>
+                                    <p class="text-slate-600">Groups of employees meeting regularly to discuss work issues and suggest improvements presented directly to managers [cite: 1].</p>
+                                </div>
+
+                                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 hover:border-emerald-300 transition">
+                                    <span class="font-bold text-emerald-900 block mb-1">Job Enlargement [cite: 1]</span>
+                                    <p class="text-slate-600">Addition of extra, similar tasks to a job. The employee rarely needs to acquire new skills to carry these out [cite: 1].</p>
+                                </div>
+
+                                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 hover:border-emerald-300 transition">
+                                    <span class="font-bold text-emerald-900 block mb-1">Job Rotation [cite: 1]</span>
+                                    <p class="text-slate-600">Movement of employees through a range of different jobs to increase interest, facilitating multi-skilling (though requiring more training) [cite: 1].</p>
+                                </div>
+
+                                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 hover:border-emerald-300 transition">
+                                    <span class="font-bold text-emerald-900 block mb-1">Job Enrichment [cite: 1]</span>
+                                    <p class="text-slate-600">Giving greater responsibility by increasing the range and complexity of tasks, alongside decision-making authority [cite: 1].</p>
+                                </div>
+
+                                <div class="p-2.5 bg-slate-50 rounded-lg border border-slate-200 hover:border-emerald-300 transition">
+                                    <span class="font-bold text-emerald-900 block mb-1">Flexible Working [cite: 1]</span>
+                                    <p class="text-slate-600">Choice relating to how and when employees work (multi-skilling, part-time, temporary contracts, home working) [cite: 1].</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Interactive Method Categorizer Game -->
+                <div class="bg-indigo-900 rounded-xl p-6 text-white shadow-md">
+                    <div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-5">
+                        <div>
+                            <h4 class="text-base font-extrabold flex items-center gap-2 text-amber-400">
+                                <i class="fa-solid fa-gamepad"></i> Interactive Game: Motivation Method Classifier
+                            </h4>
+                            <p class="text-xs text-indigo-200">Match the correct definition/example with the appropriate category (Financial vs. Non-Financial Methods) [cite: 1].</p>
+                        </div>
+                        <div class="bg-indigo-800 text-xs px-3.5 py-1.5 rounded-lg border border-indigo-700 font-bold shrink-0">
+                            Points: <span id="game-score" class="text-amber-400 font-black">0</span> / 6
+                        </div>
+                    </div>
+
+                    <!-- Card display block -->
+                    <div class="bg-indigo-950 p-6 rounded-xl border border-indigo-800 flex flex-col items-center text-center min-h-[140px] justify-center">
+                        <div id="game-card" class="space-y-2">
+                            <span id="game-card-title" class="text-sm font-bold text-amber-300 block">Wages [cite: 1]</span>
+                            <p id="game-card-desc" class="text-xs text-slate-300 leading-relaxed max-w-lg">Normally paid per hour worked and paid weekly or monthly [cite: 1].</p>
+                        </div>
+                    </div>
+
+                    <!-- Category interaction buttons -->
+                    <div class="flex justify-center gap-4 mt-5">
+                        <button onclick="submitGameGuess('financial')" class="bg-rose-600 hover:bg-rose-700 active:bg-rose-800 text-white font-bold px-6 py-2.5 rounded-lg text-xs transition shadow-md flex items-center gap-2">
+                            <i class="fa-solid fa-coins"></i> Financial [cite: 1]
+                        </button>
+                        <button onclick="submitGameGuess('non-financial')" class="bg-emerald-600 hover:bg-emerald-700 active:bg-emerald-800 text-white font-bold px-6 py-2.5 rounded-lg text-xs transition shadow-md flex items-center gap-2">
+                            <i class="fa-solid fa-users"></i> Non-Financial [cite: 1]
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 2: P.E.E.L. BUILDER -->
+        <div id="tab-peel-builder" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Builder Control Panel -->
+                <div class="lg:col-span-7 space-y-6">
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-indigo-900 px-6 py-4 text-white">
+                            <h3 class="font-bold text-base flex items-center gap-2"><i class="fa-solid fa-wrench"></i> Answer Scaffold Builder</h3>
+                            <p class="text-xs text-indigo-200">Select pre-structured building blocks or customize them to build a perfect P.E.E.L. paragraph [cite: 1].</p>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <!-- 1. SELECT POINT -->
+                            <div>
+                                <label class="block text-xs font-bold text-red-600 uppercase tracking-wide mb-2"><i class="fa-solid fa-circle"></i> Step 1: Select or Write your Point</label>
+                                <select id="builder-point" onchange="updateBuilderOutput()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-red-300 outline-none">
+                                    <option value="">-- Choose an analytical Point --</option>
+                                    <option value="Apex Toys can improve its high labor turnover rate of 25% by switching from piece-rates to job enrichment [cite: 1].">Improve 25% labor turnover via job enrichment [cite: 1].</option>
+                                    <option value="The production manager can reduce product reject rates by organizing assembly workers into autonomous team working structures [cite: 1].">Reduce toy defects via autonomous team working [cite: 1].</option>
+                                    <option value="Continuing to rely entirely on Taylor's piece-rate pay model poses risk to long-term quality and employee morale [cite: 1].">Risks of continuing to rely solely on Taylor's piece-rates [cite: 1].</option>
+                                    <option value="Introducing fringe benefits and profit sharing programs could help secure job satisfaction without changing core tasks [cite: 1].">Boost retention using fringe benefits and profit share [cite: 1].</option>
+                                </select>
+                                <textarea id="custom-point" oninput="updateBuilderOutput()" placeholder="Or type your own Point here..." class="mt-2 w-full border border-slate-200 rounded-lg p-2 text-xs outline-none focus:ring-2 focus:ring-red-200 min-h-[50px]"></textarea>
+                            </div>
+
+                            <!-- 2. SELECT EVIDENCE -->
+                            <div>
+                                <label class="block text-xs font-bold text-blue-600 uppercase tracking-wide mb-2"><i class="fa-solid fa-circle"></i> Step 2: Select or Write your Evidence / Theoretical backing</label>
+                                <select id="builder-evidence" onchange="updateBuilderOutput()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-blue-300 outline-none">
+                                    <option value="">-- Choose theoretical Evidence --</option>
+                                    <option value="According to Frederick Herzberg's theory, offering varied and highly responsible tasks (job enrichment) acts as a motivator rather than a hygiene factor [cite: 1].">Herzberg's Two-Factor theory (Motivators) [cite: 1].</option>
+                                    <option value="As Abraham Maslow's Hierarchy emphasizes, organizing workers into collaborative teams directly satisfies their core social and belongingness needs [cite: 1].">Maslow's Social (Belonging) needs [cite: 1].</option>
+                                    <option value="Under Frederick Taylor's Scientific Management, workers are treated as purely rational economic agents driven strictly by piece-rate pay [cite: 1].">Taylor's Scientific Management (Economic Man) [cite: 1].</option>
+                                    <option value="As Herzberg suggests, wages and fringe benefits act as hygiene factors which prevent dissatisfaction but won't motivate long-term assembly care [cite: 1].">Herzberg's Hygiene Factors (Wages & Benefits) [cite: 1].</option>
+                                </select>
+                                <textarea id="custom-evidence" oninput="updateBuilderOutput()" placeholder="Or type your own Evidence here..." class="mt-2 w-full border border-slate-200 rounded-lg p-2 text-xs outline-none focus:ring-2 focus:ring-blue-200 min-h-[50px]"></textarea>
+                            </div>
+
+                            <!-- 3. SELECT EXPLANATION -->
+                            <div>
+                                <label class="block text-xs font-bold text-emerald-600 uppercase tracking-wide mb-2"><i class="fa-solid fa-circle"></i> Step 3: Choose or Draft your Analytical Explanation Chain</label>
+                                <select id="builder-explanation" onchange="updateBuilderOutput()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-emerald-300 outline-none">
+                                    <option value="">-- Choose an explanation logic chain --</option>
+                                    <option value="As a direct consequence, workers will take greater personal pride in their assembly line tasks. This increased focus reduces mistakes during manufacturing, which halves toy reject rates and saves raw material costs [cite: 1].">Consequence: Job enrichment reduces toy reject rates [cite: 1].</option>
+                                    <option value="This would lead to collaborative goal-setting and positive peer encouragement. Consequently, this alleviates workplace boredom, leading to a much more committed workforce that is less inclined to call in sick [cite: 1].">Consequence: Team working boosts collaboration and cuts absenteeism [cite: 1].</option>
+                                    <option value="This means workers will focus purely on assembly speed to optimize earnings under piece rates, which compromises care and assembly quality. Consequently, defect rates rise and recruitment costs spike as workers leave [cite: 1].">Consequence: Piece rates lead to errors and high turnover [cite: 1].</option>
+                                    <option value="As a consequence, while workers' physiological and safety needs are satisfied preventing resignation, they may still feel detached and bored on the floor due to a lack of core job motivators [cite: 1].">Consequence: Hygiene factors prevent resignation but do not spark effort [cite: 1].</option>
+                                </select>
+                                <textarea id="custom-explanation" oninput="updateBuilderOutput()" placeholder="Or type your own Explanation here..." class="mt-2 w-full border border-slate-200 rounded-lg p-2 text-xs outline-none focus:ring-2 focus:ring-emerald-200 min-h-[60px]"></textarea>
+                            </div>
+
+                            <!-- 4. SELECT LINK -->
+                            <div>
+                                <label class="block text-xs font-bold text-amber-600 uppercase tracking-wide mb-2"><i class="fa-solid fa-circle"></i> Step 4: Choose or Draft your Case Link / Evaluation</label>
+                                <select id="builder-link" onchange="updateBuilderOutput()" class="w-full bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-xs focus:ring-2 focus:ring-amber-300 outline-none">
+                                    <option value="">-- Choose a concluding case link --</option>
+                                    <option value="Ultimately, this helps Apex Toys safeguard its consumer reputation and lowers recruitment costs by reducing the 25% labor turnover rate [cite: 1].">Link: Protects brand and solves 25% labor turnover [cite: 1].</option>
+                                    <option value="Therefore, Apex Toys can transition to non-financial rewards without risking financial instability, satisfying their strategic business objectives [cite: 1].">Link: Transitions to non-financial rewards smoothly [cite: 1].</option>
+                                    <option value="Thus, while output might increase in the short term, this financial-only model is unsustainable for maintaining long-term assembly standards [cite: 1].">Link: Short-term output increase vs. long-term quality drop [cite: 1].</option>
+                                </select>
+                                <textarea id="custom-link" oninput="updateBuilderOutput()" placeholder="Or type your own Link here..." class="mt-2 w-full border border-slate-200 rounded-lg p-2 text-xs outline-none focus:ring-2 focus:ring-amber-200 min-h-[50px]"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Live Preview Pane -->
+                <div class="lg:col-span-5 space-y-6">
+                    <div class="bg-slate-900 rounded-xl shadow-xl border border-slate-800 overflow-hidden text-white sticky top-28">
+                        <div class="bg-slate-850 px-6 py-4 flex justify-between items-center border-b border-slate-800">
+                            <span class="font-bold text-xs uppercase tracking-widest text-indigo-400"><i class="fa-solid fa-circle-play mr-1"></i> Live Paragraph Preview</span>
+                            <button onclick="clearBuilder()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 px-2.5 py-1 rounded transition"><i class="fa-solid fa-trash-can mr-1"></i>Clear</button>
+                        </div>
+                        <div class="p-6 space-y-4">
+                            <!-- Visual Block Breakdown -->
+                            <div class="space-y-2 text-xs">
+                                <div class="p-3 bg-red-950/40 border-l-4 border-red-500 rounded text-slate-200 leading-relaxed">
+                                    <span class="text-red-400 font-extrabold block text-[10px] uppercase tracking-wider mb-0.5">Point</span>
+                                    <p id="preview-point" class="italic text-slate-400">Select or write a point above...</p>
+                                </div>
+                                <div class="p-3 bg-blue-950/40 border-l-4 border-blue-500 rounded text-slate-200 leading-relaxed">
+                                    <span class="text-blue-400 font-extrabold block text-[10px] uppercase tracking-wider mb-0.5">Evidence</span>
+                                    <p id="preview-evidence" class="italic text-slate-400">Select or write evidence above...</p>
+                                </div>
+                                <div class="p-3 bg-emerald-950/40 border-l-4 border-emerald-500 rounded text-slate-200 leading-relaxed">
+                                    <span class="text-emerald-400 font-extrabold block text-[10px] uppercase tracking-wider mb-0.5">Explanation</span>
+                                    <p id="preview-explanation" class="italic text-slate-400">Select or write explanation above...</p>
+                                </div>
+                                <div class="p-3 bg-amber-950/40 border-l-4 border-amber-500 rounded text-slate-200 leading-relaxed">
+                                    <span class="text-amber-400 font-extrabold block text-[10px] uppercase tracking-wider mb-0.5">Link</span>
+                                    <p id="preview-link" class="italic text-slate-400">Select or write link above...</p>
+                                </div>
+                            </div>
+
+                            <!-- Consolidated Output -->
+                            <div class="mt-6 border-t border-slate-800 pt-4">
+                                <div class="flex justify-between items-center mb-2">
+                                    <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider">Consolidated Text Block</span>
+                                    <button onclick="copyConsolidatedText()" class="text-xs bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-1 rounded transition"><i class="fa-solid fa-copy mr-1"></i>Copy Answer</button>
+                                </div>
+                                <textarea id="builder-raw-output" readonly class="w-full bg-slate-950 border border-slate-800 rounded p-3 text-xs text-slate-300 focus:outline-none min-h-[140px] leading-relaxed custom-scrollbar"></textarea>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 3: MOCK EXAM -->
+        <div id="tab-mock-exam" class="tab-content hidden">
+            <div class="grid grid-cols-1 lg:grid-cols-12 gap-8">
+                <!-- Left Hand Exam Booklet Sheet -->
+                <div class="lg:col-span-8 space-y-8">
+                    <!-- Section I: Diagnostic Multiple Choice -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-900 px-6 py-4 text-white flex justify-between items-center">
+                            <span class="font-bold text-sm"><i class="fa-solid fa-circle-check mr-2"></i> Section A: MCQ Diagnostics</span>
+                            <span class="text-xs text-amber-400 font-bold">1 Mark Each [cite: 1]</span>
+                        </div>
+                        <div class="p-6 divide-y divide-slate-100 space-y-6">
+                            <!-- Q1 -->
+                            <div class="pt-2 first:pt-0">
+                                <span class="text-xs font-bold text-indigo-900 uppercase block mb-1.5">Question 1</span>
+                                <p class="text-sm text-slate-800 font-semibold mb-3">Which of the following is categorized as a MOTIVATOR according to Frederick Herzberg's Two-Factor Theory? [cite: 1]</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                                    <button onclick="checkMCQ(this, 1, 'A', 'incorrect')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">A</span>
+                                        Regular hourly wages and safety gear [cite: 1]
+                                    </button>
+                                    <button onclick="checkMCQ(this, 1, 'B', 'correct')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">B</span>
+                                        Increasing levels of operational responsibility [cite: 1]
+                                    </button>
+                                    <button onclick="checkMCQ(this, 1, 'C', 'incorrect')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">C</span>
+                                        Improved ventilation and safety lighting [cite: 1]
+                                    </button>
+                                    <button onclick="checkMCQ(this, 1, 'D', 'incorrect')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">D</span>
+                                        Lenient administration systems [cite: 1]
+                                    </button>
+                                </div>
+                                <div class="feedback-box hidden mt-3 p-3 text-xs rounded-lg"></div>
+                            </div>
+
+                            <!-- Q2 -->
+                            <div class="pt-6">
+                                <span class="text-xs font-bold text-indigo-900 uppercase block mb-1.5">Question 2</span>
+                                <p class="text-sm text-slate-800 font-semibold mb-3">If Apex Toys' assembly workers meet their lower social and safety needs, what does Maslow state happens next? [cite: 1]</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                                    <button onclick="checkMCQ(this, 2, 'A', 'incorrect')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">A</span>
+                                        Those fulfilled factors become stronger motivators [cite: 1]
+                                    </button>
+                                    <button onclick="checkMCQ(this, 2, 'B', 'incorrect')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">B</span>
+                                        Employees require additional monetary bonuses [cite: 1]
+                                    </button>
+                                    <button onclick="checkMCQ(this, 2, 'C', 'correct')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">C</span>
+                                        Those factors stop motivating and esteem needs become prioritized [cite: 1]
+                                    </button>
+                                    <button onclick="checkMCQ(this, 2, 'D', 'incorrect')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">D</span>
+                                        Workplace quality immediately drops down [cite: 1]
+                                    </button>
+                                </div>
+                                <div class="feedback-box hidden mt-3 p-3 text-xs rounded-lg"></div>
+                            </div>
+
+                            <!-- Q3: NEW MCQ on Financial/Non-Financial -->
+                            <div class="pt-6">
+                                <span class="text-xs font-bold text-indigo-900 uppercase block mb-1.5">Question 3</span>
+                                <p class="text-sm text-slate-800 font-semibold mb-3">Which non-financial motivation method involves moving employees through a range of different jobs to increase variety? [cite: 1]</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                                    <button onclick="checkMCQ(this, 3, 'A', 'incorrect')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">A</span>
+                                        Job Enlargement [cite: 1]
+                                    </button>
+                                    <button onclick="checkMCQ(this, 3, 'B', 'correct')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">B</span>
+                                        Job Rotation [cite: 1]
+                                    </button>
+                                    <button onclick="checkMCQ(this, 3, 'C', 'incorrect')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">C</span>
+                                        Job Enrichment [cite: 1]
+                                    </button>
+                                    <button onclick="checkMCQ(this, 3, 'D', 'incorrect')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">D</span>
+                                        Consultation [cite: 1]
+                                    </button>
+                                </div>
+                                <div class="feedback-box hidden mt-3 p-3 text-xs rounded-lg"></div>
+                            </div>
+
+                            <!-- Q4: NEW MCQ on Financial/Non-Financial -->
+                            <div class="pt-6">
+                                <span class="text-xs font-bold text-indigo-900 uppercase block mb-1.5">Question 4</span>
+                                <p class="text-sm text-slate-800 font-semibold mb-3">Which financial method pays an employee additional lump sums based on performance-related milestones? [cite: 1]</p>
+                                <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 text-xs">
+                                    <button onclick="checkMCQ(this, 4, 'A', 'incorrect')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">A</span>
+                                        Commission [cite: 1]
+                                    </button>
+                                    <button onclick="checkMCQ(this, 4, 'B', 'incorrect')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">B</span>
+                                        Salaries [cite: 1]
+                                    </button>
+                                    <button onclick="checkMCQ(this, 4, 'C', 'correct')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">C</span>
+                                        Bonuses [cite: 1]
+                                    </button>
+                                    <button onclick="checkMCQ(this, 4, 'D', 'incorrect')" class="mcq-option flex items-center gap-3 w-full p-3 rounded-lg border border-slate-200 text-left hover:bg-slate-50 transition">
+                                        <span class="w-6 h-6 rounded-full border border-slate-300 flex items-center justify-center font-bold text-slate-600 shrink-0">D</span>
+                                        Profit Share [cite: 1]
+                                    </button>
+                                </div>
+                                <div class="feedback-box hidden mt-3 p-3 text-xs rounded-lg"></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section II: Structured IGCSE Knowledge Check -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-900 px-6 py-4 text-white flex justify-between items-center">
+                            <span class="font-bold text-sm"><i class="fa-solid fa-list-check mr-2"></i> Section B: Direct Short Answers</span>
+                            <span class="text-xs text-amber-400 font-bold">2 Marks Each [cite: 1]</span>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <!-- Short Answer Q1 -->
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-bold text-indigo-900 uppercase">Question 5 (2 Marks)</span>
+                                    <button onclick="toggleShortAnswerHelp('help-sa1')" class="text-xs text-indigo-600 hover:underline"><i class="fa-solid fa-circle-question mr-1"></i>Show Mark Scheme</button>
+                                </div>
+                                <p class="text-sm font-semibold text-slate-800">Identify two non-financial methods Apex Toys could use to motivate its manufacturing employees [cite: 1].</p>
+                                <input type="text" id="sa-ans-1" placeholder="Write two methods..." class="w-full border border-slate-300 rounded-lg p-3 text-xs outline-none focus:ring-2 focus:ring-indigo-300">
+                                <div id="help-sa1" class="hidden p-3.5 bg-indigo-50 border border-indigo-100 rounded-lg text-xs leading-relaxed text-indigo-950">
+                                    <strong>Marking Scheme Guide:</strong> Award 1 mark per valid identified non-financial method. Acceptable methods include: job rotation, job enlargement, job enrichment, delegation, team working, empowerment, flexible working, or consultation [cite: 1].
+                                </div>
+                            </div>
+
+                            <!-- Short Answer Q2 -->
+                            <div class="space-y-2">
+                                <div class="flex justify-between items-center">
+                                    <span class="text-xs font-bold text-indigo-900 uppercase">Question 6 (2 Marks)</span>
+                                    <button onclick="toggleShortAnswerHelp('help-sa2')" class="text-xs text-indigo-600 hover:underline"><i class="fa-solid fa-circle-question mr-1"></i>Show Mark Scheme</button>
+                                </div>
+                                <p class="text-sm font-semibold text-slate-800">Define what is meant by 'piece-rate' payment method [cite: 1].</p>
+                                <input type="text" id="sa-ans-2" placeholder="Write definition here..." class="w-full border border-slate-300 rounded-lg p-3 text-xs outline-none focus:ring-2 focus:ring-indigo-300">
+                                <div id="help-sa2" class="hidden p-3.5 bg-indigo-50 border border-indigo-100 rounded-lg text-xs leading-relaxed text-indigo-950">
+                                    <strong>Marking Scheme Guide:</strong> Award 1 mark for basic understanding (payment made based on amount of work completed) [cite: 1]. Award 2 marks for a fully developed definition (the practice of paying an employee a fixed, predetermined financial reward for every single individual unit they produce) [cite: 1].
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section III: Long Essay Writing (Using PEEL Scaffold) -->
+                    <div class="bg-white rounded-xl shadow-sm border border-slate-200 overflow-hidden">
+                        <div class="bg-slate-900 px-6 py-4 text-white flex justify-between items-center">
+                            <span class="font-bold text-sm"><i class="fa-solid fa-pen mr-2"></i> Section C: IGCSE Analytical Essays (PEEL Evaluated)</span>
+                            <span class="text-xs text-amber-400 font-bold">6 to 12 Marks [cite: 1]</span>
+                        </div>
+                        <div class="p-6 space-y-8">
+                            <!-- Essay 1 (6-Mark) -->
+                            <div class="space-y-4 border-b border-slate-100 pb-8 last:border-0 last:pb-0">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="text-xs font-bold text-indigo-900 uppercase">Question 7 (6 Marks Analysis)</span>
+                                        <p class="text-sm font-bold text-slate-800 mt-1">Analyze how Apex Toys Ltd. could utilize Frederick Herzberg's Two-Factor theory to successfully motivate its assembly line workforce [cite: 1].</p>
+                                    </div>
+                                    <span class="text-xs bg-indigo-50 text-indigo-800 px-2.5 py-1 rounded font-bold shrink-0">Analysis Focus</span>
+                                </div>
+
+                                <!-- Segmented PEEL Builder inputs for the essay -->
+                                <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                    <span class="text-xs font-bold text-slate-700 block mb-1"><i class="fa-solid fa-graduation-cap text-amber-500"></i> Answer Builder Workspace</span>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-red-600 uppercase mb-1">Point (State the motivator action)</label>
+                                        <input type="text" id="q5-point" placeholder="e.g., Apex Toys can implement job enrichment by expanding worker tasks..." class="w-full border border-slate-300 rounded p-2 text-xs outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-blue-600 uppercase mb-1">Evidence (Theoretical connection)</label>
+                                        <input type="text" id="q5-evidence" placeholder="e.g., According to Herzberg, expanding worker responsibility acts as a motivator factor..." class="w-full border border-slate-300 rounded p-2 text-xs outline-none">
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-emerald-600 uppercase mb-1">Explanation (Chain of cause-and-effect consequences)</label>
+                                        <textarea id="q5-explanation" placeholder="e.g., Consequently, this gives assembly workers a sense of accomplishment, reducing errors and toy defects..." class="w-full border border-slate-300 rounded p-2 text-xs outline-none min-h-[70px]"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-amber-600 uppercase mb-1">Link (Direct outcome connection to case scenario)</label>
+                                        <input type="text" id="q5-link" placeholder="e.g., Ultimately, this reduces the double reject rates and solves the 25% labor turnover issue..." class="w-full border border-slate-300 rounded p-2 text-xs outline-none">
+                                    </div>
+                                </div>
+
+                                <!-- API AI submission button -->
+                                <div class="flex justify-end gap-3">
+                                    <button onclick="submitToAIGrader(5)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg text-xs transition shadow flex items-center gap-2">
+                                        <i class="fa-solid fa-robot"></i> Submit to AI Evaluator [cite: 1]
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Essay 2 (12-Mark Evaluation) -->
+                            <div class="space-y-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <span class="text-xs font-bold text-indigo-900 uppercase">Question 8 (12 Marks Evaluation)</span>
+                                        <p class="text-sm font-bold text-slate-800 mt-1">Evaluate whether Apex Toys Ltd. should continue using Frederick Taylor's piece-rate payment system or switch entirely to non-financial motivational programs [cite: 1].</p>
+                                    </div>
+                                    <span class="text-xs bg-amber-50 text-amber-800 px-2.5 py-1 rounded font-bold shrink-0">Evaluation Focus</span>
+                                </div>
+
+                                <!-- Segmented PEEL Builder inputs for the essay -->
+                                <div class="space-y-3 bg-slate-50 p-4 rounded-xl border border-slate-200">
+                                    <span class="text-xs font-bold text-slate-700 block mb-1"><i class="fa-solid fa-graduation-cap text-amber-500"></i> Evaluation Workspace (Draft balanced arguments)</span>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-red-600 uppercase mb-1">Arguments for Piece-Rate (Benefits of Taylor's model)</label>
+                                        <textarea id="q6-arg1" placeholder="e.g., Continuing with Taylor's piece-rates keeps output volume high..." class="w-full border border-slate-300 rounded p-2 text-xs outline-none min-h-[60px]"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-emerald-600 uppercase mb-1">Arguments for Non-Financial Methods (Job Enrichment / Teams)</label>
+                                        <textarea id="q6-arg2" placeholder="e.g., Conversely, shifting to non-financial methods improves employee belonging..." class="w-full border border-slate-300 rounded p-2 text-xs outline-none min-h-[60px]"></textarea>
+                                    </div>
+                                    <div>
+                                        <label class="block text-[10px] font-bold text-amber-600 uppercase mb-1">Link / Final Evaluative Conclusion (Which is best for Apex Toys?)</label>
+                                        <textarea id="q6-conclusion" placeholder="e.g., In conclusion, while piece-rate boosts speed, Apex Toys must implement non-financial motivators to address high defect rates..." class="w-full border border-slate-300 rounded p-2 text-xs outline-none min-h-[70px]"></textarea>
+                                    </div>
+                                </div>
+
+                                <!-- API AI submission button -->
+                                <div class="flex justify-end gap-3">
+                                    <button onclick="submitToAIGrader(6)" class="bg-indigo-600 hover:bg-indigo-700 text-white font-semibold px-4 py-2 rounded-lg text-xs transition shadow flex items-center gap-2">
+                                        <i class="fa-solid fa-robot"></i> Submit to AI Evaluator [cite: 1]
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Hand Sidebar AI Assessor Feedback Pane -->
+                <div class="lg:col-span-4 space-y-6">
+                    <div class="bg-white rounded-xl shadow-md border border-slate-200 overflow-hidden sticky top-28">
+                        <div class="bg-indigo-900 px-6 py-4 text-white font-bold flex justify-between items-center">
+                            <span class="text-xs uppercase tracking-wider"><i class="fa-solid fa-microchip mr-2"></i> AI Assessment Desk</span>
+                            <span id="ai-status" class="bg-emerald-500 text-white text-[10px] px-2.5 py-0.5 rounded">Ready</span>
+                        </div>
+                        <div class="p-6 space-y-6">
+                            <!-- Input for API Key (optional fallback to client) -->
+                            <div class="p-3 bg-slate-50 rounded-xl border border-slate-200">
+                                <label class="block text-[10px] font-bold text-slate-500 uppercase tracking-wide mb-1">Optional: Set Gemini API Key</label>
+                                <div class="flex gap-2">
+                                    <input type="password" id="api-key" placeholder="Enter API Key (Optional)" class="flex-grow border border-slate-300 rounded p-1.5 text-xs outline-none focus:ring-2 focus:ring-indigo-300">
+                                    <button onclick="saveAPIKey()" class="bg-slate-800 hover:bg-slate-700 text-white px-3 py-1 rounded text-xs transition">Save</button>
+                                </div>
+                                <p class="text-[9px] text-slate-400 mt-1 leading-normal font-medium">If left empty, a robust local scoring rubric will grade your essay automatically.</p>
+                            </div>
+
+                            <!-- Grading Feedback Container -->
+                            <div id="ai-grading-card" class="space-y-4">
+                                <div class="text-center py-6 text-slate-400 border border-dashed border-slate-200 rounded-xl">
+                                    <i class="fa-solid fa-file-signature text-3xl mb-2 text-slate-300"></i>
+                                    <p class="text-xs font-semibold">Write and submit an essay answer to receive real-time, constructive grading feedback.</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB 4: MY PROGRESS -->
+        <div id="tab-progress" class="tab-content hidden">
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+                <!-- Overall Performance Score -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6 flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-2">Theoretical Mastery</span>
+                        <h4 class="text-2xl font-bold text-slate-900 mb-1">Knowledge Metrics</h4>
+                        <p class="text-xs text-slate-500 mb-4">Calculated from diagnostic MCQ reviews.</p>
+                    </div>
+                    <div class="flex items-center gap-4 py-3">
+                        <div class="relative w-20 h-20 flex items-center justify-center shrink-0">
+                            <!-- Simple custom SVG circular gauge -->
+                            <svg class="w-full h-full transform -rotate-90">
+                                <circle cx="40" cy="40" r="34" stroke="#f1f5f9" stroke-width="6" fill="transparent" />
+                                <circle id="progress-circle" cx="40" cy="40" r="34" stroke="#e11d48" stroke-width="6" fill="transparent" stroke-dasharray="213.6" stroke-dashoffset="213.6" class="transition-all duration-1000" />
+                            </svg>
+                            <span id="progress-percentage-label" class="absolute font-bold text-slate-900 text-sm">0%</span>
+                        </div>
+                        <div class="text-xs text-slate-600 font-medium">
+                            <p class="mb-1"><strong id="metric-mcq-correct">0</strong> Correct answers.</p>
+                            <p class="mb-1"><strong id="metric-mcq-total">4</strong> Questions total.</p>
+                            <p id="metric-status" class="text-rose-600 font-bold">Keep reviewing!</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Essay Analysis Framework Status -->
+                <div class="bg-white rounded-xl shadow-sm border border-slate-200 p-6">
+                    <span class="text-[10px] font-extrabold text-slate-400 uppercase tracking-widest block mb-2">P.E.E.L. Proficiency</span>
+                    <h4 class="text-2xl font-bold text-slate-900 mb-1">Analytical Skills</h4>
+                    <p class="text-xs text-slate-500 mb-4">Mapping structural quality in long-form writing.</p>
+                    <div class="space-y-2 text-xs">
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1 font-semibold">
+                                <span class="text-slate-600">Point Precision</span>
+                                <span id="lbl-metric-p" class="font-bold text-slate-900">0/10</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div id="bar-metric-p" class="h-full bg-red-500 transition-all duration-1000 w-0"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1 font-semibold">
+                                <span class="text-slate-600">Evidence Depth</span>
+                                <span id="lbl-metric-e" class="font-bold text-slate-900">0/10</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div id="bar-metric-e" class="h-full bg-blue-500 transition-all duration-1000 w-0"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1 font-semibold">
+                                <span class="text-slate-600">Explanation Chain</span>
+                                <span id="lbl-metric-ex" class="font-bold text-slate-900">0/10</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div id="bar-metric-ex" class="h-full bg-emerald-500 transition-all duration-1000 w-0"></div>
+                            </div>
+                        </div>
+                        <div>
+                            <div class="flex justify-between text-[11px] mb-1 font-semibold">
+                                <span class="text-slate-600">Link Evaluation</span>
+                                <span id="lbl-metric-l" class="font-bold text-slate-900">0/10</span>
+                            </div>
+                            <div class="w-full h-2 bg-slate-100 rounded-full overflow-hidden">
+                                <div id="bar-metric-l" class="h-full bg-amber-500 transition-all duration-1000 w-0"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Syllabus Completion Badge -->
+                <div class="bg-gradient-to-br from-indigo-900 to-slate-900 text-white rounded-xl shadow-md p-6 flex flex-col justify-between">
+                    <div>
+                        <span class="text-[10px] font-extrabold text-indigo-300 uppercase tracking-widest block mb-2">Teacher Checklist</span>
+                        <h4 class="text-2xl font-bold mb-1">Syllabus Mastery</h4>
+                        <p class="text-xs text-indigo-200 font-medium">Your syllabus readiness tracker [cite: 1].</p>
+                    </div>
+                    <div class="space-y-1 py-4 text-xs font-semibold">
+                        <div class="flex items-center gap-2">
+                            <i id="chk-taylor" class="fa-regular fa-circle text-slate-400"></i>
+                            <span>F.W. Taylor Scientific Management [cite: 1]</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i id="chk-maslow" class="fa-regular fa-circle text-slate-400"></i>
+                            <span>Maslow Hierarchy of Needs [cite: 1]</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i id="chk-herzberg" class="fa-regular fa-circle text-slate-400"></i>
+                            <span>Herzberg Dual Factor Model [cite: 1]</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i id="chk-financial" class="fa-regular fa-circle text-slate-400"></i>
+                            <span>Financial Methods of Motivation [cite: 1]</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i id="chk-nonfinancial" class="fa-regular fa-circle text-slate-400"></i>
+                            <span>Non-Financial Methods [cite: 1]</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <i id="chk-peel" class="fa-regular fa-circle text-slate-400"></i>
+                            <span>P.E.E.L Essay Writing Mastery [cite: 1]</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Page Footer -->
+    <footer class="bg-white border-t border-slate-200 py-6 text-center text-xs text-slate-400">
+        <div class="max-w-7xl mx-auto px-4">
+            <p>© 2026 Interactive IGCSE Study Reviewer - Chapter 6 Employee Motivation Syllabus Check [cite: 1]</p>
+            <p class="mt-1 text-[11px] text-slate-400 font-medium">Referenced Case Scenario: Apex Toys Ltd. (Taylor Piece Rate vs. Job Enrichment) [cite: 1]</p>
+        </div>
+    </footer>
+
+    <!-- App JavaScript Logic -->
+    <script>
+        // Central Application State
+        const AppState = {
+            activeTab: 'study-hub',
+            activeStudySubTab: 'theories',
+            apiKey: '',
+            scaffolds: {
+                point: '',
+                evidence: '',
+                explanation: '',
+                link: ''
+            },
+            mcqScore: {
+                correct: 0,
+                total: 4,
+                answers: {}
+            },
+            grades: {
+                p: 0,
+                e: 0,
+                ex: 0,
+                l: 0
+            },
+            gameIndex: 0,
+            gameScore: 0,
+            gameCards: [
+                { title: "Wages [cite: 1]", desc: "Normally paid per hour worked and paid weekly or monthly [cite: 1].", category: "financial" },
+                { title: "Delegation [cite: 1]", desc: "Managers passing authority for tasks to lower-level employees [cite: 1].", category: "non-financial" },
+                { title: "Commission [cite: 1]", desc: "Paid according to the volume or value of sales received [cite: 1].", category: "financial" },
+                { title: "Job Rotation [cite: 1]", desc: "Movement of employees through a range of jobs to increase variety [cite: 1].", category: "non-financial" },
+                { title: "Fringe Benefits [cite: 1]", desc: "Perks like private health insurance, company cars, or free meals [cite: 1].", category: "financial" },
+                { title: "Empowerment [cite: 1]", desc: "Allowing employees to make decisions about how tasks are performed [cite: 1].", category: "non-financial" }
+            ]
+        };
+
+        // Window Onload Routine
+        window.onload = function() {
+            // Load saved key if available
+            const savedKey = localStorage.getItem('gemini_api_key');
+            if (savedKey) {
+                document.getElementById('api-key').value = savedKey;
+                AppState.apiKey = savedKey;
+            }
+            updateBuilderOutput();
+            updateProgressMetrics();
+            loadGameCard();
+        };
+
+        // Tab Switcher Controller
+        function switchTab(tabId) {
+            AppState.activeTab = tabId;
+            document.querySelectorAll('.tab-content').forEach(element => {
+                element.classList.add('hidden');
+            });
+            document.getElementById(`tab-${tabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-btn').forEach(button => {
+                button.classList.remove('bg-indigo-800', 'text-white', 'border', 'border-indigo-700', 'shadow-sm');
+                button.classList.add('text-indigo-100', 'hover:bg-indigo-900/50');
+            });
+
+            const activeBtn = document.getElementById(`btn-${tabId}`);
+            activeBtn.classList.remove('text-indigo-100', 'hover:bg-indigo-900/50');
+            activeBtn.classList.add('bg-indigo-800', 'text-white', 'border', 'border-indigo-700', 'shadow-sm');
+
+            if (tabId === 'progress') {
+                updateProgressMetrics();
+            }
+        }
+
+        // Switch Sub-tabs inside Study Hub
+        function switchStudySubTab(subTabId) {
+            AppState.activeStudySubTab = subTabId;
+            document.querySelectorAll('.study-sub-content').forEach(element => {
+                element.classList.add('hidden');
+            });
+            document.getElementById(`sub-tab-${subTabId}`).classList.remove('hidden');
+
+            document.querySelectorAll('.sub-tab-btn').forEach(button => {
+                button.classList.remove('border-indigo-600', 'text-indigo-600');
+                button.classList.add('border-transparent', 'text-slate-500');
+            });
+
+            const activeBtn = document.getElementById(`sub-btn-${subTabId}`);
+            activeBtn.classList.remove('border-transparent', 'text-slate-500');
+            activeBtn.classList.add('border-indigo-600', 'text-indigo-600');
+        }
+
+        // Custom stylized Toast Alert instead of native alert()
+        function triggerToast(message, type = "info") {
+            const toast = document.getElementById('custom-toast');
+            const icon = document.getElementById('toast-icon');
+            const text = document.getElementById('toast-text');
+
+            text.innerText = message;
+            
+            if (type === "success") {
+                icon.className = "fa-solid fa-circle-check text-emerald-400 text-lg";
+            } else if (type === "error") {
+                icon.className = "fa-solid fa-triangle-exclamation text-rose-500 text-lg";
+            } else {
+                icon.className = "fa-solid fa-circle-info text-amber-400 text-lg";
+            }
+
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            toast.classList.add('translate-y-0', 'opacity-100');
+
+            setTimeout(() => {
+                toast.classList.remove('translate-y-0', 'opacity-100');
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 3000);
+        }
+
+        // Save API Key helper
+        function saveAPIKey() {
+            const key = document.getElementById('api-key').value.trim();
+            localStorage.setItem('gemini_api_key', key);
+            AppState.apiKey = key;
+            triggerToast('Gemini API Key updated successfully.', 'success');
+        }
+
+        // Motivation sorting game loader
+        function loadGameCard() {
+            const card = AppState.gameCards[AppState.gameIndex];
+            document.getElementById('game-card-title').innerText = card.title;
+            document.getElementById('game-card-desc').innerText = card.desc;
+        }
+
+        // Submit guess in categorization mini-game
+        function submitGameGuess(guess) {
+            const currentCard = AppState.gameCards[AppState.gameIndex];
+            
+            if (guess === currentCard.category) {
+                AppState.gameScore++;
+                triggerToast(`Correct! "${currentCard.title}" is indeed a ${guess} motivation factor [cite: 1].`, "success");
+            } else {
+                triggerToast(`Oops! "${currentCard.title}" is categorized as a ${currentCard.category} factor [cite: 1].`, "error");
+            }
+
+            document.getElementById('game-score').innerText = AppState.gameScore;
+
+            // Advance game
+            AppState.gameIndex = (AppState.gameIndex + 1) % AppState.gameCards.length;
+            loadGameCard();
+
+            // Track progress checkmarks
+            if (AppState.gameScore >= 3) {
+                document.getElementById('chk-financial').className = 'fa-solid fa-circle-check text-emerald-500';
+                document.getElementById('chk-nonfinancial').className = 'fa-solid fa-circle-check text-emerald-500';
+            }
+            updateProgressMetrics();
+        }
+
+        // MCQ Evaluator Engine
+        function checkMCQ(btnElement, questionNum, choiceSelected, validity) {
+            const parent = btnElement.parentElement;
+            const siblingOptions = parent.querySelectorAll('.mcq-option');
+            
+            // Lock inputs
+            siblingOptions.forEach(opt => {
+                opt.disabled = true;
+                opt.classList.remove('hover:bg-slate-50', 'bg-red-50', 'border-red-500', 'bg-emerald-50', 'border-emerald-500');
+            });
+
+            const feedbackDiv = parent.parentElement.querySelector('.feedback-box');
+            feedbackDiv.classList.remove('hidden');
+
+            if (validity === 'correct') {
+                btnElement.classList.add('bg-emerald-50', 'border-emerald-500', 'text-emerald-900');
+                btnElement.querySelector('span').classList.add('bg-emerald-500', 'text-white', 'border-emerald-500');
+                feedbackDiv.className = 'feedback-box mt-3 p-3 text-xs rounded-lg bg-emerald-50 border border-emerald-200 text-emerald-800 font-bold';
+                feedbackDiv.innerHTML = `<i class="fa-solid fa-circle-check mr-1.5"></i> Correct choice! You've earned 1 mark [cite: 1].`;
+                
+                if (!AppState.mcqScore.answers[questionNum]) {
+                    AppState.mcqScore.correct++;
+                    AppState.mcqScore.answers[questionNum] = 'correct';
+                }
+            } else {
+                btnElement.classList.add('bg-rose-50', 'border-rose-500', 'text-rose-900');
+                btnElement.querySelector('span').classList.add('bg-rose-500', 'text-white', 'border-rose-500');
+                feedbackDiv.className = 'feedback-box mt-3 p-3 text-xs rounded-lg bg-rose-50 border border-rose-200 text-rose-800 leading-relaxed';
+                
+                let expl = '';
+                if (questionNum === 1) {
+                    expl = 'Correct answer is B. Increasing levels of operational responsibility act as a true motivator under Herzberg\'s Two-Factor framework [cite: 1]. Basic wages are hygiene factors [cite: 1].';
+                } else if (questionNum === 2) {
+                    expl = 'Correct answer is C. Under Maslow\'s theory, once lower-tier physiological and safety needs are satisfied, they stop motivating behavior, and social/esteem needs are prioritized [cite: 1].';
+                } else if (questionNum === 3) {
+                    expl = 'Correct answer is B. Job Rotation involves shifting workers through a range of different jobs to increase variety and build multi-skilling [cite: 1].';
+                } else {
+                    expl = 'Correct answer is C. Bonuses are financial lump sums rewarded to employees when they achieve specific performance-related targets [cite: 1].';
+                }
+                feedbackDiv.innerHTML = `<i class="fa-solid fa-triangle-exclamation mr-1.5"></i> Incorrect choice. ${expl}`;
+                
+                AppState.mcqScore.answers[questionNum] = 'incorrect';
+            }
+
+            // Sync checklist status dynamically
+            if (questionNum === 1) {
+                document.getElementById('chk-herzberg').className = 'fa-solid fa-circle-check text-emerald-500';
+            } else if (questionNum === 2) {
+                document.getElementById('chk-maslow').className = 'fa-solid fa-circle-check text-emerald-500';
+            }
+            updateProgressMetrics();
+        }
+
+        // Toggle Mark Schemes for Short Answers
+        function toggleShortAnswerHelp(elemId) {
+            const el = document.getElementById(elemId);
+            el.classList.toggle('hidden');
+        }
+
+        // P.E.E.L. Interactive Scaffold updates
+        function updateBuilderOutput() {
+            // Check dropdown vs custom input
+            const pointSelect = document.getElementById('builder-point').value;
+            const pointCustom = document.getElementById('custom-point').value.trim();
+            AppState.scaffolds.point = pointCustom || pointSelect || '';
+
+            const evidenceSelect = document.getElementById('builder-evidence').value;
+            const evidenceCustom = document.getElementById('custom-evidence').value.trim();
+            AppState.scaffolds.evidence = evidenceCustom || evidenceSelect || '';
+
+            const expSelect = document.getElementById('builder-explanation').value;
+            const expCustom = document.getElementById('custom-explanation').value.trim();
+            AppState.scaffolds.explanation = expCustom || expSelect || '';
+
+            const linkSelect = document.getElementById('builder-link').value;
+            const linkCustom = document.getElementById('custom-link').value.trim();
+            AppState.scaffolds.link = linkCustom || linkSelect || '';
+
+            // Update previews
+            document.getElementById('preview-point').innerText = AppState.scaffolds.point || 'Select or write a point above...';
+            document.getElementById('preview-evidence').innerText = AppState.scaffolds.evidence || 'Select or write evidence above...';
+            document.getElementById('preview-explanation').innerText = AppState.scaffolds.explanation || 'Select or write explanation above...';
+            document.getElementById('preview-link').innerText = AppState.scaffolds.link || 'Select or write link above...';
+
+            // Check checklist for PEEL usage
+            if (AppState.scaffolds.point && AppState.scaffolds.evidence && AppState.scaffolds.explanation && AppState.scaffolds.link) {
+                document.getElementById('chk-peel').className = 'fa-solid fa-circle-check text-emerald-500';
+            } else {
+                document.getElementById('chk-peel').className = 'fa-regular fa-circle text-slate-400';
+            }
+
+            // Consolidate block
+            let consolidatedText = '';
+            if (AppState.scaffolds.point) consolidatedText += AppState.scaffolds.point + ' ';
+            if (AppState.scaffolds.evidence) consolidatedText += AppState.scaffolds.evidence + ' ';
+            if (AppState.scaffolds.explanation) consolidatedText += AppState.scaffolds.explanation + ' ';
+            if (AppState.scaffolds.link) consolidatedText += AppState.scaffolds.link;
+
+            document.getElementById('builder-raw-output').value = consolidatedText;
+        }
+
+        // Clear Workspace button
+        function clearBuilder() {
+            document.getElementById('builder-point').value = '';
+            document.getElementById('custom-point').value = '';
+            document.getElementById('builder-evidence').value = '';
+            document.getElementById('custom-evidence').value = '';
+            document.getElementById('builder-explanation').value = '';
+            document.getElementById('custom-explanation').value = '';
+            document.getElementById('builder-link').value = '';
+            document.getElementById('custom-link').value = '';
+            updateBuilderOutput();
+            triggerToast('Workspace cleared.', 'info');
+        }
+
+        // Copy consolidated text safely
+        function copyConsolidatedText() {
+            const outputArea = document.getElementById('builder-raw-output');
+            outputArea.select();
+            document.execCommand('copy');
+            triggerToast('Your consolidated P.E.E.L. paragraph has been copied to your clipboard!', 'success');
+        }
+
+        // AI Grader Submitter
+        async function submitToAIGrader(essayNum) {
+            const aiStatus = document.getElementById('ai-status');
+            const feedbackCard = document.getElementById('ai-grading-card');
+
+            aiStatus.className = 'bg-amber-500 text-white text-[10px] px-2.5 py-0.5 rounded';
+            aiStatus.innerText = 'Analyzing...';
+            feedbackCard.innerHTML = `
+                <div class="flex flex-col items-center justify-center py-12 space-y-3">
+                    <div class="w-8 h-8 border-4 border-indigo-600 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-xs text-slate-500 font-bold">Our AI Assistant is parsing your P.E.E.L. components...</p>
+                </div>
+            `;
+
+            // Pull raw essay texts
+            let draftedEssay = "";
+            let promptMeta = "";
+
+            if (essayNum === 5) {
+                const pt = document.getElementById('q5-point').value;
+                const ev = document.getElementById('q5-evidence').value;
+                const ex = document.getElementById('q5-explanation').value;
+                const lk = document.getElementById('q5-link').value;
+                draftedEssay = `${pt} ${ev} ${ex} ${lk}`.trim();
+                promptMeta = "Syllabus Context: Frederick Herzberg's Two-Factor theory applied to Apex Toys. Target Marks: 6 Marks.";
+            } else {
+                const pt = document.getElementById('q6-arg1').value;
+                const ev = document.getElementById('q6-arg2').value;
+                const lk = document.getElementById('q6-conclusion').value;
+                draftedEssay = `Taylor Piece-rates: ${pt}. Non-financial options: ${ev}. Evaluation: ${lk}`.trim();
+                promptMeta = "Syllabus Context: Taylor piece rates vs Non-financial methods at Apex Toys. Target Marks: 12 Marks.";
+            }
+
+            if (!draftedEssay || draftedEssay.length < 15) {
+                aiStatus.className = 'bg-red-500 text-white text-[10px] px-2.5 py-0.5 rounded';
+                aiStatus.innerText = 'Error';
+                feedbackCard.innerHTML = `
+                    <div class="p-4 bg-red-50 border border-red-200 rounded-lg text-xs text-red-800">
+                        <p class="font-bold mb-1">Your essay is too short!</p>
+                        Please draft some structured content in the workspaces provided before submitting for evaluation.
+                    </div>
+                `;
+                return;
+            }
+
+            // Sync checklist
+            document.getElementById('chk-taylor').className = 'fa-solid fa-circle-check text-emerald-500';
+
+            // Check if API key is provided
+            if (AppState.apiKey && AppState.apiKey.length > 5) {
+                try {
+                    await executeGeminiGrading(draftedEssay, promptMeta, feedbackCard, aiStatus);
+                } catch (apiError) {
+                    console.error("Gemini API grading failed, fallback active:", apiError);
+                    fallbackLocalGrader(draftedEssay, essayNum, feedbackCard, aiStatus);
+                }
+            } else {
+                // Fallback to local grader
+                setTimeout(() => {
+                    fallbackLocalGrader(draftedEssay, essayNum, feedbackCard, aiStatus);
+                }, 1200);
+            }
+        }
+
+        // Heuristic Grader Fallback
+        function fallbackLocalGrader(essayText, essayNum, container, statusLabel) {
+            statusLabel.className = 'bg-emerald-500 text-white text-[10px] px-2.5 py-0.5 rounded';
+            statusLabel.innerText = 'Assessed';
+
+            // Quick linguistic scan
+            const hasHerzberg = /herzberg|two.factor|hygiene|motivator/i.test(essayText);
+            const hasTaylor = /taylor|scientific|piece.rate|economic/i.test(essayText);
+            const hasMaslow = /maslow|need|hierarchy|social|esteem/i.test(essayText);
+            const hasConsequence = /consequence|therefore|leads to|results in|because/i.test(essayText);
+            const hasLink = /ultimately|therefore|thus|consequently/i.test(essayText);
+
+            // Compute dynamic metrics
+            let pointMetric = essayText.length > 30 ? 8 : 4;
+            let evidenceMetric = (hasHerzberg || hasTaylor || hasMaslow) ? 9 : 3;
+            let expMetric = hasConsequence ? 8 : 4;
+            let linkMetric = hasLink ? 9 : 3;
+
+            AppState.grades.p = Math.max(AppState.grades.p, pointMetric);
+            AppState.grades.e = Math.max(AppState.grades.e, evidenceMetric);
+            AppState.grades.ex = Math.max(AppState.grades.ex, expMetric);
+            AppState.grades.l = Math.max(AppState.grades.l, linkMetric);
+
+            const scoreTotal = essayNum === 5 ? 
+                Math.round((pointMetric + evidenceMetric + expMetric + linkMetric) / 34 * 6) : 
+                Math.round((pointMetric + evidenceMetric + expMetric + linkMetric) / 34 * 12);
+
+            const maxMarks = essayNum === 5 ? 6 : 12;
+
+            container.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">IGCSE Mark Scheme Score</span>
+                            <span class="text-2xl font-extrabold text-slate-900">${scoreTotal} / ${maxMarks} Marks</span>
+                        </div>
+                        <span class="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">Level 3 Analysis</span>
+                    </div>
+
+                    <div class="space-y-2 text-xs font-medium">
+                        <span class="font-bold text-slate-800 block mb-1"><i class="fa-solid fa-file-invoice"></i> P.E.E.L. Breakdown:</span>
+                        <div class="p-2.5 bg-red-50 text-red-950 rounded border border-red-100 leading-normal">
+                            <strong>Point Analysis:</strong> Your argument has a direct focus. Ensure you clearly state the operational action [cite: 1].
+                        </div>
+                        <div class="p-2.5 bg-blue-50 text-blue-950 rounded border border-blue-100 leading-normal">
+                            <strong>Theoretical Evidence:</strong> ${evidenceMetric > 5 ? 'Excellent theory utilization detected.' : 'Try to explicitly reference F.W. Taylor or Herzberg\'s Two-Factor factors [cite: 1].'}
+                        </div>
+                        <div class="p-2.5 bg-emerald-50 text-emerald-950 rounded border border-emerald-100 leading-normal">
+                            <strong>Consequence Explanation:</strong> ${expMetric > 5 ? 'Good logical progression with cause-and-effect language [cite: 1].' : 'Extend your consequence chains using words like "As a direct consequence..." [cite: 1]'}
+                        </div>
+                        <div class="p-2.5 bg-amber-50 text-amber-950 rounded border border-amber-100 leading-normal">
+                            <strong>Case Linkage:</strong> ${linkMetric > 5 ? 'Effective link established to solve Apex Toys\' operational issues [cite: 1].' : 'Explicitly link back to the 25% turnover rate or doubling defects [cite: 1].'}
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-xs text-slate-600 leading-relaxed font-semibold">
+                        <strong>Teacher Recommendation:</strong> To achieve Level 4 evaluation marks (for Q8), compare Taylor's short-term speed rewards against Herzberg's long-term retention motivators [cite: 1].
+                    </div>
+                </div>
+            `;
+            updateProgressMetrics();
+        }
+
+        // External Grading using Gemini-3-flash-preview API
+        async function executeGeminiGrading(textAnswer, metadata, feedbackContainer, statusLabel) {
+            const apiKey = AppState.apiKey;
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+            const gradingSchemaPrompt = `
+                Act as an official Cambridge IGCSE Business Studies Examiner. Grade the following student essay based on the Motivating Employees Case Study (Apex Toys Ltd. facing 25% labor turnover and doubled toy defect rates) [cite: 1].
+                
+                Metadata: ${metadata}
+                Student Answer: "${textAnswer}"
+
+                Your response must be structured inside a JSON object with the following properties:
+                1. "score" (Number representing score earned)
+                2. "maxScore" (Number representing max marks)
+                3. "bandName" (String, e.g., "Level 3: Detailed Analysis")
+                4. "pointFeedback" (Feedback text for Point)
+                5. "evidenceFeedback" (Feedback text for Evidence)
+                6. "explanationFeedback" (Feedback text for Explanation)
+                7. "linkFeedback" (Feedback text for Link)
+                8. "recs" (String containing Teacher recommendation)
+                9. "grades" (Object mapping points out of 10 for "p", "e", "ex", "l" metrics)
+
+                Only return the raw JSON object. Do not include markdown code block formatting.
+            `;
+
+            const payload = {
+                contents: [{ parts: [{ text: gradingSchemaPrompt }] }],
+                generationConfig: {
+                    responseMimeType: "application/json"
+                }
+            };
+
+            const response = await fetch(apiUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
+            });
+
+            if (!response.ok) {
+                throw new Error("HTTP connection to Gemini API failed.");
+            }
+
+            const result = await response.json();
+            const rawText = result.candidates?.[0]?.content?.parts?.[0]?.text;
+            const grading = JSON.parse(rawText.trim());
+
+            // Update app metrics state
+            AppState.grades.p = Math.max(AppState.grades.p, grading.grades.p || 5);
+            AppState.grades.e = Math.max(AppState.grades.e, grading.grades.e || 5);
+            AppState.grades.ex = Math.max(AppState.grades.ex, grading.grades.ex || 5);
+            AppState.grades.l = Math.max(AppState.grades.l, grading.grades.l || 5);
+
+            statusLabel.className = 'bg-emerald-500 text-white text-[10px] px-2.5 py-0.5 rounded';
+            statusLabel.innerText = 'Graded';
+
+            feedbackContainer.innerHTML = `
+                <div class="space-y-4">
+                    <div class="flex justify-between items-center bg-indigo-50 p-4 rounded-xl border border-indigo-100">
+                        <div>
+                            <span class="text-[10px] font-bold text-slate-500 uppercase tracking-wider block">Official Examiner Score</span>
+                            <span class="text-2xl font-extrabold text-slate-900">${grading.score} / ${grading.maxScore} Marks</span>
+                        </div>
+                        <span class="bg-indigo-600 text-white text-xs font-bold px-3 py-1 rounded-full">${grading.bandName}</span>
+                    </div>
+
+                    <div class="space-y-2 text-xs font-medium leading-relaxed">
+                        <span class="font-bold text-slate-800 block mb-1"><i class="fa-solid fa-file-signature"></i> P.E.E.L. Diagnostic:</span>
+                        <div class="p-2.5 bg-red-50 text-red-950 rounded border border-red-100">
+                            <strong>Point:</strong> ${grading.pointFeedback}
+                        </div>
+                        <div class="p-2.5 bg-blue-50 text-blue-950 rounded border border-blue-100">
+                            <strong>Evidence:</strong> ${grading.evidenceFeedback}
+                        </div>
+                        <div class="p-2.5 bg-emerald-50 text-emerald-950 rounded border border-emerald-100">
+                            <strong>Explanation:</strong> ${grading.explanationFeedback}
+                        </div>
+                        <div class="p-2.5 bg-amber-50 text-amber-950 rounded border border-amber-100">
+                            <strong>Link:</strong> ${grading.linkFeedback}
+                        </div>
+                    </div>
+
+                    <div class="bg-slate-50 p-3.5 rounded-lg border border-slate-200 text-xs text-slate-600 leading-relaxed font-semibold">
+                        <strong>Examiner Rec:</strong> ${grading.recs}
+                    </div>
+                </div>
+            `;
+            updateProgressMetrics();
+        }
+
+        // Update Progress Tracker metrics and gauges
+        function updateProgressMetrics() {
+            // Update gauges
+            const correct = AppState.mcqScore.correct;
+            const total = AppState.mcqScore.total;
+            const pct = Math.round((correct / total) * 100);
+
+            document.getElementById('metric-mcq-correct').innerText = correct;
+            document.getElementById('metric-mcq-total').innerText = total;
+
+            const label = document.getElementById('progress-percentage-label');
+            if (label) label.innerText = `${pct}%`;
+
+            // Calculate SVG dashoffset based on total radius
+            // circumference of radius 34 circle is ~213.6
+            const circle = document.getElementById('progress-circle');
+            if (circle) {
+                const circumference = 2 * Math.PI * 34; // ~213.6
+                const offset = circumference - (pct / 100) * circumference;
+                circle.style.strokeDashoffset = offset;
+                
+                // Set status label colors dynamically
+                if (pct === 100) {
+                    circle.setAttribute('stroke', '#10b981'); // Emerald
+                    document.getElementById('metric-status').className = 'text-emerald-600 font-bold';
+                    document.getElementById('metric-status').innerText = 'Ready for Exam!';
+                } else if (pct >= 50) {
+                    circle.setAttribute('stroke', '#3b82f6'); // Blue
+                    document.getElementById('metric-status').className = 'text-blue-600 font-bold';
+                    document.getElementById('metric-status').innerText = 'Steady Progress';
+                } else {
+                    circle.setAttribute('stroke', '#f43f5e'); // Rose
+                    document.getElementById('metric-status').className = 'text-rose-600 font-bold';
+                    document.getElementById('metric-status').innerText = 'Requires Revision';
+                }
+            }
+
+            // Update Essay metrics bars
+            const pVal = AppState.grades.p;
+            const eVal = AppState.grades.e;
+            const exVal = AppState.grades.ex;
+            const lVal = AppState.grades.l;
+
+            document.getElementById('lbl-metric-p').innerText = `${pVal}/10`;
+            document.getElementById('bar-metric-p').style.width = `${pVal * 10}%`;
+
+            document.getElementById('lbl-metric-e').innerText = `${eVal}/10`;
+            document.getElementById('bar-metric-e').style.width = `${eVal * 10}%`;
+
+            document.getElementById('lbl-metric-ex').innerText = `${exVal}/10`;
+            document.getElementById('bar-metric-ex').style.width = `${exVal * 10}%`;
+
+            document.getElementById('lbl-metric-l').innerText = `${lVal}/10`;
+            document.getElementById('bar-metric-l').style.width = `${lVal * 10}%`;
+        }
+    </script>
+</body>
+</html>

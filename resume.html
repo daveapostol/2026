@@ -1,0 +1,316 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Student Resume Builder</title>
+    <!-- Tailwind CSS for modern client control design -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        /* Paper sheet rendering */
+        .resume-sheet {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 800px;
+            min-height: 1050px; /* Forces exact standard height balance */
+            padding: 0.6in 0.7in;
+            box-sizing: border-box;
+            position: relative;
+        }
+
+        /* Border inputs that dissolve on focus or print */
+        .editable-input {
+            border: none;
+            border-bottom: 1px dashed #cbd5e1;
+            background-color: transparent;
+            font-family: inherit;
+            outline: none;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+        .editable-input:focus {
+            border-bottom: 1px solid var(--accent-color, #1e40af);
+            background-color: #f8fafc;
+        }
+
+        /* Custom Bullet Point Styles */
+        .bullet-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .bullet-list li {
+            position: relative;
+            padding-left: 1.25rem;
+            margin-bottom: 0.25rem;
+        }
+        .bullet-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0.25rem;
+            color: var(--accent-color, #1e40af);
+            font-weight: bold;
+        }
+
+        /* Interactive styling triggers */
+        .theme-navy { --accent-color: #1e3a8a; --accent-hover: #172554; }
+        .theme-slate { --accent-color: #334155; --accent-hover: #0f172a; }
+        .theme-teal { --accent-color: #0d9488; --accent-hover: #115e59; }
+
+        /* Print formatting */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                padding: 0;
+                margin: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .resume-sheet {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+                min-height: auto !important;
+            }
+            .editable-input {
+                border-bottom: none !important;
+                padding: 0 !important;
+            }
+            .editable-input::placeholder {
+                color: transparent !important;
+            }
+            .guide-hint {
+                display: none !important;
+            }
+            /* Hide photo box entirely on PDF if no picture is uploaded */
+            #resume-photo-box:not(.has-image) {
+                display: none !important;
+            }
+            #resume-photo-box.has-image {
+                border: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="theme-navy p-4 md:p-8 flex flex-col items-center">
+
+    <!-- Controller Top Panel -->
+    <div class="no-print w-full max-w-3xl bg-white p-5 rounded-2xl shadow-lg border border-slate-200 mb-8 flex flex-wrap gap-5 justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold text-slate-800">Student Resume Builder</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Fill in the fields, pick a color, and download your clean PDF.</p>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-4">
+            <!-- Theme Controller -->
+            <div class="flex flex-col gap-1">
+                <span class="text-[10px] font-bold uppercase text-slate-400">Color Palette</span>
+                <div class="flex gap-2">
+                    <button onclick="setTheme('navy')" class="w-6 h-6 rounded-full bg-blue-900 border-2 border-white ring-2 ring-blue-900/10 cursor-pointer"></button>
+                    <button onclick="setTheme('slate')" class="w-6 h-6 rounded-full bg-slate-600 border-2 border-white ring-2 ring-slate-600/10 cursor-pointer"></button>
+                    <button onclick="setTheme('teal')" class="w-6 h-6 rounded-full bg-teal-600 border-2 border-white ring-2 ring-teal-600/10 cursor-pointer"></button>
+                </div>
+            </div>
+
+            <!-- View Guides Toggle -->
+            <div class="flex flex-col gap-1">
+                <span class="text-[10px] font-bold uppercase text-slate-400">Guide Helper</span>
+                <button id="toggle-guides" onclick="toggleGuides()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-300 transition">
+                    Hide Guide Hints
+                </button>
+            </div>
+
+            <!-- Save as PDF Button -->
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs md:text-sm px-5 py-2.5 rounded-xl shadow-md transition duration-150 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                Save / Print PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- The Resume Document -->
+    <div class="resume-sheet shadow-2xl border border-slate-200 rounded-lg flex flex-col gap-6">
+        
+        <!-- Header / Contact Information -->
+        <div class="flex flex-col md:flex-row gap-6 items-center md:items-start border-b-2 pb-5" style="border-color: var(--accent-color, #1e3a8a);">
+            <!-- Text Identity Information -->
+            <div class="flex-1 text-center md:text-left w-full">
+                <input type="text" class="text-3xl font-extrabold tracking-tight text-center md:text-left uppercase editable-input font-serif" style="color: var(--accent-color, #1e3a8a);" placeholder="Your Full Name">
+                
+                <div class="flex flex-wrap justify-center md:justify-start gap-x-4 gap-y-1 mt-3 text-xs text-slate-600">
+                    <div class="flex items-center gap-1">
+                        <span class="font-bold">Email:</span>
+                        <input type="email" class="editable-input text-center md:text-left w-44" placeholder="yourname@email.com">
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="font-bold">Phone:</span>
+                        <input type="tel" class="editable-input text-center md:text-left w-32" placeholder="(555) 000-0000">
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="font-bold">Location:</span>
+                        <input type="text" class="editable-input text-center md:text-left w-36" placeholder="City, State">
+                    </div>
+                    <div class="flex items-center gap-1">
+                        <span class="font-bold">LinkedIn/Portfolio:</span>
+                        <input type="text" class="editable-input text-center md:text-left w-40" placeholder="linkedin.com/in/username">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Profile Photo Upload Box -->
+            <div onclick="document.getElementById('resume-photo-input').click()" class="cursor-pointer relative group w-[100px] h-[120px] border-2 border-dashed border-slate-300 rounded-lg flex flex-col items-center justify-center text-center p-1 bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition overflow-hidden shrink-0" id="resume-photo-box">
+                <input type="file" id="resume-photo-input" accept="image/*" class="hidden" onchange="previewResumeImage(this)">
+                <div id="resume-photo-placeholder" class="flex flex-col items-center justify-center no-print">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-slate-600 mb-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                    </svg>
+                    <span class="text-[7pt] font-semibold text-slate-400 uppercase">Add Photo</span>
+                    <span class="text-[5.5pt] text-slate-400">Click to upload</span>
+                </div>
+                <img id="resume-photo-img" class="hidden absolute inset-0 w-full h-full object-cover" />
+            </div>
+        </div>
+
+        <!-- Objective -->
+        <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider mb-2" style="color: var(--accent-color, #1e3a8a);">Professional Objective</h2>
+            <div class="guide-hint text-xs text-emerald-600 font-medium italic mb-2">💡 Describe the type of full-time position you are looking for and key personal goals.</div>
+            <textarea class="w-full text-sm border-none border-b border-dashed border-slate-300 outline-none resize-none h-12 leading-relaxed bg-transparent" placeholder="A dedicated and highly motivated candidate seeking a full-time role to leverage strong organization, learning agility, and communication skills to support company goals..."></textarea>
+        </div>
+
+        <!-- Education -->
+        <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider mb-2" style="color: var(--accent-color, #1e3a8a);">Education</h2>
+            <div class="flex justify-between items-baseline">
+                <input type="text" class="text-sm font-bold editable-input w-[60%]" placeholder="School / College / Institution Name">
+                <input type="text" class="text-xs text-slate-500 font-medium italic editable-input w-[30%] text-right" placeholder="Graduation Year / Status">
+            </div>
+            <input type="text" class="text-xs font-semibold text-slate-600 editable-input mt-1" placeholder="Degree / Certification Obtained (e.g., High School Diploma, Vocational Certification)">
+            
+            <ul class="bullet-list mt-2">
+                <li><input type="text" class="text-xs editable-input" placeholder="Relevant Coursework (e.g., Business Systems, Computers, Communication)"></li>
+                <li><input type="text" class="text-xs editable-input" placeholder="Awards & Leadership (e.g., Honor Roll, Club President, Class Representative)"></li>
+            </ul>
+        </div>
+
+        <!-- Project Experience & Extracurriculars -->
+        <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider mb-2" style="color: var(--accent-color, #1e3a8a);">Project Experience & Activities</h2>
+            <div class="guide-hint text-xs text-emerald-600 font-medium italic mb-2">💡 List school projects, volunteer experiences, team sports, or clubs you participated in.</div>
+            
+            <!-- Project 1 -->
+            <div class="mb-4">
+                <div class="flex justify-between items-baseline">
+                    <input type="text" class="text-sm font-bold editable-input w-[60%]" placeholder="Role / Position (e.g., Team Leader, Project Assistant)">
+                    <input type="text" class="text-xs text-slate-500 font-medium italic editable-input w-[30%] text-right" placeholder="Dates Involved">
+                </div>
+                <input type="text" class="text-xs font-semibold text-slate-600 editable-input mt-0.5" placeholder="Organization / Project Name">
+                <ul class="bullet-list mt-1.5">
+                    <li><input type="text" class="text-xs editable-input" placeholder="What was the goal of this project and what did you achieve?"></li>
+                    <li><input type="text" class="text-xs editable-input" placeholder="Describe a specific task you completed to help the team succeed."></li>
+                </ul>
+            </div>
+
+            <!-- Project 2 -->
+            <div>
+                <div class="flex justify-between items-baseline">
+                    <input type="text" class="text-sm font-bold editable-input w-[60%]" placeholder="Role / Position (e.g., Volunteer, Participant)">
+                    <input type="text" class="text-xs text-slate-500 font-medium italic editable-input w-[30%] text-right" placeholder="Dates Involved">
+                </div>
+                <input type="text" class="text-xs font-semibold text-slate-600 editable-input mt-0.5" placeholder="Organization / Project Name">
+                <ul class="bullet-list mt-1.5">
+                    <li><input type="text" class="text-xs editable-input" placeholder="Detail another team project or community engagement experience here."></li>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Core Skills -->
+        <div>
+            <h2 class="text-sm font-bold uppercase tracking-wider mb-2" style="color: var(--accent-color, #1e3a8a);">Core Skills & Competencies</h2>
+            <div class="guide-hint text-xs text-emerald-600 font-medium italic mb-2">💡 Add professional soft skills and computer or technical applications.</div>
+            
+            <div class="grid grid-cols-2 gap-x-8 gap-y-2 mt-2">
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-slate-500">1.</span>
+                    <input type="text" class="text-xs editable-input" placeholder="Soft Skill (e.g., Communication, Organization, Active Listening)">
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-slate-500">2.</span>
+                    <input type="text" class="text-xs editable-input" placeholder="Computer Skill (e.g., Excel Spreadsheets, Google Docs)">
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-slate-500">3.</span>
+                    <input type="text" class="text-xs editable-input" placeholder="e.g., Problem Solving & Critical Thinking">
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-slate-500">4.</span>
+                    <input type="text" class="text-xs editable-input" placeholder="e.g., Machine Operations / Tech Knowledge">
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-slate-500">5.</span>
+                    <input type="text" class="text-xs editable-input" placeholder="e.g., Languages Spoken (Fluent English / Spanish)">
+                </div>
+                <div class="flex items-center gap-1.5">
+                    <span class="text-xs font-bold text-slate-500">6.</span>
+                    <input type="text" class="text-xs editable-input" placeholder="e.g., Detail-Oriented & Time Management">
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Document Configuration Scripting -->
+    <script>
+        function setTheme(theme) {
+            document.body.className = '';
+            document.body.classList.add('theme-' + theme, 'p-4', 'md:p-8', 'flex', 'flex-col', 'items-center');
+        }
+
+        function toggleGuides() {
+            const hints = document.querySelectorAll('.guide-hint');
+            const btn = document.getElementById('toggle-guides');
+            
+            if (hints.length === 0) return;
+            
+            if (hints[0].style.display === 'none') {
+                hints.forEach(h => h.style.display = 'block');
+                btn.textContent = 'Hide Guide Hints';
+            } else {
+                hints.forEach(h => h.style.display = 'none');
+                btn.textContent = 'Show Guide Hints';
+            }
+        }
+
+        function previewResumeImage(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('resume-photo-img');
+                    const placeholder = document.getElementById('resume-photo-placeholder');
+                    const box = document.getElementById('resume-photo-box');
+                    
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    box.classList.add('has-image');
+                    box.style.borderStyle = 'solid';
+                    box.style.borderColor = 'transparent';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+
+</body>
+</html>

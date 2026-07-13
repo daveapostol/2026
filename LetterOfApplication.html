@@ -1,0 +1,383 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Interactive Letter of Application Builder</title>
+    <!-- Tailwind CSS for modern responsive layout controls -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
+        
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f1f5f9;
+        }
+
+        /* Standard Letter sheet dimension styles */
+        .letter-sheet {
+            background-color: #ffffff;
+            width: 100%;
+            max-width: 800px;
+            min-height: 1050px;
+            padding: 0.8in 0.8in;
+            box-sizing: border-box;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        /* Dissolving interactive inputs */
+        .editable-line {
+            border: none;
+            border-bottom: 1px dashed #cbd5e1;
+            background-color: transparent;
+            font-family: inherit;
+            outline: none;
+            width: 100%;
+            padding: 2px 0;
+            transition: all 0.2s ease;
+        }
+        .editable-line:focus {
+            border-bottom: 1.5px solid var(--accent-color, #1e3a8a);
+            background-color: #f8fafc;
+        }
+
+        .editable-textarea {
+            border: none;
+            border-bottom: 1px dashed #cbd5e1;
+            background-color: transparent;
+            font-family: inherit;
+            outline: none;
+            width: 100%;
+            resize: none;
+            line-height: 1.6;
+            transition: all 0.2s ease;
+        }
+        .editable-textarea:focus {
+            border-bottom: 1.5px solid var(--accent-color, #1e3a8a);
+            background-color: #f8fafc;
+        }
+
+        /* Theme Config Colors */
+        .theme-navy { --accent-color: #1e3a8a; --accent-hover: #172554; --bg-accent: #eff6ff; }
+        .theme-slate { --accent-color: #334155; --accent-hover: #0f172a; --bg-accent: #f1f5f9; }
+        .theme-teal { --accent-color: #0d9488; --accent-hover: #115e59; --bg-accent: #f0fdfa; }
+
+        /* Print formatting */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .main-layout {
+                display: block !important;
+            }
+            .letter-sheet {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+                min-height: auto !important;
+            }
+            .editable-line {
+                border-bottom: none !important;
+                padding: 0 !important;
+            }
+            .editable-textarea {
+                border-bottom: none !important;
+                padding: 0 !important;
+            }
+            .guide-hint {
+                display: none !important;
+            }
+            textarea::placeholder, input::placeholder {
+                color: transparent !important;
+            }
+        }
+    </style>
+</head>
+<body class="theme-navy p-4 md:p-6">
+
+    <!-- Top Action Controller Block -->
+    <div class="no-print w-full max-w-7xl mx-auto bg-white p-5 rounded-2xl shadow-md border border-slate-200 mb-6 flex flex-wrap gap-5 justify-between items-center">
+        <div>
+            <h1 class="text-xl font-bold text-slate-800">Letter of Application Builder</h1>
+            <p class="text-xs text-slate-500 mt-0.5">Write a compelling cover letter. Click on any paragraph field and use the helper pane on the right to auto-fill ideas!</p>
+        </div>
+        
+        <div class="flex flex-wrap items-center gap-4">
+            <!-- Theme Controller -->
+            <div class="flex flex-col gap-1">
+                <span class="text-[10px] font-bold uppercase text-slate-400">Sync Theme</span>
+                <div class="flex gap-2">
+                    <button onclick="setTheme('navy')" class="w-6 h-6 rounded-full bg-blue-900 border-2 border-white ring-2 ring-blue-900/10 cursor-pointer" title="Navy Theme"></button>
+                    <button onclick="setTheme('slate')" class="w-6 h-6 rounded-full bg-slate-600 border-2 border-white ring-2 ring-slate-600/10 cursor-pointer" title="Slate Theme"></button>
+                    <button onclick="setTheme('teal')" class="w-6 h-6 rounded-full bg-teal-600 border-2 border-white ring-2 ring-teal-600/10 cursor-pointer" title="Teal Theme"></button>
+                </div>
+            </div>
+
+            <!-- Guides Toggle -->
+            <div class="flex flex-col gap-1">
+                <span class="text-[10px] font-bold uppercase text-slate-400">Guides</span>
+                <button id="toggle-guides" onclick="toggleGuides()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-300 transition">
+                    Hide Help Hints
+                </button>
+            </div>
+
+            <!-- Print/Save Button -->
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs md:text-sm px-5 py-2.5 rounded-xl shadow-md transition duration-150 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                Print / Save as PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Split Screen Workspace -->
+    <div class="main-layout w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+        
+        <!-- Left Side: Interactive Letter Sheet -->
+        <div class="lg:col-span-8 flex justify-center">
+            <div class="letter-sheet shadow-xl border border-slate-200 rounded-lg flex flex-col gap-5">
+                
+                <!-- Sender Contact Header block -->
+                <div class="flex flex-col gap-1">
+                    <input type="text" class="text-2xl font-bold uppercase tracking-wide editable-line font-serif" style="color: var(--accent-color, #1e3a8a);" placeholder="Your Full Name">
+                    
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-x-4 gap-y-2 mt-2">
+                        <div class="md:col-span-12">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase">Contact Address</label>
+                            <input type="text" class="text-xs editable-line" placeholder="Street Address, City, State, ZIP Code">
+                        </div>
+                        <div class="md:col-span-6">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase">Email Address</label>
+                            <input type="email" class="text-xs editable-line" placeholder="your.name@email.com">
+                        </div>
+                        <div class="md:col-span-6">
+                            <label class="text-[9px] font-bold text-slate-400 uppercase">Phone Number</label>
+                            <input type="tel" class="text-xs editable-line" placeholder="(555) 000-0000">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="border-b border-slate-200 my-1"></div>
+
+                <!-- Date Field -->
+                <div class="w-36">
+                    <label class="text-[9px] font-bold text-slate-400 uppercase">Date</label>
+                    <input type="text" id="current-date-input" class="text-sm editable-line" placeholder="July 13, 2026">
+                </div>
+
+                <!-- Recipient Address details -->
+                <div class="flex flex-col gap-1 mt-1">
+                    <label class="text-[9px] font-bold text-slate-400 uppercase">Recipient Details</label>
+                    <input type="text" class="text-sm font-semibold editable-line" placeholder="Hiring Manager Name / Selection Committee">
+                    <input type="text" class="text-sm editable-line" placeholder="Company Name (e.g. PixelCraft Studios)">
+                    <input type="text" class="text-sm editable-line" placeholder="Company Address / Department">
+                </div>
+
+                <!-- Salutation -->
+                <div class="mt-2">
+                    <input type="text" class="text-sm font-semibold editable-line w-1/2" placeholder="Dear Hiring Manager,">
+                </div>
+
+                <!-- Main Body - Paragraph 1: Opening (Purpose) -->
+                <div>
+                    <div class="guide-hint text-[11px] text-emerald-600 font-medium italic mb-1 flex items-center gap-1">
+                        <span>💡 Paragraph 1: State the position you are applying for and why you want to work here.</span>
+                    </div>
+                    <textarea id="paragraph-1" class="text-sm editable-textarea h-20" onfocus="setActiveField(this)" placeholder="I am writing to express my strong interest in the [Position Name] position at [Company Name]..."></textarea>
+                </div>
+
+                <!-- Main Body - Paragraph 2: Core Skills & Strengths -->
+                <div>
+                    <div class="guide-hint text-[11px] text-emerald-600 font-medium italic mb-1 flex items-center gap-1">
+                        <span>💡 Paragraph 2: Explain your qualifications, relevant school skills, and character strengths.</span>
+                    </div>
+                    <textarea id="paragraph-2" class="text-sm editable-textarea h-24" onfocus="setActiveField(this)" placeholder="As a dedicated student, I have developed strong skills in [mention skills like organization, computer literacy, or customer service] through my academic studies and activities..."></textarea>
+                </div>
+
+                <!-- Main Body - Paragraph 3: Corporate Alignment & Motivation -->
+                <div>
+                    <div class="guide-hint text-[11px] text-emerald-600 font-medium italic mb-1 flex items-center gap-1">
+                        <span>💡 Paragraph 3: State how your values match the mission of the organization.</span>
+                    </div>
+                    <textarea id="paragraph-3" class="text-sm editable-textarea h-20" onfocus="setActiveField(this)" placeholder="I am highly motivated to join your team because I admire your company's dedication to [mention company values, e.g., sustainable development or compassionate care]..."></textarea>
+                </div>
+
+                <!-- Main Body - Paragraph 4: Closing & Next Steps -->
+                <div>
+                    <div class="guide-hint text-[11px] text-emerald-600 font-medium italic mb-1 flex items-center gap-1">
+                        <span>💡 Paragraph 4: Thank them for their time, mention your resume, and request an interview.</span>
+                    </div>
+                    <textarea id="paragraph-4" class="text-sm editable-textarea h-16" onfocus="setActiveField(this)" placeholder="Thank you for considering my application. I have enclosed my resume for your review and look forward to the opportunity to discuss..."></textarea>
+                </div>
+
+                <!-- Sign-off Block -->
+                <div class="mt-6">
+                    <input type="text" class="text-sm editable-line w-40 mb-10" placeholder="Sincerely,">
+                    <div class="w-1/2">
+                        <input type="text" class="text-sm font-semibold editable-line" placeholder="Your Signed Name">
+                        <label class="text-[9px] font-bold text-slate-400 uppercase block mt-1">Applicant Signature</label>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+        <!-- Right Side: Smart Interactive Writing Assistant -->
+        <div class="no-print lg:col-span-4 bg-white p-5 rounded-2xl shadow-md border border-slate-200 flex flex-col gap-4">
+            <div>
+                <h2 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
+                    <span class="text-lg">✨</span> Writing Assistant
+                </h2>
+                <p class="text-[11px] text-slate-500 mt-1">Select a paragraph field on the left, then click any of these professionally crafted suggestions below to insert them instantly!</p>
+            </div>
+
+            <!-- Active Field Indicator -->
+            <div id="active-field-banner" class="bg-blue-50 border border-blue-200 text-blue-700 rounded-lg p-2.5 text-xs font-semibold">
+                👉 Click any paragraph field to start importing helper phrases!
+            </div>
+
+            <!-- Accordion Assistant Options -->
+            <div class="flex flex-col gap-3">
+                
+                <!-- Category 1: Opening Paragraph Statements -->
+                <div class="border border-slate-100 rounded-lg p-3 bg-slate-50">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">1. Opening Phrases</h3>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="insertPhrase('I am writing to express my enthusiastic interest in the Operations Assistant position. I am eager to apply my strong scheduling and brainstorming skills to support your creative team.')" class="phrase-btn text-left text-[11px] bg-white hover:bg-blue-50 border border-slate-200 p-2 rounded transition">
+                            <strong>Option A (Tech/Creative):</strong> "I am writing to express my enthusiastic interest..."
+                        </button>
+                        <button onclick="insertPhrase('Please accept this letter as application for the available General Office Assistant opening. I am highly motivated to contribute my administrative talents to your esteemed organization.')" class="phrase-btn text-left text-[11px] bg-white hover:bg-blue-50 border border-slate-200 p-2 rounded transition">
+                            <strong>Option B (Professional):</strong> "Please accept this letter as application..."
+                        </button>
+                        <button onclick="insertPhrase('I am excited to submit my application for the public outreach opportunities on your team. I hope to combine my communication skills and passion with your modern projects.')" class="phrase-btn text-left text-[11px] bg-white hover:bg-blue-50 border border-slate-200 p-2 rounded transition">
+                            <strong>Option C (Outreach/Non-Profit):</strong> "I am excited to submit my application..."
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Category 2: Detailing Skills & Capabilities -->
+                <div class="border border-slate-100 rounded-lg p-3 bg-slate-50">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">2. Skills & Qualities</h3>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="insertPhrase('Through my academic history, I have built excellent organizational habits and time management strategies. I am highly focused on high-precision tasks and have a great attention to detail.')" class="phrase-btn text-left text-[11px] bg-white hover:bg-blue-50 border border-slate-200 p-2 rounded transition">
+                            <strong>Strength:</strong> Organization & Detail Orientated
+                        </button>
+                        <button onclick="insertPhrase('I pride myself on my polite communication, strong written habits, and empathetic approach. I have experience collaborating inside diverse school clubs and solving basic patient or client challenges.')" class="phrase-btn text-left text-[11px] bg-white hover:bg-blue-50 border border-slate-200 p-2 rounded transition">
+                            <strong>Strength:</strong> Communication & Collaboration
+                        </button>
+                        <button onclick="insertPhrase('I bring strong digital literacy and computer skills, including spreadsheet entry and document archiving. Furthermore, I am a reliable team member who respects safety, confidentiality, and guidelines.')" class="phrase-btn text-left text-[11px] bg-white hover:bg-blue-50 border border-slate-200 p-2 rounded transition">
+                            <strong>Strength:</strong> Tech Savvy & Dependable
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Category 3: Mission Alignment (Values) -->
+                <div class="border border-slate-100 rounded-lg p-3 bg-slate-50">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">3. Corporate Value Matches</h3>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="insertPhrase('I align completely with your studio mission to construct imaginative projects that inspire people to learn through play, and to demonstrate that technology can create positive global change.')" class="phrase-btn text-left text-[11px] bg-white hover:bg-blue-50 border border-slate-200 p-2 rounded transition">
+                            <strong>Tech/Gaming match:</strong> "I align completely with your mission..."
+                        </button>
+                        <button onclick="insertPhrase('Your focus on providing high-quality, compassionate care and healthy education for our local families inspires me. I hope to help foster a supportive, welcoming setting for everyone.')" class="phrase-btn text-left text-[11px] bg-white hover:bg-blue-50 border border-slate-200 p-2 rounded transition">
+                            <strong>Healthcare match:</strong> "Your focus on providing high-quality care..."
+                        </button>
+                        <button onclick="insertPhrase('I believe deeply in your commitment to clean, affordable initiatives that protect our ecosystems. It would be an honor to bring my environmental passion to a pioneer in this sector.')" class="phrase-btn text-left text-[11px] bg-white hover:bg-blue-50 border border-slate-200 p-2 rounded transition">
+                            <strong>Eco/Green match:</strong> "I believe deeply in your commitment..."
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Category 4: Professional Closings -->
+                <div class="border border-slate-100 rounded-lg p-3 bg-slate-50">
+                    <h3 class="text-xs font-bold uppercase tracking-wider text-slate-600 mb-2">4. Closing Statements</h3>
+                    <div class="flex flex-col gap-2">
+                        <button onclick="insertPhrase('Thank you for your valuable time and consideration. I have attached my application files and resume for your convenience. I look forward to discussing how my experience fits your requirements in an interview.')" class="phrase-btn text-left text-[11px] bg-white hover:bg-blue-50 border border-slate-200 p-2 rounded transition">
+                            <strong>Closing A:</strong> "Thank you for your valuable time..."
+                        </button>
+                        <button onclick="insertPhrase('I would welcome the opportunity to meet and discuss what qualifications I can bring to this position. Please feel free to contact me via the phone number or email address provided. Thank you again.')" class="phrase-btn text-left text-[11px] bg-white hover:bg-blue-50 border border-slate-200 p-2 rounded transition">
+                            <strong>Closing B:</strong> "I would welcome the opportunity..."
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Script configurations -->
+    <script>
+        // Track the focused input/textarea for inserting writing assistance phrases
+        let activeFieldElement = null;
+
+        window.onload = function() {
+            // Setup current date automatically
+            const today = new Date();
+            const options = { year: 'numeric', month: 'long', day: 'numeric' };
+            document.getElementById('current-date-input').value = today.toLocaleDateString('en-US', options);
+        };
+
+        function setTheme(theme) {
+            document.body.className = '';
+            document.body.classList.add('theme-' + theme, 'p-4', 'md:p-6');
+        }
+
+        function toggleGuides() {
+            const hints = document.querySelectorAll('.guide-hint');
+            const btn = document.getElementById('toggle-guides');
+            
+            if (hints.length === 0) return;
+            
+            if (hints[0].style.display === 'none') {
+                hints.forEach(h => h.style.display = 'flex');
+                btn.textContent = 'Hide Help Hints';
+            } else {
+                hints.forEach(h => h.style.display = 'none');
+                btn.textContent = 'Show Help Hints';
+            }
+        }
+
+        function setActiveField(element) {
+            activeFieldElement = element;
+            const banner = document.getElementById('active-field-banner');
+            
+            // Map element IDs to descriptive label names
+            let fieldLabel = "Selected Field";
+            if (element.id === 'paragraph-1') fieldLabel = "Paragraph 1 (Opening)";
+            if (element.id === 'paragraph-2') fieldLabel = "Paragraph 2 (Skills)";
+            if (element.id === 'paragraph-3') fieldLabel = "Paragraph 3 (Mission Alignment)";
+            if (element.id === 'paragraph-4') fieldLabel = "Paragraph 4 (Closing)";
+            
+            banner.innerHTML = `✍️ Writing Assistant active on: <span class="font-bold underline">${fieldLabel}</span>`;
+            banner.classList.remove('bg-blue-50', 'text-blue-700', 'border-blue-200');
+            banner.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+        }
+
+        function insertPhrase(phraseText) {
+            if (!activeFieldElement) {
+                alert("Please click on one of the letter's paragraph fields first to highlight where you want to insert the phrase!");
+                return;
+            }
+            
+            // If the field is currently holding standard placeholder text or is blank, insert directly
+            if (activeFieldElement.value === "") {
+                activeFieldElement.value = phraseText;
+            } else {
+                // Otherwise append with a space
+                activeFieldElement.value = activeFieldElement.value.trim() + " " + phraseText;
+            }
+            
+            // Trigger automatic height adjustment or keep focus visible
+            activeFieldElement.focus();
+        }
+    </script>
+
+</body>
+</html>

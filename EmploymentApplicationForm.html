@@ -1,0 +1,473 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employment Application Form (Bilingual)</title>
+    <!-- Tailwind CSS for sleek interface layout -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Sarabun:wght@300;400;500;600;700&display=swap');
+        
+        body {
+            font-family: 'Inter', 'Sarabun', sans-serif;
+            background-color: #f1f5f9;
+        }
+
+        /* 1-Page Letter Print Optimization */
+        @page {
+            size: letter;
+            margin: 0.35in 0.4in;
+        }
+
+        @media print {
+            body {
+                background-color: #fff;
+                color: #000;
+                padding: 0;
+                margin: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            .shadow-box {
+                box-shadow: none !important;
+                border: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                max-width: 100% !important;
+            }
+            input[type="text"], input[type="tel"], input[type="email"], select {
+                border-bottom: 1px solid #1e293b !important;
+                background-color: transparent !important;
+            }
+            input::placeholder {
+                color: transparent !important;
+            }
+            .section-header {
+                background-color: #f1f5f9 !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            /* Faint print border so manual gluing is possible if no photo is uploaded */
+            #photo-box:not(.has-image) {
+                border: 1px dashed #94a3b8 !important;
+            }
+            #photo-box.has-image {
+                border: none !important;
+            }
+        }
+
+        /* Form styling tweaks for tight single page layout */
+        .form-input-clean {
+            border: none;
+            border-bottom: 1px dashed #cbd5e1;
+            font-size: 8.5pt;
+            padding: 1px 4px;
+            outline: none;
+            width: 100%;
+            transition: all 0.2s ease;
+        }
+        .form-input-clean:focus {
+            border-bottom: 1.5px solid #1e40af;
+            background-color: #eff6ff;
+        }
+        
+        /* Text formatting */
+        .lbl-en {
+            font-size: 7.5pt;
+            font-weight: 600;
+            color: #1e293b;
+            text-transform: uppercase;
+        }
+        .lbl-th {
+            font-size: 7pt;
+            font-weight: 400;
+            color: #475569;
+        }
+        
+        /* Table Styles */
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8pt;
+        }
+        .table-custom th, .table-custom td {
+            border: 1px solid #94a3b8;
+            padding: 3px 6px;
+        }
+        .table-custom th {
+            background-color: #f1f5f9;
+            font-weight: 600;
+        }
+    </style>
+</head>
+<body class="p-4 md:p-8 flex flex-col items-center">
+
+    <!-- Action Bar for Printing -->
+    <div class="no-print w-full max-w-4xl bg-white p-4 rounded-xl shadow-md mb-6 flex flex-wrap gap-4 justify-between items-center">
+        <div>
+            <h2 class="text-lg font-bold text-slate-800">Bilingual Employment Application</h2>
+            <p class="text-xs text-slate-500">Perfectly formatted to print onto a single Letter-sized sheet of paper.</p>
+        </div>
+        <div class="flex gap-2">
+            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-5 py-2.5 rounded-lg shadow transition duration-150 flex items-center gap-2">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                Print / Save as PDF
+            </button>
+        </div>
+    </div>
+
+    <!-- Main Sheet Container -->
+    <div class="shadow-box w-full max-w-4xl bg-white rounded-xl shadow-xl border border-slate-200 p-8 flex flex-col gap-3">
+        
+        <!-- Header & Photo Box -->
+        <div class="flex justify-between items-start border-b-2 border-slate-800 pb-3">
+            <div class="flex-1">
+                <div class="flex items-center gap-3">
+                    <div class="bg-slate-800 text-white font-black text-xl px-3 py-1 rounded">GEN</div>
+                    <div>
+                        <h1 class="text-lg font-bold tracking-tight text-slate-900 uppercase">Personal Particulars Form</h1>
+                        <p class="text-xs font-semibold text-slate-600 -mt-1">Application for Employment / ใบสมัครงาน</p>
+                    </div>
+                </div>
+                <div class="mt-4 flex items-center gap-2">
+                    <div>
+                        <span class="lbl-en">Date</span> <span class="lbl-th">/ วันที่ :</span>
+                    </div>
+                    <input type="text" class="form-input-clean" style="width: 150px;" placeholder="DD / MM / YYYY">
+                </div>
+            </div>
+            
+            <!-- Standard Photo Box (Interactive) -->
+            <div onclick="document.getElementById('photo-input').click()" class="cursor-pointer relative group w-[100px] h-[130px] border-2 border-dashed border-slate-400 rounded flex flex-col items-center justify-center text-center p-1 bg-slate-50 hover:bg-slate-100 hover:border-slate-600 transition overflow-hidden" id="photo-box">
+                <input type="file" id="photo-input" accept="image/*" class="hidden" onchange="previewImage(this, 'photo-box')">
+                <div id="photo-placeholder" class="flex flex-col items-center justify-center">
+                    <span class="text-[7pt] font-semibold text-slate-500 uppercase">Upload Photo</span>
+                    <span class="text-[6pt] text-slate-400 mt-1">ที่ติดรูปถ่าย<br>4 cm x 6 cm</span>
+                </div>
+                <img id="photo-box-img" class="hidden absolute inset-0 w-full h-full object-cover" />
+            </div>
+        </div>
+
+        <!-- Personal Data Section -->
+        <div>
+            <div class="section-header bg-slate-100 px-2 py-1 font-bold text-xs flex justify-between uppercase border-l-4 border-slate-800">
+                <span>Personal Data / ประวัติส่วนตัว</span>
+            </div>
+            
+            <div class="grid grid-cols-12 gap-x-3 gap-y-1.5 mt-2">
+                <div class="col-span-6 flex flex-col">
+                    <label><span class="lbl-en">Name in English</span> <span class="lbl-th">(Block Letters)</span></label>
+                    <input type="text" class="form-input-clean" placeholder="FIRST NAME - LAST NAME">
+                </div>
+                <div class="col-span-6 flex flex-col">
+                    <label><span class="lbl-en">ชื่อเป็นภาษาไทย</span> <span class="lbl-th">/ Name in Thai</span></label>
+                    <input type="text" class="form-input-clean" placeholder="ชื่อ - นามสกุล">
+                </div>
+                
+                <div class="col-span-4 flex flex-col">
+                    <label><span class="lbl-en">I.D. / Passport No.</span> <span class="lbl-th">/ บัตรประชาชนหรือพาสปอร์ต</span></label>
+                    <input type="text" class="form-input-clean">
+                </div>
+                <div class="col-span-4 flex flex-col">
+                    <label><span class="lbl-en">Permanent Address</span> <span class="lbl-th">/ ภูมิลำเนา</span></label>
+                    <input type="text" class="form-input-clean">
+                </div>
+                <div class="col-span-4 flex flex-col">
+                    <label><span class="lbl-en">Telephone No.</span> <span class="lbl-th">/ โทรศัพท์</span></label>
+                    <input type="tel" class="form-input-clean">
+                </div>
+
+                <div class="col-span-8 flex flex-col">
+                    <label><span class="lbl-en">Present Address</span> <span class="lbl-th">/ ที่อยู่ปัจจุบัน</span></label>
+                    <input type="text" class="form-input-clean">
+                </div>
+                <div class="col-span-4 flex flex-col">
+                    <label><span class="lbl-en">Email Address</span> <span class="lbl-th">/ อีเมล</span></label>
+                    <input type="email" class="form-input-clean">
+                </div>
+                
+                <div class="col-span-6 flex flex-col">
+                    <label><span class="lbl-en">Commute Time from Home to Office</span> <span class="lbl-th">/ เวลาเดินทางจากบ้านถึงที่ทำงาน</span></label>
+                    <input type="text" class="form-input-clean" placeholder="e.g. 30 Minutes">
+                </div>
+                <div class="col-span-6 flex flex-col">
+                    <label><span class="lbl-en">Mode of Transportation</span> <span class="lbl-th">/ วิธีการเดินทาง</span></label>
+                    <input type="text" class="form-input-clean" placeholder="e.g. Sky Train, Bus, Personal Car">
+                </div>
+                
+                <div class="col-span-2 flex flex-col">
+                    <label><span class="lbl-en">Age</span> <span class="lbl-th">/ อายุ</span></label>
+                    <input type="text" class="form-input-clean">
+                </div>
+                <div class="col-span-3 flex flex-col">
+                    <label><span class="lbl-en">Date of Birth</span> <span class="lbl-th">/ วันเกิด</span></label>
+                    <input type="text" class="form-input-clean" placeholder="DD/MM/YYYY">
+                </div>
+                <div class="col-span-3 flex flex-col">
+                    <label><span class="lbl-en">Place of Birth</span> <span class="lbl-th">/ สถานที่เกิด</span></label>
+                    <input type="text" class="form-input-clean">
+                </div>
+                <div class="col-span-2 flex flex-col">
+                    <label><span class="lbl-en">Sex</span> <span class="lbl-th">/ เพศ</span></label>
+                    <div class="flex gap-2 items-center mt-1">
+                        <label class="inline-flex items-center text-xs"><input type="checkbox" class="mr-1"> M</label>
+                        <label class="inline-flex items-center text-xs"><input type="checkbox" class="mr-1"> F</label>
+                    </div>
+                </div>
+                <div class="col-span-2 flex flex-col">
+                    <label><span class="lbl-en">Religion</span> <span class="lbl-th">/ ศาสนา</span></label>
+                    <input type="text" class="form-input-clean">
+                </div>
+
+                <div class="col-span-4 flex flex-col">
+                    <label><span class="lbl-en">Race / Nationality</span> <span class="lbl-th">/ เชื้อชาติ / สัญชาติ</span></label>
+                    <input type="text" class="form-input-clean">
+                </div>
+                <div class="col-span-4 flex flex-col">
+                    <label><span class="lbl-en">Marital Status</span> <span class="lbl-th">/ สถานะสมรส</span></label>
+                    <div class="flex gap-2 items-center mt-1 text-[8pt]">
+                        <label class="inline-flex items-center"><input type="checkbox" class="mr-0.5"> Single</label>
+                        <label class="inline-flex items-center"><input type="checkbox" class="mr-0.5"> Married</label>
+                        <label class="inline-flex items-center"><input type="checkbox" class="mr-0.5"> Divorced</label>
+                    </div>
+                </div>
+                <div class="col-span-4 flex flex-col">
+                    <label><span class="lbl-en">No. of Children</span> <span class="lbl-th">/ จำนวนบุตร</span></label>
+                    <input type="text" class="form-input-clean">
+                </div>
+            </div>
+        </div>
+
+        <!-- Family Background & Emergency Contact -->
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <div class="section-header bg-slate-100 px-2 py-0.5 font-bold text-xs uppercase border-l-4 border-slate-800">
+                    <span>Family Details / ประวัติครอบครัว</span>
+                </div>
+                <div class="flex flex-col gap-1 mt-1.5">
+                    <div class="flex gap-1 items-baseline">
+                        <span class="lbl-en min-w-[80px]">Father / บิดา:</span>
+                        <input type="text" class="form-input-clean" placeholder="Name - Nationality - Occupation">
+                    </div>
+                    <div class="flex gap-1 items-baseline">
+                        <span class="lbl-en min-w-[80px]">Mother / มารดา:</span>
+                        <input type="text" class="form-input-clean" placeholder="Name - Nationality - Occupation">
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="section-header bg-slate-100 px-2 py-0.5 font-bold text-xs uppercase border-l-4 border-slate-800">
+                    <span>Emergency Notify / ติดต่อฉุกเฉิน</span>
+                </div>
+                <div class="flex flex-col gap-1 mt-1.5">
+                    <div class="flex gap-1 items-baseline">
+                        <span class="lbl-en min-w-[80px]">Name / ชื่อ:</span>
+                        <input type="text" class="form-input-clean">
+                    </div>
+                    <div class="flex gap-1 items-baseline">
+                        <span class="lbl-en min-w-[80px]">Tel / โทร:</span>
+                        <input type="tel" class="form-input-clean">
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Educational Background Table -->
+        <div>
+            <div class="section-header bg-slate-100 px-2 py-0.5 font-bold text-xs uppercase border-l-4 border-slate-800 mb-1">
+                <span>Educational Background / ประวัติการศึกษา</span>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th class="w-16">From (จาก)</th>
+                        <th class="w-16">To (ถึง)</th>
+                        <th>Course of Study / Level (ระดับการศึกษา)</th>
+                        <th>Name of School / Institution (ชื่อสถาบันการศึกษา)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Work Experience Table -->
+        <div>
+            <div class="section-header bg-slate-100 px-2 py-0.5 font-bold text-xs uppercase border-l-4 border-slate-800 mb-1">
+                <span>Work Experience / ประสบการณ์ทำงาน</span>
+            </div>
+            <table class="table-custom">
+                <thead>
+                    <tr>
+                        <th class="w-16">From (จาก)</th>
+                        <th class="w-16">To (ถึง)</th>
+                        <th>Name of Company (ชื่อบริษัท)</th>
+                        <th>Position (ตำแหน่ง)</th>
+                        <th class="w-24">Salary (เงินเดือน)</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                    </tr>
+                    <tr>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                        <td><input type="text" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Career Grid Section (Screenshot Re-creation) -->
+        <div class="border border-slate-800 rounded overflow-hidden">
+            <div class="bg-slate-300 px-3 py-1 font-bold text-xs uppercase text-slate-800 border-b border-slate-800">
+                <span>Career / อาชีพ</span>
+            </div>
+            
+            <!-- Row 1: Desired Position, Available Date, Expected Salary -->
+            <div class="grid grid-cols-12 border-b border-slate-800">
+                <div class="col-span-5 border-r border-slate-800 p-1.5">
+                    <span class="lbl-en block">Desired Position</span>
+                    <span class="lbl-th block -mt-1">ประเภทของงานที่ต้องการทำ</span>
+                    <input type="text" class="form-input-clean mt-1">
+                </div>
+                <div class="col-span-3 border-r border-slate-800 p-1.5">
+                    <span class="lbl-en block">Available Date</span>
+                    <span class="lbl-th block -mt-1">วันที่พร้อมจะทำงาน</span>
+                    <input type="text" class="form-input-clean mt-1" placeholder="Immediately / DD-MM-YY">
+                </div>
+                <div class="col-span-4 p-1.5">
+                    <span class="lbl-en block">Expected Salary</span>
+                    <span class="lbl-th block -mt-1">เงินเดือนที่ต้องการ</span>
+                    <input type="text" class="form-input-clean mt-1">
+                </div>
+            </div>
+
+            <!-- Row 2: Skills, Business Machines -->
+            <div class="grid grid-cols-12 border-b border-slate-800">
+                <div class="col-span-6 border-r border-slate-800 p-1.5">
+                    <span class="lbl-en block">Special Qualification / Skills</span>
+                    <span class="lbl-th block -mt-1">ความชำนาญและความสามารถพิเศษ</span>
+                    <input type="text" class="form-input-clean mt-1">
+                </div>
+                <div class="col-span-6 p-1.5">
+                    <span class="lbl-en block">Business Machine You Operate</span>
+                    <span class="lbl-th block -mt-1">เครื่องมือเครื่องใช้ที่สามารถใช้ได้</span>
+                    <input type="text" class="form-input-clean mt-1">
+                </div>
+            </div>
+
+            <!-- Row 3: Hobbies -->
+            <div class="p-1.5 border-b border-slate-800">
+                <span class="lbl-en block">Hobbies & Interests</span>
+                <span class="lbl-th block -mt-1">งานอดิเรก</span>
+                <input type="text" class="form-input-clean mt-1">
+            </div>
+
+            <!-- Row 4: Friends/Relatives Employed -->
+            <div class="p-1.5 border-b border-slate-800">
+                <span class="lbl-en block">Name of Friends / Relatives Employed by this Company</span>
+                <span class="lbl-th block -mt-1">ชื่อของเพื่อนหรือญาติที่ทำงานอยู่ในบริษัทนี้ / แผนก</span>
+                <input type="text" class="form-input-clean mt-1">
+            </div>
+
+            <!-- Row 5: Reference -->
+            <div class="grid grid-cols-12 border-b border-slate-800">
+                <div class="col-span-5 border-r border-slate-800 p-1.5">
+                    <span class="lbl-en block">Personal Reference(s)</span>
+                    <span class="lbl-th block -mt-1">ผู้รับรอง (ชื่อ)</span>
+                    <input type="text" class="form-input-clean mt-1">
+                </div>
+                <div class="col-span-4 border-r border-slate-800 p-1.5">
+                    <span class="lbl-en block">Address</span>
+                    <span class="lbl-th block -mt-1">ที่อยู่</span>
+                    <input type="text" class="form-input-clean mt-1">
+                </div>
+                <div class="col-span-3 p-1.5">
+                    <span class="lbl-en block">Occupation</span>
+                    <span class="lbl-th block -mt-1">อาชีพ</span>
+                    <input type="text" class="form-input-clean mt-1">
+                </div>
+            </div>
+
+            <!-- Row 6: Guarantor -->
+            <div class="grid grid-cols-12">
+                <div class="col-span-9 border-r border-slate-800 p-1.5">
+                    <span class="lbl-en block">Guarantor</span>
+                    <span class="lbl-th block -mt-1">ผู้รับรอง</span>
+                    <input type="text" class="form-input-clean mt-1">
+                </div>
+                <div class="col-span-3 p-1.5">
+                    <span class="lbl-en block">Occupation</span>
+                    <span class="lbl-th block -mt-1">อาชีพ</span>
+                    <input type="text" class="form-input-clean mt-1">
+                </div>
+            </div>
+        </div>
+
+        <!-- Affirmation and Signatures -->
+        <div class="mt-2 text-center flex flex-col items-center">
+            <span class="lbl-en text-xs">I hereby affirm that the information on this application is true and correct.</span>
+            <span class="lbl-th text-xs block -mt-1">ข้าพเจ้าขอรับรองว่าข้อความที่กรอกในใบสมัครงานนี้เป็นความจริงและถูกต้องทุกประการ</span>
+            
+            <div class="flex justify-between w-full mt-6 px-12">
+                <div class="flex flex-col items-center w-64">
+                    <div class="w-full border-b border-slate-800 h-8"></div>
+                    <span class="lbl-en mt-1">Signature of Applicant</span>
+                    <span class="lbl-th -mt-1">ลายเซ็นผู้สมัครงาน</span>
+                </div>
+                <div class="flex flex-col items-center w-48">
+                    <div class="w-full border-b border-slate-800 h-8"></div>
+                    <span class="lbl-en mt-1">Date</span>
+                    <span class="lbl-th -mt-1">วันที่</span>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        function previewImage(input, boxId) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById(boxId + '-img');
+                    const placeholder = document.getElementById(boxId + '-placeholder');
+                    const box = document.getElementById(boxId);
+                    
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    box.classList.add('has-image');
+                    box.style.borderStyle = 'solid';
+                    box.style.borderColor = 'transparent';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+    </script>
+
+</body>
+</html>

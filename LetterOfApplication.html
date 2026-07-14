@@ -7,7 +7,7 @@
     <!-- Tailwind CSS for modern responsive layout controls -->
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght@0,700;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght=0,700;1,400&display=swap');
         
         body {
             font-family: 'Inter', sans-serif;
@@ -20,7 +20,7 @@
             width: 100%;
             max-width: 800px;
             min-height: 1050px;
-            padding: 0.8in 0.8in;
+            padding: 0.9in 0.9in;
             box-sizing: border-box;
             position: relative;
             transition: all 0.3s ease;
@@ -58,12 +58,17 @@
             background-color: #f8fafc;
         }
 
+        /* Mode display control */
+        .preview-only {
+            display: none;
+        }
+
         /* Theme Config Colors */
         .theme-navy { --accent-color: #1e3a8a; --accent-hover: #172554; --bg-accent: #eff6ff; }
         .theme-slate { --accent-color: #334155; --accent-hover: #0f172a; --bg-accent: #f1f5f9; }
         .theme-teal { --accent-color: #0d9488; --accent-hover: #115e59; --bg-accent: #f0fdfa; }
 
-        /* Print formatting */
+        /* Print formatting forces the clean preview mode design */
         @media print {
             body {
                 background-color: #ffffff !important;
@@ -79,24 +84,20 @@
             .letter-sheet {
                 box-shadow: none !important;
                 border: none !important;
-                padding: 0 !important;
+                padding: 0.5in 0.5in !important;
                 margin: 0 !important;
                 max-width: 100% !important;
                 min-height: auto !important;
             }
-            .editable-line {
-                border-bottom: none !important;
-                padding: 0 !important;
-            }
-            .editable-textarea {
-                border-bottom: none !important;
-                padding: 0 !important;
+            .edit-only {
+                display: none !important;
             }
             .guide-hint {
                 display: none !important;
             }
-            textarea::placeholder, input::placeholder {
-                color: transparent !important;
+            .preview-only {
+                display: block !important;
+                white-space: pre-wrap;
             }
         }
     </style>
@@ -107,14 +108,27 @@
     <div class="no-print w-full max-w-7xl mx-auto bg-white p-5 rounded-2xl shadow-md border border-slate-200 mb-6 flex flex-wrap gap-5 justify-between items-center">
         <div>
             <h1 class="text-xl font-bold text-slate-800">Letter of Application Builder</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Write a compelling cover letter. Click on any paragraph field and use the helper pane on the right to auto-fill ideas!</p>
+            <p class="text-xs text-slate-500 mt-0.5">Write and refine a professional cover letter. Toggle to "Final Review" to check or print the clean, finished letter layout.</p>
         </div>
         
         <div class="flex flex-wrap items-center gap-4">
-            <!-- Theme Controller -->
+            <!-- Mode Toggle Switcher -->
             <div class="flex flex-col gap-1">
+                <span class="text-[10px] font-bold uppercase text-slate-400">Document Layout Mode</span>
+                <div class="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-1">
+                    <button id="edit-mode-btn" onclick="setDocumentMode('edit')" class="bg-white text-slate-800 shadow-sm text-xs font-semibold px-3 py-1.5 rounded-md transition">
+                        ✍️ Edit Mode
+                    </button>
+                    <button id="preview-mode-btn" onclick="setDocumentMode('preview')" class="text-slate-600 hover:text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-md transition">
+                        ✨ Final Review
+                    </button>
+                </div>
+            </div>
+
+            <!-- Theme Controller -->
+            <div class="flex flex-col gap-1 edit-only">
                 <span class="text-[10px] font-bold uppercase text-slate-400">Sync Theme</span>
-                <div class="flex gap-2">
+                <div class="flex gap-2 py-1">
                     <button onclick="setTheme('navy')" class="w-6 h-6 rounded-full bg-blue-900 border-2 border-white ring-2 ring-blue-900/10 cursor-pointer" title="Navy Theme"></button>
                     <button onclick="setTheme('slate')" class="w-6 h-6 rounded-full bg-slate-600 border-2 border-white ring-2 ring-slate-600/10 cursor-pointer" title="Slate Theme"></button>
                     <button onclick="setTheme('teal')" class="w-6 h-6 rounded-full bg-teal-600 border-2 border-white ring-2 ring-teal-600/10 cursor-pointer" title="Teal Theme"></button>
@@ -122,17 +136,17 @@
             </div>
 
             <!-- Guides Toggle -->
-            <div class="flex flex-col gap-1">
+            <div class="flex flex-col gap-1 edit-only">
                 <span class="text-[10px] font-bold uppercase text-slate-400">Guides</span>
-                <button id="toggle-guides" onclick="toggleGuides()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-2 rounded-lg border border-slate-300 transition">
+                <button id="toggle-guides" onclick="toggleGuides()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 text-xs font-semibold px-3 py-1.5 rounded-lg border border-slate-300 transition">
                     Hide Help Hints
                 </button>
             </div>
 
             <!-- Print/Save Button -->
-            <button onclick="window.print()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs md:text-sm px-5 py-2.5 rounded-xl shadow-md transition duration-150 flex items-center gap-2">
+            <button onclick="printOrSave()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs md:text-sm px-5 py-2.5 rounded-xl shadow-md transition duration-150 flex items-center gap-2">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                Print / Save as PDF
+                Print / Save PDF
             </button>
         </div>
     </div>
@@ -141,48 +155,66 @@
     <div class="main-layout w-full max-w-7xl mx-auto grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
         
         <!-- Left Side: Interactive Letter Sheet -->
-        <div class="lg:col-span-8 flex justify-center">
+        <div id="letter-container" class="lg:col-span-8 flex justify-center">
             <div class="letter-sheet shadow-xl border border-slate-200 rounded-lg flex flex-col gap-5">
                 
                 <!-- Sender Contact Header block -->
                 <div class="flex flex-col gap-1">
-                    <input type="text" class="text-2xl font-bold uppercase tracking-wide editable-line font-serif" style="color: var(--accent-color, #1e3a8a);" placeholder="Your Full Name">
+                    <!-- Name Input (Edit and Preview representation) -->
+                    <input type="text" id="input-sender-name" oninput="syncFields()" class="edit-only text-2xl font-bold uppercase tracking-wide editable-line font-serif" style="color: var(--accent-color, #1e3a8a);" placeholder="Your Full Name">
+                    <div id="preview-sender-name" class="preview-only text-2xl font-bold uppercase tracking-wide font-serif mb-2" style="color: var(--accent-color, #1e3a8a);"></div>
                     
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-x-4 gap-y-2 mt-2">
+                        <!-- Address -->
                         <div class="md:col-span-12">
-                            <label class="text-[9px] font-bold text-slate-400 uppercase">Contact Address</label>
-                            <input type="text" class="text-xs editable-line" placeholder="Street Address, City, State, ZIP Code">
+                            <label class="edit-only text-[9px] font-bold text-slate-400 uppercase">Contact Address</label>
+                            <input type="text" id="input-sender-address" oninput="syncFields()" class="edit-only text-xs editable-line" placeholder="Street Address, City, State, ZIP Code">
+                            <div id="preview-sender-address" class="preview-only text-sm text-slate-700"></div>
                         </div>
+                        
+                        <!-- Email -->
                         <div class="md:col-span-6">
-                            <label class="text-[9px] font-bold text-slate-400 uppercase">Email Address</label>
-                            <input type="email" class="text-xs editable-line" placeholder="your.name@email.com">
+                            <label class="edit-only text-[9px] font-bold text-slate-400 uppercase">Email Address</label>
+                            <input type="email" id="input-sender-email" oninput="syncFields()" class="edit-only text-xs editable-line" placeholder="your.name@email.com">
+                            <div id="preview-sender-email" class="preview-only text-sm text-slate-700"></div>
                         </div>
+                        
+                        <!-- Phone -->
                         <div class="md:col-span-6">
-                            <label class="text-[9px] font-bold text-slate-400 uppercase">Phone Number</label>
-                            <input type="tel" class="text-xs editable-line" placeholder="(555) 000-0000">
+                            <label class="edit-only text-[9px] font-bold text-slate-400 uppercase">Phone Number</label>
+                            <input type="tel" id="input-sender-phone" oninput="syncFields()" class="edit-only text-xs editable-line" placeholder="(555) 000-0000">
+                            <div id="preview-sender-phone" class="preview-only text-sm text-slate-700"></div>
                         </div>
                     </div>
                 </div>
 
-                <div class="border-b border-slate-200 my-1"></div>
+                <div class="border-b border-slate-200 my-1 edit-only"></div>
 
                 <!-- Date Field -->
-                <div class="w-36">
-                    <label class="text-[9px] font-bold text-slate-400 uppercase">Date</label>
-                    <input type="text" id="current-date-input" class="text-sm editable-line" placeholder="July 13, 2026">
+                <div class="w-full">
+                    <label class="edit-only text-[9px] font-bold text-slate-400 uppercase">Date</label>
+                    <input type="text" id="input-date" oninput="syncFields()" class="edit-only text-sm editable-line w-48" placeholder="July 13, 2026">
+                    <div id="preview-date" class="preview-only text-sm text-slate-850 my-4"></div>
                 </div>
 
                 <!-- Recipient Address details -->
                 <div class="flex flex-col gap-1 mt-1">
-                    <label class="text-[9px] font-bold text-slate-400 uppercase">Recipient Details</label>
-                    <input type="text" class="text-sm font-semibold editable-line" placeholder="Hiring Manager Name / Selection Committee">
-                    <input type="text" class="text-sm editable-line" placeholder="Company Name (e.g. PixelCraft Studios)">
-                    <input type="text" class="text-sm editable-line" placeholder="Company Address / Department">
+                    <label class="edit-only text-[9px] font-bold text-slate-400 uppercase">Recipient Details</label>
+                    <input type="text" id="input-recipient-name" oninput="syncFields()" class="edit-only text-sm font-semibold editable-line" placeholder="Hiring Manager Name / Selection Committee">
+                    <input type="text" id="input-recipient-company" oninput="syncFields()" class="edit-only text-sm editable-line" placeholder="Company Name (e.g. PixelCraft Studios)">
+                    <input type="text" id="input-recipient-address" oninput="syncFields()" class="edit-only text-sm editable-line" placeholder="Company Address / Department">
+                    
+                    <div id="preview-recipient-block" class="preview-only text-sm text-slate-850 leading-snug flex flex-col my-4">
+                        <span id="preview-recipient-name" class="font-semibold"></span>
+                        <span id="preview-recipient-company"></span>
+                        <span id="preview-recipient-address"></span>
+                    </div>
                 </div>
 
                 <!-- Salutation -->
                 <div class="mt-2">
-                    <input type="text" class="text-sm font-semibold editable-line w-1/2" placeholder="Dear Hiring Manager,">
+                    <input type="text" id="input-salutation" oninput="syncFields()" class="edit-only text-sm font-semibold editable-line w-1/2" placeholder="Dear Hiring Manager,">
+                    <div id="preview-salutation" class="preview-only text-sm font-semibold text-slate-850 my-2"></div>
                 </div>
 
                 <!-- Main Body - Paragraph 1: Opening (Purpose) -->
@@ -190,7 +222,8 @@
                     <div class="guide-hint text-[11px] text-emerald-600 font-medium italic mb-1 flex items-center gap-1">
                         <span>💡 Paragraph 1: State the position you are applying for and why you want to work here.</span>
                     </div>
-                    <textarea id="paragraph-1" class="text-sm editable-textarea h-20" onfocus="setActiveField(this)" placeholder="I am writing to express my strong interest in the [Position Name] position at [Company Name]..."></textarea>
+                    <textarea id="paragraph-1" oninput="syncFields()" class="edit-only text-sm editable-textarea h-20" onfocus="setActiveField(this)" placeholder="I am writing to express my strong interest in the [Position Name] position at [Company Name]..."></textarea>
+                    <div id="preview-paragraph-1" class="preview-only text-sm text-slate-850 leading-relaxed text-left mb-6"></div>
                 </div>
 
                 <!-- Main Body - Paragraph 2: Core Skills & Strengths -->
@@ -198,7 +231,8 @@
                     <div class="guide-hint text-[11px] text-emerald-600 font-medium italic mb-1 flex items-center gap-1">
                         <span>💡 Paragraph 2: Explain your qualifications, relevant school skills, and character strengths.</span>
                     </div>
-                    <textarea id="paragraph-2" class="text-sm editable-textarea h-24" onfocus="setActiveField(this)" placeholder="As a dedicated student, I have developed strong skills in [mention skills like organization, computer literacy, or customer service] through my academic studies and activities..."></textarea>
+                    <textarea id="paragraph-2" oninput="syncFields()" class="edit-only text-sm editable-textarea h-24" onfocus="setActiveField(this)" placeholder="As a dedicated student, I have developed strong skills in [mention skills like organization, computer literacy, or customer service] through my academic studies and activities..."></textarea>
+                    <div id="preview-paragraph-2" class="preview-only text-sm text-slate-850 leading-relaxed text-left mb-6"></div>
                 </div>
 
                 <!-- Main Body - Paragraph 3: Corporate Alignment & Motivation -->
@@ -206,7 +240,8 @@
                     <div class="guide-hint text-[11px] text-emerald-600 font-medium italic mb-1 flex items-center gap-1">
                         <span>💡 Paragraph 3: State how your values match the mission of the organization.</span>
                     </div>
-                    <textarea id="paragraph-3" class="text-sm editable-textarea h-20" onfocus="setActiveField(this)" placeholder="I am highly motivated to join your team because I admire your company's dedication to [mention company values, e.g., sustainable development or compassionate care]..."></textarea>
+                    <textarea id="paragraph-3" oninput="syncFields()" class="edit-only text-sm editable-textarea h-20" onfocus="setActiveField(this)" placeholder="I am highly motivated to join your team because I admire your company's dedication to [mention company values, e.g., sustainable development or compassionate care]..."></textarea>
+                    <div id="preview-paragraph-3" class="preview-only text-sm text-slate-850 leading-relaxed text-left mb-6"></div>
                 </div>
 
                 <!-- Main Body - Paragraph 4: Closing & Next Steps -->
@@ -214,15 +249,20 @@
                     <div class="guide-hint text-[11px] text-emerald-600 font-medium italic mb-1 flex items-center gap-1">
                         <span>💡 Paragraph 4: Thank them for their time, mention your resume, and request an interview.</span>
                     </div>
-                    <textarea id="paragraph-4" class="text-sm editable-textarea h-16" onfocus="setActiveField(this)" placeholder="Thank you for considering my application. I have enclosed my resume for your review and look forward to the opportunity to discuss..."></textarea>
+                    <textarea id="paragraph-4" oninput="syncFields()" class="edit-only text-sm editable-textarea h-16" onfocus="setActiveField(this)" placeholder="Thank you for considering my application. I have enclosed my resume for your review and look forward to the opportunity to discuss..."></textarea>
+                    <div id="preview-paragraph-4" class="preview-only text-sm text-slate-850 leading-relaxed text-left mb-6"></div>
                 </div>
 
                 <!-- Sign-off Block -->
                 <div class="mt-6">
-                    <input type="text" class="text-sm editable-line w-40 mb-10" placeholder="Sincerely,">
+                    <input type="text" id="input-signoff" oninput="syncFields()" class="edit-only text-sm editable-line w-40 mb-10" placeholder="Sincerely,">
+                    <div id="preview-signoff" class="preview-only text-sm text-slate-850 mb-12"></div>
+                    
                     <div class="w-1/2">
-                        <input type="text" class="text-sm font-semibold editable-line" placeholder="Your Signed Name">
-                        <label class="text-[9px] font-bold text-slate-400 uppercase block mt-1">Applicant Signature</label>
+                        <input type="text" id="input-signed-name" oninput="syncFields()" class="edit-only text-sm font-semibold editable-line" placeholder="Your Signed Name">
+                        <div id="preview-signed-name" class="preview-only text-sm font-semibold text-slate-850 border-t border-slate-300 pt-1 w-64"></div>
+                        
+                        <label class="edit-only text-[9px] font-bold text-slate-400 uppercase block mt-1">Applicant Signature</label>
                     </div>
                 </div>
 
@@ -230,7 +270,7 @@
         </div>
 
         <!-- Right Side: Smart Interactive Writing Assistant -->
-        <div class="no-print lg:col-span-4 bg-white p-5 rounded-2xl shadow-md border border-slate-200 flex flex-col gap-4">
+        <div id="assistant-panel" class="no-print lg:col-span-4 bg-white p-5 rounded-2xl shadow-md border border-slate-200 flex flex-col gap-4">
             <div>
                 <h2 class="font-bold text-slate-800 text-sm flex items-center gap-1.5">
                     <span class="text-lg">✨</span> Writing Assistant
@@ -312,16 +352,20 @@
 
     </div>
 
-    <!-- Script configurations -->
     <script>
         // Track the focused input/textarea for inserting writing assistance phrases
         let activeFieldElement = null;
+        let currentMode = 'edit'; // 'edit' or 'preview'
+        let guidesVisible = true;
 
         window.onload = function() {
             // Setup current date automatically
             const today = new Date();
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
-            document.getElementById('current-date-input').value = today.toLocaleDateString('en-US', options);
+            const formattedDate = today.toLocaleDateString('en-US', options);
+            
+            document.getElementById('input-date').value = formattedDate;
+            syncFields();
         };
 
         function setTheme(theme) {
@@ -335,20 +379,99 @@
             
             if (hints.length === 0) return;
             
-            if (hints[0].style.display === 'none') {
-                hints.forEach(h => h.style.display = 'flex');
-                btn.textContent = 'Hide Help Hints';
-            } else {
-                hints.forEach(h => h.style.display = 'none');
+            if (guidesVisible) {
+                hints.forEach(h => h.style.setProperty('display', 'none', 'important'));
                 btn.textContent = 'Show Help Hints';
+                guidesVisible = false;
+            } else {
+                hints.forEach(h => h.style.setProperty('display', 'flex', 'important'));
+                btn.textContent = 'Hide Help Hints';
+                guidesVisible = true;
             }
+        }
+
+        // Mode Switching Mechanics
+        function setDocumentMode(mode) {
+            currentMode = mode;
+            const editBtn = document.getElementById('edit-mode-btn');
+            const previewBtn = document.getElementById('preview-mode-btn');
+            const letterContainer = document.getElementById('letter-container');
+            const assistantPanel = document.getElementById('assistant-panel');
+            
+            // Sync current state inputs before switching rendering classes
+            syncFields();
+
+            if (mode === 'preview') {
+                // Button Visual Styles
+                editBtn.className = "text-slate-600 hover:text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-md transition";
+                previewBtn.className = "bg-white text-slate-800 shadow-sm text-xs font-semibold px-3 py-1.5 rounded-md transition";
+                
+                // Hide editor items and show clean textual elements
+                document.querySelectorAll('.edit-only').forEach(el => el.style.setProperty('display', 'none', 'important'));
+                document.querySelectorAll('.preview-only').forEach(el => el.style.setProperty('display', 'block', 'important'));
+                
+                // FORCE HIDE ALL HELP HINTS IN PREVIEW/FINAL REVIEW
+                document.querySelectorAll('.guide-hint').forEach(h => h.style.setProperty('display', 'none', 'important'));
+                
+                // Make letter container take full layout width
+                letterContainer.classList.remove('lg:col-span-8');
+                letterContainer.classList.add('lg:col-span-12');
+                assistantPanel.style.display = 'none';
+            } else {
+                // Button Visual Styles
+                editBtn.className = "bg-white text-slate-800 shadow-sm text-xs font-semibold px-3 py-1.5 rounded-md transition";
+                previewBtn.className = "text-slate-600 hover:text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-md transition";
+                
+                // Show editor elements and revert layout properties
+                document.querySelectorAll('.edit-only').forEach(el => el.style.display = '');
+                document.querySelectorAll('.preview-only').forEach(el => el.style.display = 'none');
+                
+                // Restore guide hints block based on guidesVisible flag
+                const hints = document.querySelectorAll('.guide-hint');
+                if (guidesVisible) {
+                    hints.forEach(h => h.style.setProperty('display', 'flex', 'important'));
+                } else {
+                    hints.forEach(h => h.style.setProperty('display', 'none', 'important'));
+                }
+
+                letterContainer.classList.remove('lg:col-span-12');
+                letterContainer.classList.add('lg:col-span-8');
+                assistantPanel.style.display = '';
+            }
+        }
+
+        // Live synchronizer mapping inputs to preview boxes (Ensures blank fields remain blank in final review)
+        function syncFields() {
+            // Identity info
+            document.getElementById('preview-sender-name').innerText = document.getElementById('input-sender-name').value || "";
+            document.getElementById('preview-sender-address').innerText = document.getElementById('input-sender-address').value || "";
+            document.getElementById('preview-sender-email').innerText = document.getElementById('input-sender-email').value || "";
+            document.getElementById('preview-sender-phone').innerText = document.getElementById('input-sender-phone').value || "";
+
+            // Date
+            document.getElementById('preview-date').innerText = document.getElementById('input-date').value || "";
+
+            // Recipient block
+            document.getElementById('preview-recipient-name').innerText = document.getElementById('input-recipient-name').value || "";
+            document.getElementById('preview-recipient-company').innerText = document.getElementById('input-recipient-company').value || "";
+            document.getElementById('preview-recipient-address').innerText = document.getElementById('input-recipient-address').value || "";
+
+            // Salutation & Sign-off
+            document.getElementById('preview-salutation').innerText = document.getElementById('input-salutation').value || "";
+            document.getElementById('preview-signoff').innerText = document.getElementById('input-signoff').value || "";
+            document.getElementById('preview-signed-name').innerText = document.getElementById('input-signed-name').value || "";
+
+            // Core paragraph bodies
+            document.getElementById('preview-paragraph-1').innerText = document.getElementById('paragraph-1').value || "";
+            document.getElementById('preview-paragraph-2').innerText = document.getElementById('paragraph-2').value || "";
+            document.getElementById('preview-paragraph-3').innerText = document.getElementById('paragraph-3').value || "";
+            document.getElementById('preview-paragraph-4').innerText = document.getElementById('paragraph-4').value || "";
         }
 
         function setActiveField(element) {
             activeFieldElement = element;
             const banner = document.getElementById('active-field-banner');
             
-            // Map element IDs to descriptive label names
             let fieldLabel = "Selected Field";
             if (element.id === 'paragraph-1') fieldLabel = "Paragraph 1 (Opening)";
             if (element.id === 'paragraph-2') fieldLabel = "Paragraph 2 (Skills)";
@@ -362,20 +485,35 @@
 
         function insertPhrase(phraseText) {
             if (!activeFieldElement) {
-                alert("Please click on one of the letter's paragraph fields first to highlight where you want to insert the phrase!");
                 return;
             }
             
-            // If the field is currently holding standard placeholder text or is blank, insert directly
             if (activeFieldElement.value === "") {
                 activeFieldElement.value = phraseText;
             } else {
-                // Otherwise append with a space
                 activeFieldElement.value = activeFieldElement.value.trim() + " " + phraseText;
             }
             
-            // Trigger automatic height adjustment or keep focus visible
+            syncFields();
             activeFieldElement.focus();
+        }
+
+        // Custom print processor ensuring preview mode rendering is enforced
+        function printOrSave() {
+            // Temporarily swap UI layout state so the print screen copies standard paragraph spacing perfectly
+            const wasInEditMode = (currentMode === 'edit');
+            if (wasInEditMode) {
+                setDocumentMode('preview');
+            }
+            
+            // Allow state to compile completely before spawning window dialogs
+            setTimeout(() => {
+                window.print();
+                // Return to previous layout mode seamlessly
+                if (wasInEditMode) {
+                    setDocumentMode('edit');
+                }
+            }, 150);
         }
     </script>
 

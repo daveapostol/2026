@@ -6,6 +6,8 @@
     <title>Interactive Letter of Application Builder</title>
     <!-- Tailwind CSS for modern responsive layout controls -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2pdf.js for client-side cover letter generation -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Playfair+Display:ital,wght=0,700;1,400&display=swap');
         
@@ -108,7 +110,7 @@
     <div class="no-print w-full max-w-7xl mx-auto bg-white p-5 rounded-2xl shadow-md border border-slate-200 mb-6 flex flex-wrap gap-5 justify-between items-center">
         <div>
             <h1 class="text-xl font-bold text-slate-800">Letter of Application Builder</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Write and refine a professional cover letter. Toggle to "Final Review" to check or print the clean, finished letter layout.</p>
+            <p class="text-xs text-slate-500 mt-0.5">Write and refine a professional cover letter. Toggle to "Final Review" to check, print, or download your clean letter layout.</p>
         </div>
         
         <div class="flex flex-wrap items-center gap-4">
@@ -143,11 +145,18 @@
                 </button>
             </div>
 
-            <!-- Print/Save Button -->
-            <button onclick="printOrSave()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs md:text-sm px-5 py-2.5 rounded-xl shadow-md transition duration-150 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
-                Print / Save PDF
-            </button>
+            <div class="flex items-center gap-2">
+                <!-- Separate Print Button -->
+                <button onclick="printOrSave()" class="bg-slate-600 hover:bg-slate-700 text-white font-medium text-xs md:text-sm px-4 py-2.5 rounded-xl shadow-md transition duration-150 flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                    Print
+                </button>
+                <!-- Separate Direct PDF Download Button -->
+                <button onclick="downloadLetterPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs md:text-sm px-4 py-2.5 rounded-xl shadow-md transition duration-150 flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    Download PDF
+                </button>
+            </div>
         </div>
     </div>
 
@@ -156,7 +165,7 @@
         
         <!-- Left Side: Interactive Letter Sheet -->
         <div id="letter-container" class="lg:col-span-8 flex justify-center">
-            <div class="letter-sheet shadow-xl border border-slate-200 rounded-lg flex flex-col gap-5">
+            <div id="letter-sheet" class="letter-sheet shadow-xl border border-slate-200 rounded-lg flex flex-col gap-5">
                 
                 <!-- Sender Contact Header block -->
                 <div class="flex flex-col gap-1">
@@ -353,13 +362,11 @@
     </div>
 
     <script>
-        // Track the focused input/textarea for inserting writing assistance phrases
         let activeFieldElement = null;
-        let currentMode = 'edit'; // 'edit' or 'preview'
+        let currentMode = 'edit'; 
         let guidesVisible = true;
 
         window.onload = function() {
-            // Setup current date automatically
             const today = new Date();
             const options = { year: 'numeric', month: 'long', day: 'numeric' };
             const formattedDate = today.toLocaleDateString('en-US', options);
@@ -390,7 +397,6 @@
             }
         }
 
-        // Mode Switching Mechanics
         function setDocumentMode(mode) {
             currentMode = mode;
             const editBtn = document.getElementById('edit-mode-btn');
@@ -398,35 +404,26 @@
             const letterContainer = document.getElementById('letter-container');
             const assistantPanel = document.getElementById('assistant-panel');
             
-            // Sync current state inputs before switching rendering classes
             syncFields();
 
             if (mode === 'preview') {
-                // Button Visual Styles
                 editBtn.className = "text-slate-600 hover:text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-md transition";
                 previewBtn.className = "bg-white text-slate-800 shadow-sm text-xs font-semibold px-3 py-1.5 rounded-md transition";
                 
-                // Hide editor items and show clean textual elements
                 document.querySelectorAll('.edit-only').forEach(el => el.style.setProperty('display', 'none', 'important'));
                 document.querySelectorAll('.preview-only').forEach(el => el.style.setProperty('display', 'block', 'important'));
-                
-                // FORCE HIDE ALL HELP HINTS IN PREVIEW/FINAL REVIEW
                 document.querySelectorAll('.guide-hint').forEach(h => h.style.setProperty('display', 'none', 'important'));
                 
-                // Make letter container take full layout width
                 letterContainer.classList.remove('lg:col-span-8');
                 letterContainer.classList.add('lg:col-span-12');
                 assistantPanel.style.display = 'none';
             } else {
-                // Button Visual Styles
                 editBtn.className = "bg-white text-slate-800 shadow-sm text-xs font-semibold px-3 py-1.5 rounded-md transition";
                 previewBtn.className = "text-slate-600 hover:text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-md transition";
                 
-                // Show editor elements and revert layout properties
                 document.querySelectorAll('.edit-only').forEach(el => el.style.display = '');
                 document.querySelectorAll('.preview-only').forEach(el => el.style.display = 'none');
                 
-                // Restore guide hints block based on guidesVisible flag
                 const hints = document.querySelectorAll('.guide-hint');
                 if (guidesVisible) {
                     hints.forEach(h => h.style.setProperty('display', 'flex', 'important'));
@@ -440,28 +437,22 @@
             }
         }
 
-        // Live synchronizer mapping inputs to preview boxes (Ensures blank fields remain blank in final review)
         function syncFields() {
-            // Identity info
             document.getElementById('preview-sender-name').innerText = document.getElementById('input-sender-name').value || "";
             document.getElementById('preview-sender-address').innerText = document.getElementById('input-sender-address').value || "";
             document.getElementById('preview-sender-email').innerText = document.getElementById('input-sender-email').value || "";
             document.getElementById('preview-sender-phone').innerText = document.getElementById('input-sender-phone').value || "";
 
-            // Date
             document.getElementById('preview-date').innerText = document.getElementById('input-date').value || "";
 
-            // Recipient block
             document.getElementById('preview-recipient-name').innerText = document.getElementById('input-recipient-name').value || "";
             document.getElementById('preview-recipient-company').innerText = document.getElementById('input-recipient-company').value || "";
             document.getElementById('preview-recipient-address').innerText = document.getElementById('input-recipient-address').value || "";
 
-            // Salutation & Sign-off
             document.getElementById('preview-salutation').innerText = document.getElementById('input-salutation').value || "";
             document.getElementById('preview-signoff').innerText = document.getElementById('input-signoff').value || "";
             document.getElementById('preview-signed-name').innerText = document.getElementById('input-signed-name').value || "";
 
-            // Core paragraph bodies
             document.getElementById('preview-paragraph-1').innerText = document.getElementById('paragraph-1').value || "";
             document.getElementById('preview-paragraph-2').innerText = document.getElementById('paragraph-2').value || "";
             document.getElementById('preview-paragraph-3').innerText = document.getElementById('paragraph-3').value || "";
@@ -498,21 +489,42 @@
             activeFieldElement.focus();
         }
 
-        // Custom print processor ensuring preview mode rendering is enforced
+        // Dedicated Print Function
         function printOrSave() {
-            // Temporarily swap UI layout state so the print screen copies standard paragraph spacing perfectly
             const wasInEditMode = (currentMode === 'edit');
             if (wasInEditMode) {
                 setDocumentMode('preview');
             }
-            
-            // Allow state to compile completely before spawning window dialogs
             setTimeout(() => {
                 window.print();
-                // Return to previous layout mode seamlessly
                 if (wasInEditMode) {
                     setDocumentMode('edit');
                 }
+            }, 150);
+        }
+
+        // Dedicated direct PDF Download Function using html2pdf.js
+        function downloadLetterPDF() {
+            const wasInEditMode = (currentMode === 'edit');
+            if (wasInEditMode) {
+                setDocumentMode('preview');
+            }
+
+            setTimeout(() => {
+                const element = document.getElementById('letter-sheet');
+                const opt = {
+                    margin:       [0.5, 0.5, 0.5, 0.5],
+                    filename:     'letter_of_application.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    if (wasInEditMode) {
+                        setDocumentMode('edit');
+                    }
+                });
             }, 150);
         }
     </script>

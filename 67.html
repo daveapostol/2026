@@ -1,0 +1,1744 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>6-7 Counter Challenge</title>
+  
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
+  <!-- Google Fonts (Inter & Orbitron for retro/neon stats) -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght=300;400;600;700;800&family=Orbitron:wght=600;800;900&display=swap" rel="stylesheet" />
+  <!-- Canvas Confetti for high score celebrations -->
+  <script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.6.0/dist/confetti.browser.min.js"></script>
+
+  <!-- Pinned MediaPipe core scripts - We've dropped camera_utils completely for reliability -->
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils@0.4/drawing_utils.js" crossorigin="anonymous"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/hands.js" crossorigin="anonymous"></script>
+
+  <style>
+    body {
+      font-family: 'Inter', sans-serif;
+      background: radial-gradient(circle at center, #0b0f19 0%, #030712 100%);
+    }
+    .neon-text {
+      text-shadow: 0 0 10px rgba(168, 85, 247, 0.6), 0 0 20px rgba(168, 85, 247, 0.4);
+    }
+    .neon-border {
+      box-shadow: 0 0 15px rgba(168, 85, 247, 0.2), inset 0 0 15px rgba(168, 85, 247, 0.1);
+    }
+    .orbitron {
+      font-family: 'Orbitron', sans-serif;
+    }
+    /* Hide scrollbars elegantly */
+    ::-webkit-scrollbar {
+      width: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #111827;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #4b5563;
+      border-radius: 3px;
+    }
+    @keyframes waveLeft {
+      0%, 100% { transform: translateY(15px) rotate(-10deg); }
+      50% { transform: translateY(-15px) rotate(10deg); }
+    }
+    @keyframes waveRight {
+      0%, 100% { transform: translateY(-15px) rotate(10deg); }
+      50% { transform: translateY(15px) rotate(-10deg); }
+    }
+    .animate-wave-left {
+      animation: waveLeft 0.3s ease-in-out infinite alternate;
+    }
+    .animate-wave-right {
+      animation: waveRight 0.3s ease-in-out infinite alternate;
+    }
+    .gold-glow {
+      box-shadow: 0 0 15px rgba(234, 179, 8, 0.25);
+      border-color: rgba(234, 179, 8, 0.4) !important;
+    }
+  </style>
+</head>
+<body class="text-gray-100 min-h-screen flex flex-col justify-between overflow-x-hidden">
+
+  <!-- Top Navigation -->
+  <header class="border-b border-gray-800 bg-gray-950/80 backdrop-blur-md sticky top-0 z-50 px-4 py-3">
+    <div class="max-w-7xl mx-auto flex flex-wrap justify-between items-center gap-4">
+      <div class="flex items-center space-x-3">
+        <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 to-indigo-500 flex items-center justify-center shadow-lg shadow-purple-500/20">
+          <span class="orbitron font-extrabold text-white text-lg">67</span>
+        </div>
+        <div>
+          <h1 class="font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 text-lg sm:text-xl tracking-tight leading-none">
+            6-7 COUNTER CHALLENGE
+          </h1>
+          <p class="text-xs text-gray-400">Can you hit the legendary 67 score in 1 minute?</p>
+        </div>
+      </div>
+      
+      <!-- Audio & TTS Configuration Quick Toggles -->
+      <div class="flex items-center space-x-2">
+        <button id="toggleAudioBtn" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-sm flex items-center space-x-1.5 transition active:scale-95" title="Toggle Sound FX">
+          <i id="audioIcon" class="fas fa-volume-high text-purple-400"></i>
+          <span class="hidden sm:inline">Sounds</span>
+        </button>
+        <button id="toggleTtsBtn" class="px-3 py-1.5 rounded-lg bg-gray-800 hover:bg-gray-700 text-sm flex items-center space-x-1.5 transition active:scale-95" title="Toggle Voice Callout">
+          <i id="ttsIcon" class="fas fa-comment-dots text-pink-400"></i>
+          <span class="hidden sm:inline">Voice Synthesizer</span>
+        </button>
+        <button id="helpModalOpenBtn" class="w-9 h-9 rounded-lg bg-gray-800 hover:bg-gray-700 flex items-center justify-center transition active:scale-95">
+          <i class="fas fa-circle-question text-gray-300 text-base"></i>
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="flex-grow max-w-7xl w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-6 items-stretch">
+    
+    <!-- LEFT PANEL: Navigation tabs, Stats, Profile & Leaderboard (Cols: 5) -->
+    <section class="lg:col-span-5 flex flex-col justify-between space-y-4">
+      
+      <!-- Navigation Tabs for Stats vs Leaderboard -->
+      <div class="flex bg-gray-950/80 p-1.5 rounded-xl border border-gray-800">
+        <button id="tabSettingsBtn" class="flex-1 py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center space-x-2 transition bg-purple-500/10 text-purple-400 border border-purple-500/20">
+          <i class="fas fa-sliders text-sm"></i>
+          <span>Stats & Setup</span>
+        </button>
+        <button id="tabLeaderboardBtn" class="flex-1 py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center space-x-2 transition text-gray-400 hover:text-gray-200">
+          <i class="fas fa-trophy text-sm"></i>
+          <span>Global Top 10</span>
+        </button>
+      </div>
+
+      <!-- TAB CONTENT A: Stats & Controls -->
+      <div id="panelSettings" class="bg-gray-900/40 border border-gray-800 rounded-2xl p-5 backdrop-blur-sm flex-grow flex flex-col justify-between space-y-4 neon-border">
+        
+        <!-- Stats Display Area -->
+        <div class="space-y-4">
+          <div class="flex items-center justify-between">
+            <span class="text-xs uppercase tracking-widest text-purple-400 font-bold">Challenge Progress</span>
+            <span id="rankBadge" class="text-xs font-semibold px-2.5 py-1 rounded-full bg-purple-500/10 text-purple-300 border border-purple-500/20">
+              6-7 Rookie
+            </span>
+          </div>
+
+          <!-- Main Rep/Vibration Counter -->
+          <div class="bg-black/40 border border-gray-800/60 rounded-2xl p-5 text-center relative overflow-hidden">
+            <div class="absolute inset-0 bg-gradient-to-b from-purple-500/5 to-transparent pointer-events-none"></div>
+            <h3 class="text-gray-400 text-xs uppercase tracking-widest font-semibold mb-1">Your 6-7 Count</h3>
+            <div id="counterDisplay" class="orbitron font-black text-6xl sm:text-7xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 neon-text animate-pulse">
+              00
+            </div>
+            <p id="paceHelper" class="text-xs text-gray-400 mt-1 font-mono">Pace: 0.0 reps/sec</p>
+          </div>
+
+          <!-- Countdown and Target Metrics Grid -->
+          <div class="grid grid-cols-2 gap-4">
+            <!-- Timer widget -->
+            <div class="bg-gray-800/40 border border-gray-800 p-3.5 rounded-xl text-center flex flex-col justify-center">
+              <span class="text-gray-400 text-xs uppercase tracking-wider block mb-1">Time Remaining</span>
+              <span id="timerText" class="orbitron text-2xl font-bold text-pink-400">01:00</span>
+              <div class="w-full bg-gray-700 h-1.5 rounded-full mt-2 overflow-hidden">
+                <div id="timerProgress" class="bg-gradient-to-r from-pink-500 to-purple-500 h-full w-full transition-all duration-100"></div>
+              </div>
+            </div>
+
+            <!-- High Score widget -->
+            <div class="bg-gray-800/40 border border-gray-800 p-3.5 rounded-xl text-center flex flex-col justify-center">
+              <span class="text-gray-400 text-xs uppercase tracking-wider block mb-1">Personal Best</span>
+              <span id="highScoreText" class="orbitron text-2xl font-bold text-yellow-400">0</span>
+              <span class="text-[9px] text-gray-500 mt-1">Cloud Syncing</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Profile Customization settings -->
+        <div class="pt-3 border-t border-gray-800/80">
+          <label class="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-1.5">Participant Profile</label>
+          <div class="relative">
+            <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-purple-400">
+              <i class="fas fa-signature text-sm"></i>
+            </span>
+            <input id="playerNameInput" type="text" maxlength="15" placeholder="Enter Nickname..." class="w-full bg-gray-950/80 border border-gray-800 hover:border-purple-500/50 focus:border-purple-500 text-gray-200 text-sm rounded-xl pl-9 pr-4 py-2 outline-none transition focus:ring-2 focus:ring-purple-500/20" value="Guest_Shaker">
+          </div>
+        </div>
+
+        <!-- Mode Selectors and Settings -->
+        <div class="space-y-3 pt-3 border-t border-gray-800/80">
+          <div>
+            <label class="block text-xs font-bold uppercase tracking-widest text-gray-400 mb-2">Input Mode</label>
+            <div class="grid grid-cols-2 gap-2">
+              <button id="selectCameraMode" class="py-2 px-3 rounded-xl border-2 border-purple-500 bg-purple-500/10 text-white font-semibold text-xs flex items-center justify-center space-x-2 transition">
+                <i class="fas fa-camera text-purple-400"></i>
+                <span>Webcam Mode</span>
+              </button>
+              <button id="selectKeyboardMode" class="py-2.5 px-3 rounded-xl border-2 border-transparent bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold text-xs flex items-center justify-center space-x-2 transition">
+                <i class="fas fa-keyboard text-gray-400"></i>
+                <span>Mashing Mode</span>
+              </button>
+            </div>
+          </div>
+
+          <!-- Challenge Options -->
+          <div class="grid grid-cols-2 gap-3">
+            <div>
+              <label class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Challenge Duration</label>
+              <select id="challengeDuration" class="w-full bg-gray-800 border border-gray-700 text-gray-300 text-xs rounded-lg p-2 focus:ring-2 focus:ring-purple-500/50 outline-none">
+                <option value="30">30 Seconds</option>
+                <option value="60" selected>60 Seconds (Standard)</option>
+                <option value="90">90 Seconds</option>
+              </select>
+            </div>
+            <div>
+              <label id="sensitivityLabel" class="block text-[10px] font-bold uppercase tracking-widest text-gray-500 mb-1">Sensitivity: Standard</label>
+              <input id="sensitivitySlider" type="range" min="3" max="15" value="6" class="w-full h-1.5 bg-gray-700 rounded-lg appearance-none cursor-pointer accent-purple-500 my-2" />
+            </div>
+          </div>
+        </div>
+
+        <!-- Big Start / Control Button -->
+        <div class="pt-3">
+          <button id="mainActionBtn" class="w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-base py-3.5 px-6 rounded-2xl shadow-xl shadow-purple-500/20 active:scale-[0.98] transition-all flex items-center justify-center space-x-3">
+            <i class="fas fa-play text-white"></i>
+            <span>START CHALLENGE</span>
+          </button>
+        </div>
+
+      </div>
+
+      <!-- TAB CONTENT B: Leaderboard Grid (Hidden by default) -->
+      <div id="panelLeaderboard" class="hidden bg-gray-900/40 border border-gray-800 rounded-2xl p-5 backdrop-blur-sm flex-grow flex flex-col justify-between space-y-4 neon-border">
+        <div class="space-y-3 flex-grow flex flex-col justify-between">
+          <div class="flex justify-between items-center pb-2 border-b border-gray-800">
+            <div>
+              <h3 class="font-extrabold orbitron text-purple-400 text-sm tracking-widest">TOP 10 SHAKERS</h3>
+              <p class="text-[10px] text-gray-500 uppercase tracking-wider">Real-time Global Rankings</p>
+            </div>
+            <i class="fas fa-globe text-purple-500 text-lg animate-pulse"></i>
+          </div>
+
+          <!-- Leaderboard Rows List -->
+          <div class="flex-grow overflow-y-auto max-h-[320px] pr-1 space-y-1.5" id="leaderboardList">
+            <!-- Loading Indicator placeholder -->
+            <div class="flex flex-col items-center justify-center py-16 space-y-3 text-gray-500">
+              <i class="fas fa-circle-notch animate-spin text-purple-400 text-2xl"></i>
+              <span class="text-xs font-semibold tracking-wider uppercase">Fetching Cloud Leaderboard...</span>
+            </div>
+          </div>
+
+          <div class="pt-2 border-t border-gray-800/80 text-[10px] text-center text-gray-500 flex justify-between items-center px-1">
+            <span>Score tracking fully live</span>
+            <button id="refreshScoresBtn" class="hover:text-purple-400 transition flex items-center space-x-1">
+              <i class="fas fa-arrows-rotate"></i>
+              <span>Refresh</span>
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Live Alignment Diagnostics Widget -->
+      <div id="calibrationCard" class="bg-gray-900/40 border border-gray-800 rounded-2xl p-3.5 flex flex-col space-y-2.5">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center space-x-3">
+            <div class="w-2.5 h-2.5 rounded-full bg-red-500" id="statusDot"></div>
+            <div>
+              <h4 class="font-bold text-xs text-gray-300 leading-tight" id="statusTitle">Webcam Standby</h4>
+              <p class="text-[10px] text-gray-400" id="statusDesc">Initializing diagnostic interface...</p>
+            </div>
+          </div>
+          <div class="flex space-x-1" id="handStatusLights">
+            <span class="px-1.5 py-0.5 rounded text-[9px] bg-gray-800 text-gray-500 border border-gray-700" id="leftHandIndicator">Left Hand</span>
+            <span class="px-1.5 py-0.5 rounded text-[9px] bg-gray-800 text-gray-500 border border-gray-700" id="rightHandIndicator">Right Hand</span>
+          </div>
+        </div>
+
+        <!-- Diagnostics Readout metrics console -->
+        <div class="border-t border-gray-800/80 pt-1.5 grid grid-cols-3 gap-1.5 text-[9px] font-mono text-gray-500">
+          <div>Engine: <span id="diagEngine" class="text-red-400">OFFLINE</span></div>
+          <div>Webcam FPS: <span id="diagFps" class="text-yellow-400">0</span></div>
+          <div>State: <span id="diagCalib" class="text-blue-400">STANDBY</span></div>
+        </div>
+      </div>
+
+    </section>
+
+    <!-- RIGHT PANEL: Visual Arena (Webcam viewport or Keyboard Arena) -->
+    <section class="lg:col-span-7 flex flex-col justify-between space-y-4">
+      
+      <!-- Parent box that keeps everything correctly aligned and guarantees standard proportions -->
+      <div id="arenaBox" class="relative bg-black rounded-2xl overflow-hidden flex-grow flex items-center justify-center border border-gray-800 shadow-2xl min-h-[350px] sm:min-h-[480px]">
+        
+        <!-- Live Calibration Bars Layer (Visual feedback on hand coordinate amplitudes) -->
+        <div id="amplitudeUI" class="absolute left-0 right-0 top-4 bottom-4 flex justify-between px-6 pointer-events-none z-20 opacity-0 transition-opacity">
+          <!-- Left hand amplitude bar -->
+          <div class="flex flex-col items-center justify-end h-full w-4 bg-gray-800/40 rounded-full border border-gray-700/50 overflow-hidden">
+            <div id="leftAmpBar" class="w-full bg-gradient-to-t from-cyan-500 to-blue-500 transition-all duration-75" style="height: 0%"></div>
+          </div>
+          <div class="text-center self-start bg-black/60 backdrop-blur-md px-3 py-1.5 rounded-full border border-gray-800">
+            <span class="text-[10px] text-gray-300 font-mono tracking-widest uppercase">Movement Amplifiers</span>
+          </div>
+          <!-- Right hand amplitude bar -->
+          <div class="flex flex-col items-center justify-end h-full w-4 bg-gray-800/40 rounded-full border border-gray-700/50 overflow-hidden">
+            <div id="rightAmpBar" class="w-full bg-gradient-to-t from-pink-500 to-purple-500 transition-all duration-75" style="height: 0%"></div>
+          </div>
+        </div>
+
+        <!-- CAMERA INTERFACE LAYER -->
+        <!-- Fixed: Set to use modern flexible layout centering, ensuring standard widescreen proportions of 16:9 or 4:3 are locked and centered with no vertical warping -->
+        <div id="cameraContainer" class="absolute inset-0 flex items-center justify-center transition-opacity duration-300">
+          <!-- Fixed: Adjusted to object-contain and max constraints to prevent lengthwise stretching -->
+          <video id="videoElement" class="max-w-full max-h-full w-auto h-auto object-contain transform -scale-x-100 pointer-events-none opacity-0" autoplay playsinline muted></video>
+          <!-- Fixed: Overlay Canvas precisely mirrors the layout footprint of the video element -->
+          <canvas id="canvasOverlay" class="absolute max-w-full max-h-full w-auto h-auto object-contain transform -scale-x-100 z-10 pointer-events-none"></canvas>
+          
+          <!-- Static Placeholder / Welcome state when camera is inactive -->
+          <div id="cameraFallbackPlaceholder" class="flex flex-col items-center justify-center text-center p-6 space-y-4 z-10 select-none">
+            <div class="w-16 h-16 rounded-full bg-gray-900/80 border border-purple-500/30 flex items-center justify-center text-purple-400 text-2xl animate-bounce shadow-xl shadow-purple-500/10">
+              <i class="fas fa-video"></i>
+            </div>
+            <div>
+              <h3 class="font-bold text-base text-gray-200">Awaiting Camera Connection</h3>
+              <p class="text-xs text-gray-400 max-w-xs mt-1 mx-auto leading-relaxed">
+                Connect your camera, grant browser permission, and stand slightly back so your hands are visible!
+              </p>
+            </div>
+            <!-- Live Model Status Loader inside Screen -->
+            <div id="modelLoadingBarContainer" class="hidden w-48 bg-gray-800 h-1.5 rounded-full overflow-hidden mx-auto">
+              <div id="modelLoadingProgress" class="h-full bg-purple-500 w-1/12 animate-pulse"></div>
+            </div>
+            <p id="modelLoadingMessage" class="hidden text-purple-400 text-[10px] font-mono animate-pulse">Initializing MediaPipe Hand Tracking AI...</p>
+            
+            <button id="directActivateCameraBtn" class="px-4 py-2 bg-purple-600 hover:bg-purple-500 rounded-xl text-xs font-bold transition flex items-center space-x-2 shadow-lg">
+              <i class="fas fa-plug"></i>
+              <span>Activate Sensor</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- KEYBOARD / BACKUP INTERACTIVE LAYER -->
+        <div id="keyboardContainer" class="absolute inset-0 flex flex-col items-center justify-center bg-gray-950 p-6 space-y-6 select-none pointer-events-none opacity-0 transition-opacity duration-300 z-10">
+          
+          <!-- Interactive cartoon hands shaking -->
+          <div class="flex justify-center items-end space-x-16 w-full h-28 relative">
+            <div class="absolute bottom-0 w-full border-b border-gray-800/80"></div>
+            
+            <!-- Left hand cartoon illustration -->
+            <div id="leftHandCartoon" class="flex flex-col items-center origin-bottom transition-transform duration-100">
+              <span class="text-5xl">🖐️</span>
+              <div class="h-8 w-4 bg-cyan-600 rounded-t-lg mt-2 shadow-lg shadow-cyan-500/20"></div>
+              <span class="text-[9px] text-cyan-400 font-bold mt-1 uppercase">Key '6'</span>
+            </div>
+
+            <!-- Right hand cartoon illustration -->
+            <div id="rightHandCartoon" class="flex flex-col items-center origin-bottom transition-transform duration-100">
+              <span class="text-5xl">🖐️</span>
+              <div class="h-8 w-4 bg-pink-600 rounded-t-lg mt-2 shadow-lg shadow-pink-500/20"></div>
+              <span class="text-[9px] text-pink-400 font-bold mt-1 uppercase">Key '7'</span>
+            </div>
+          </div>
+
+          <div class="text-center space-y-1.5 max-w-xs">
+            <h3 class="font-bold text-base text-purple-400">Mash Alternately to Count!</h3>
+            <p class="text-xs text-gray-400 leading-relaxed">
+              Quickly press the <kbd class="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-gray-200">6</kbd> and <kbd class="px-2 py-1 bg-gray-800 border border-gray-700 rounded text-gray-200">7</kbd> keys, or tap the screen buttons below to trigger counts!
+            </p>
+          </div>
+
+          <!-- Touch triggers for mobile mashing -->
+          <div class="grid grid-cols-2 gap-3 w-full max-w-xs relative z-20 pointer-events-auto">
+            <button id="touchTrigger6" class="py-4 bg-gradient-to-b from-cyan-600 to-blue-700 active:scale-95 border border-cyan-500 hover:from-cyan-500 hover:to-blue-600 rounded-2xl text-center shadow-xl transition">
+              <span class="orbitron text-2xl font-black text-white">6</span>
+              <span class="block text-[9px] uppercase font-bold text-cyan-200 tracking-wider mt-0.5">Tap left</span>
+            </button>
+            <button id="touchTrigger7" class="py-4 bg-gradient-to-b from-pink-600 to-purple-700 active:scale-95 border border-pink-500 hover:from-pink-500 hover:to-purple-600 rounded-2xl text-center shadow-xl transition">
+              <span class="orbitron text-2xl font-black text-white">7</span>
+              <span class="block text-[9px] uppercase font-bold text-pink-200 tracking-wider mt-0.5">Tap right</span>
+            </button>
+          </div>
+        </div>
+
+        <!-- BIG ACTIVE OVERLAYS -->
+        <div id="screenAnnounceOverlay" class="absolute inset-0 bg-black/85 flex flex-col items-center justify-center text-center p-6 z-30 pointer-events-none opacity-0 transition-opacity duration-300">
+          <div id="announceBigText" class="orbitron font-extrabold text-7xl sm:text-8xl text-white transform scale-50 transition-transform duration-300">
+            3
+          </div>
+          <div id="announceSubText" class="text-gray-400 text-xs sm:text-sm mt-4 font-semibold uppercase tracking-widest max-w-sm leading-relaxed">
+            Get Ready to Shake...
+          </div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+  <!-- Help & Instruction Modal -->
+  <div id="helpModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4 z-50 opacity-0 pointer-events-none transition-opacity duration-300">
+    <div class="bg-gray-900 border border-gray-800 p-6 rounded-2xl max-w-md w-full shadow-2xl relative">
+      <button id="helpModalCloseBtn" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg transition">
+        <i class="fas fa-times"></i>
+      </button>
+      <div class="space-y-4">
+        <div class="flex items-center space-x-3 text-purple-400 text-xl font-bold">
+          <i class="fas fa-circle-info"></i>
+          <h2 class="font-extrabold orbitron tracking-tight text-base sm:text-lg">HOW TO PLAY</h2>
+        </div>
+        <p class="text-xs sm:text-sm text-gray-300 leading-relaxed">
+          The <strong>6-7 Challenge</strong> is based on moving your open-palmed hands up and down rapidly (like waving or shaking hands in excitement).
+        </p>
+        <div class="space-y-2 border-l-2 border-purple-500 pl-4 py-1">
+          <h3 class="font-bold text-xs uppercase text-purple-300 tracking-wider">Webcam Mode Setup:</h3>
+          <p class="text-[11px] text-gray-400 leading-relaxed">
+            Position yourself so that your upper torso and hands are completely inside the video frame. Place both hands in the visual guide target boxes on screen to calibrate before starting. Then, move them up-and-down vertically in rhythm.
+          </p>
+        </div>
+        <div class="space-y-2 border-l-2 border-pink-500 pl-4 py-1">
+          <h3 class="font-bold text-xs uppercase text-pink-300 tracking-wider">Mashing Mode Setup:</h3>
+          <p class="text-[11px] text-gray-400 leading-relaxed">
+            No camera? No problem! Toggle "Mashing Mode" and press the <kbd class="px-1.5 bg-gray-800 rounded">6</kbd> and <kbd class="px-1.5 bg-gray-800 rounded">7</kbd> keys alternatively as fast as possible to hit the high score.
+          </p>
+        </div>
+        <button id="helpModalOkayBtn" class="w-full py-2.5 bg-purple-600 hover:bg-purple-500 rounded-lg text-xs font-semibold transition active:scale-95">
+          Got it, let's go!
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <div id="toastNotification" class="fixed bottom-6 right-6 bg-gray-900 border border-purple-500/40 text-purple-200 px-4 py-3 rounded-xl shadow-2xl flex items-center space-x-3 pointer-events-none transform translate-y-20 opacity-0 transition-all duration-300 z-50">
+    <i class="fas fa-star text-yellow-400"></i>
+    <span class="text-xs font-semibold" id="toastMessage">High score saved!</span>
+  </div>
+
+  <!-- Footer -->
+  <footer class="border-t border-gray-800/80 bg-gray-950/80 py-4 px-6 text-center text-xs text-gray-500">
+    <div class="max-w-7xl mx-auto flex flex-col sm:flex-row justify-between items-center gap-2">
+      <p>&copy; 2026 "6-7" Meme tracker. Powered by MediaPipe AI & Web Audio API.</p>
+      <div class="flex space-x-4">
+        <span class="hover:text-purple-400 cursor-pointer" id="resetHighScores">Reset My High Scores</span>
+      </div>
+    </div>
+  </footer>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+    import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+    import { getFirestore, doc, getDoc, setDoc, collection, onSnapshot, addDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+    // Global application configuration variables and reactive states
+    const STATE = {
+      gameMode: 'LOBBY', // LOBBY, POSITIONING, COUNTDOWN, PLAYING, GAMEOVER
+      inputMode: 'camera', // camera, keyboard
+      reps: 0,
+      highScore: parseInt(localStorage.getItem('6_7_high_score') || '0', 10),
+      duration: 60,
+      timeLeft: 60,
+      soundEnabled: true,
+      ttsEnabled: true,
+      sensitivity: 6,
+      startTime: 0,
+      modelLoaded: false,
+      calibrationProgress: 0,
+      fps: 0,
+      lastFrameTime: Date.now()
+    };
+
+    // Firebase / Firestore configuration setup (RULE 1 & 2 Compliance)
+    let db = null;
+    let auth = null;
+    let appId = 'default-67-challenge';
+    let globalScores = [];
+
+    // Pre-populate player name config
+    const nameInput = document.getElementById('playerNameInput');
+    nameInput.value = localStorage.getItem('6_7_player_name') || `Player_${Math.floor(Math.random() * 900) + 100}`;
+    nameInput.addEventListener('input', (e) => {
+      localStorage.setItem('6_7_player_name', e.target.value.trim());
+    });
+
+    async function initFirebase() {
+      try {
+        if (typeof __app_id !== 'undefined') {
+          appId = __app_id;
+        }
+        
+        if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+          const firebaseConfig = JSON.parse(__firebase_config);
+          const app = initializeApp(firebaseConfig);
+          db = getFirestore(app);
+          auth = getAuth(app);
+
+          // RULE 3 - Auth before queries
+          let userCredential;
+          if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+            userCredential = await signInWithCustomToken(auth, __initial_auth_token);
+          } else {
+            userCredential = await signInAnonymously(auth);
+          }
+          
+          if (userCredential?.user) {
+            console.log("Authenticated successfully with UID:", userCredential.user.uid);
+            setupLeaderboardRealtime();
+          }
+        } else {
+          console.warn("Firebase configuration was not provided. Falling back to Local Storage mode.");
+          loadLocalFallbackLeaderboard();
+        }
+      } catch (err) {
+        console.error("Firebase startup sequence failed:", err);
+        loadLocalFallbackLeaderboard();
+      }
+    }
+
+    // Write scores safely to public collections using strict paths (RULE 1)
+    async function submitScoreToLeaderboard(playerName, finalScore) {
+      const trimmedName = playerName.trim() || 'Anonymous Shaker';
+      const scoreEntry = {
+        name: trimmedName,
+        score: Math.floor(finalScore),
+        timestamp: Date.now(),
+        userId: auth?.currentUser?.uid || 'offline-player'
+      };
+
+      if (db && auth?.currentUser) {
+        try {
+          // RULE 1 Path compliance
+          const scoresCol = collection(db, 'artifacts', appId, 'public', 'data', 'scores');
+          await addDoc(scoresCol, scoreEntry);
+          showToast("Score published to live leaderboard!");
+        } catch (e) {
+          console.error("Failed writing score to database path:", e);
+        }
+      } else {
+        // Fallback save to mock/local rankings list
+        const fallbackList = JSON.parse(localStorage.getItem('6_7_fallback_leaderboard') || '[]');
+        fallbackList.push(scoreEntry);
+        fallbackList.sort((a,b) => b.score - a.score);
+        localStorage.setItem('6_7_fallback_leaderboard', JSON.stringify(fallbackList.slice(0, 15)));
+        loadLocalFallbackLeaderboard();
+      }
+    }
+
+    // Fetch and sync leaderboard records in memory to avoid index errors (RULE 2)
+    function setupLeaderboardRealtime() {
+      if (!db) return;
+      
+      const scoresCol = collection(db, 'artifacts', appId, 'public', 'data', 'scores');
+      // Set snapshot observer with mandatory error callbacks
+      onSnapshot(scoresCol, (snapshot) => {
+        const rawList = [];
+        snapshot.forEach((doc) => {
+          rawList.push(doc.data());
+        });
+
+        // RULE 2: Sort, filter, and slice entries exclusively in Javascript memory
+        rawList.sort((a, b) => b.score - a.score);
+        globalScores = rawList.slice(0, 10);
+        renderLeaderboardHTML(globalScores);
+      }, (error) => {
+        console.error("Leaderboard subscription snapshot error:", error);
+        loadLocalFallbackLeaderboard();
+      });
+    }
+
+    function loadLocalFallbackLeaderboard() {
+      const fallbackList = JSON.parse(localStorage.getItem('6_7_fallback_leaderboard') || '[]');
+      if (fallbackList.length === 0) {
+        // Mock starter templates if completely empty
+        const defaultMocks = [
+          { name: "NeonGod_67", score: 67, timestamp: Date.now() },
+          { name: "HyperWaver", score: 55, timestamp: Date.now() },
+          { name: "SpeedyFingers", score: 41, timestamp: Date.now() },
+          { name: "Meme_Lover", score: 28, timestamp: Date.now() },
+          { name: "Guest_Rookie", score: 11, timestamp: Date.now() }
+        ];
+        localStorage.setItem('6_7_fallback_leaderboard', JSON.stringify(defaultMocks));
+        globalScores = defaultMocks;
+      } else {
+        globalScores = fallbackList.slice(0, 10);
+      }
+      renderLeaderboardHTML(globalScores);
+    }
+
+    function renderLeaderboardHTML(list) {
+      const container = document.getElementById('leaderboardList');
+      if (!container) return;
+
+      if (list.length === 0) {
+        container.innerHTML = `
+          <div class="flex flex-col items-center justify-center py-16 text-gray-500">
+            <i class="fas fa-trophy text-2xl mb-2"></i>
+            <span class="text-xs font-semibold tracking-wider uppercase">No scores registered yet!</span>
+          </div>
+        `;
+        return;
+      }
+
+      container.innerHTML = '';
+      list.forEach((item, index) => {
+        const row = document.createElement('div');
+        
+        // Dynamic trophy color mapping
+        let badgeColorClass = 'text-gray-500';
+        let rowClass = 'bg-gray-950/40 hover:bg-gray-800/20 border-gray-800/60';
+        let positionIcon = `<span class="font-mono text-gray-400 text-xs w-5 text-center">${index + 1}</span>`;
+
+        if (index === 0) {
+          badgeColorClass = 'text-yellow-400';
+          rowClass = 'bg-yellow-500/5 hover:bg-yellow-500/10 border-yellow-500/30 gold-glow';
+          positionIcon = `<i class="fas fa-trophy ${badgeColorClass} text-xs w-5 text-center"></i>`;
+        } else if (index === 1) {
+          badgeColorClass = 'text-slate-300';
+          rowClass = 'bg-slate-300/5 hover:bg-slate-300/10 border-slate-300/20';
+          positionIcon = `<i class="fas fa-trophy ${badgeColorClass} text-xs w-5 text-center"></i>`;
+        } else if (index === 2) {
+          badgeColorClass = 'text-amber-600';
+          rowClass = 'bg-amber-600/5 hover:bg-amber-600/10 border-amber-600/20';
+          positionIcon = `<i class="fas fa-trophy ${badgeColorClass} text-xs w-5 text-center"></i>`;
+        }
+
+        row.className = `flex items-center justify-between p-2.5 border rounded-xl transition ${rowClass}`;
+        row.innerHTML = `
+          <div class="flex items-center space-x-3 truncate">
+            ${positionIcon}
+            <span class="font-bold text-xs truncate text-gray-200">${escapeHtml(item.name)}</span>
+          </div>
+          <div class="flex items-center space-x-1.5 shrink-0">
+            <span class="orbitron font-black text-sm text-purple-400">${item.score}</span>
+            <span class="text-[9px] uppercase tracking-wide text-gray-500 font-bold">Reps</span>
+          </div>
+        `;
+        container.appendChild(row);
+      });
+    }
+
+    function escapeHtml(text) {
+      if (!text) return '';
+      return text
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#039;");
+    }
+
+    // Synthesizer Audio Setup (No external assets required!)
+    let audioCtx = null;
+    function initAudio() {
+      if (!audioCtx) {
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+      }
+      if (audioCtx && audioCtx.state === 'suspended') {
+        audioCtx.resume();
+      }
+    }
+
+    function playSynthSound(type) {
+      if (!STATE.soundEnabled) return;
+      try {
+        initAudio();
+        const now = audioCtx.currentTime;
+        const osc = audioCtx.createOscillator();
+        const gainNode = audioCtx.createGain();
+        osc.connect(gainNode);
+        gainNode.connect(audioCtx.destination);
+
+        if (type === 'tick') {
+          osc.type = 'triangle';
+          osc.frequency.setValueAtTime(350, now);
+          gainNode.gain.setValueAtTime(0.15, now);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.1);
+          osc.start(now);
+          osc.stop(now + 0.1);
+        } else if (type === 'count') {
+          osc.type = 'sine';
+          const pitchBonus = Math.min(STATE.reps * 6, 500);
+          osc.frequency.setValueAtTime(440 + pitchBonus, now);
+          osc.frequency.exponentialRampToValueAtTime(880 + pitchBonus, now + 0.08);
+          gainNode.gain.setValueAtTime(0.2, now);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+          osc.start(now);
+          osc.stop(now + 0.15);
+        } else if (type === 'start') {
+          osc.type = 'sawtooth';
+          osc.frequency.setValueAtTime(220, now);
+          osc.frequency.exponentialRampToValueAtTime(1200, now + 0.4);
+          gainNode.gain.setValueAtTime(0.1, now);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.45);
+          osc.start(now);
+          osc.stop(now + 0.45);
+        } else if (type === 'gameover') {
+          osc.type = 'square';
+          osc.frequency.setValueAtTime(440, now);
+          osc.frequency.linearRampToValueAtTime(110, now + 0.6);
+          gainNode.gain.setValueAtTime(0.15, now);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.6);
+          osc.start(now);
+          osc.stop(now + 0.65);
+        } else if (type === 'lock') {
+          osc.type = 'sine';
+          osc.frequency.setValueAtTime(600, now);
+          osc.frequency.exponentialRampToValueAtTime(1200, now + 0.15);
+          gainNode.gain.setValueAtTime(0.15, now);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.18);
+          osc.start(now);
+          osc.stop(now + 0.18);
+        }
+      } catch (err) {
+        console.warn('Audio synthesis warning:', err);
+      }
+    }
+
+    function triggerMemeSpeech() {
+      if (!STATE.ttsEnabled) return;
+      try {
+        window.speechSynthesis.cancel();
+        const utterance = new SpeechSynthesisUtterance("6-7");
+        utterance.rate = 1.9;
+        utterance.pitch = 1.4;
+        window.speechSynthesis.speak(utterance);
+      } catch (err) {
+        console.warn("Speech synthesis unavailable:", err);
+      }
+    }
+
+    document.getElementById('highScoreText').innerText = STATE.highScore;
+
+    function showToast(message) {
+      const toast = document.getElementById('toastNotification');
+      document.getElementById('toastMessage').innerText = message;
+      toast.style.opacity = '1';
+      toast.style.transform = 'translateY(0)';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+        toast.style.transform = 'translateY(20px)';
+      }, 3000);
+    }
+
+    // Interface Navigation Panels Switching
+    const tabSettingsBtn = document.getElementById('tabSettingsBtn');
+    const tabLeaderboardBtn = document.getElementById('tabLeaderboardBtn');
+    const panelSettings = document.getElementById('panelSettings');
+    const panelLeaderboard = document.getElementById('panelLeaderboard');
+
+    function switchPanelTab(tabName) {
+      if (tabName === 'settings') {
+        tabSettingsBtn.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center space-x-2 transition bg-purple-500/10 text-purple-400 border border-purple-500/20';
+        tabLeaderboardBtn.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center space-x-2 transition text-gray-400 hover:text-gray-200';
+        panelSettings.classList.remove('hidden');
+        panelLeaderboard.classList.add('hidden');
+      } else {
+        tabLeaderboardBtn.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center space-x-2 transition bg-purple-500/10 text-purple-400 border border-purple-500/20';
+        tabSettingsBtn.className = 'flex-1 py-2 px-3 rounded-lg text-xs font-bold uppercase tracking-wider flex items-center justify-center space-x-2 transition text-gray-400 hover:text-gray-200';
+        panelSettings.classList.add('hidden');
+        panelLeaderboard.classList.remove('hidden');
+      }
+    }
+
+    tabSettingsBtn.addEventListener('click', () => switchPanelTab('settings'));
+    tabLeaderboardBtn.addEventListener('click', () => switchPanelTab('leaderboard'));
+    document.getElementById('refreshScoresBtn').addEventListener('click', () => {
+      if (db) {
+        setupLeaderboardRealtime();
+      } else {
+        loadLocalFallbackLeaderboard();
+      }
+      showToast("Leaderboard list updated!");
+    });
+
+    function toggleHelpModal(show) {
+      const modal = document.getElementById('helpModal');
+      if (show) {
+        modal.classList.add('opacity-100');
+        modal.classList.remove('pointer-events-none');
+      } else {
+        modal.classList.remove('opacity-100');
+        modal.classList.add('pointer-events-none');
+      }
+    }
+    document.getElementById('helpModalOpenBtn').addEventListener('click', () => toggleHelpModal(true));
+    document.getElementById('helpModalCloseBtn').addEventListener('click', () => toggleHelpModal(false));
+    document.getElementById('helpModalOkayBtn').addEventListener('click', () => toggleHelpModal(false));
+    
+    document.getElementById('toggleAudioBtn').addEventListener('click', () => {
+      STATE.soundEnabled = !STATE.soundEnabled;
+      const icon = document.getElementById('audioIcon');
+      if (STATE.soundEnabled) {
+        icon.className = 'fas fa-volume-high text-purple-400';
+        showToast("Audio effects enabled");
+      } else {
+        icon.className = 'fas fa-volume-mute text-gray-500';
+        showToast("Audio muted");
+      }
+    });
+
+    document.getElementById('toggleTtsBtn').addEventListener('click', () => {
+      STATE.ttsEnabled = !STATE.ttsEnabled;
+      const icon = document.getElementById('ttsIcon');
+      if (STATE.ttsEnabled) {
+        icon.className = 'fas fa-comment-dots text-pink-400';
+        showToast("Speech callout enabled");
+      } else {
+        icon.className = 'fas fa-comment-slash text-gray-500';
+        showToast("Speech callout muted");
+      }
+    });
+
+    document.getElementById('resetHighScores').addEventListener('click', () => {
+      localStorage.setItem('6_7_high_score', '0');
+      STATE.highScore = 0;
+      document.getElementById('highScoreText').innerText = '0';
+      showToast("High scores cleared locally");
+    });
+
+    /**
+     * Enhanced HandTracker
+     * Implements multi-landmark averaging (clustering) to avoid gesture drop-offs.
+     * Incorporates adaptive dynamic threshold compression when waves are fired at hyper-velocities.
+     */
+    class HandTracker {
+      constructor(side) {
+        this.side = side;
+        this.yHistory = [];
+        this.state = 'neutral';
+        this.baselineY = 0.5;
+        this.lastStrokeTime = 0;
+        this.sensitivityThreshold = 0.06;
+        this.lastY = 0.5;
+      }
+
+      reset() {
+        this.yHistory = [];
+        this.state = 'neutral';
+        this.baselineY = 0.5;
+        this.lastY = 0.5;
+      }
+
+      update(landmarks, thresholdValue) {
+        this.sensitivityThreshold = thresholdValue;
+
+        // ENHANCEMENT: Instead of relying on a single tracking point (palm: 9),
+        // we compute the centroid of 4 highly robust joint bones:
+        // wrist (0), Index knuckle (5), Middle knuckle (9), and Pinky knuckle (17).
+        // This makes sure tracking is perfectly maintained even when fingers are curled or moving at extreme speeds!
+        const wrist = landmarks[0];
+        const indexKnuckle = landmarks[5];
+        const middleKnuckle = landmarks[9];
+        const pinkyKnuckle = landmarks[17];
+
+        const currentY = (wrist.y + indexKnuckle.y + middleKnuckle.y + pinkyKnuckle.y) / 4;
+        const now = Date.now();
+
+        this.lastY = currentY;
+
+        this.yHistory.push(currentY);
+        if (this.yHistory.length > 120) {
+          this.yHistory.shift();
+        }
+
+        const sum = this.yHistory.reduce((a, b) => a + b, 0);
+        this.baselineY = sum / this.yHistory.length;
+
+        const diff = currentY - this.baselineY;
+        let strokeDetected = false;
+
+        // Adaptive sensitivity compression: If user waves at high speeds, decrease travel requirement slightly to catch all reps
+        const timeSinceLastStroke = now - this.lastStrokeTime;
+        let adjustedThreshold = this.sensitivityThreshold;
+        if (timeSinceLastStroke < 250) {
+          adjustedThreshold *= 0.85; // Compress threshold by 15% for rapid waving
+        }
+
+        if (diff < -adjustedThreshold) {
+          if (this.state === 'low') {
+            if (now - this.lastStrokeTime > 80) {
+              strokeDetected = true;
+              this.lastStrokeTime = now;
+            }
+          }
+          this.state = 'high';
+        } else if (diff > adjustedThreshold) {
+          if (this.state === 'high') {
+            if (now - this.lastStrokeTime > 80) {
+              strokeDetected = true;
+              this.lastStrokeTime = now;
+            }
+          }
+          this.state = 'low';
+        } else if (Math.abs(diff) < adjustedThreshold * 0.25) {
+          this.state = 'neutral';
+        }
+
+        const maxExpectedDiff = adjustedThreshold * 1.8;
+        const rawAmp = Math.min(Math.abs(diff) / maxExpectedDiff, 1.0);
+
+        return {
+          strokeDetected,
+          state: this.state,
+          amplitude: rawAmp,
+          baselineY: this.baselineY,
+          currentY: currentY
+        };
+      }
+    }
+
+    const leftTracker = new HandTracker('Left');
+    const rightTracker = new HandTracker('Right');
+
+    const canvas = document.getElementById('canvasOverlay');
+    const ctx = canvas.getContext('2d');
+    let particles = [];
+
+    class Particle {
+      constructor(x, y, color) {
+        this.x = x;
+        this.y = y;
+        this.vx = (Math.random() - 0.5) * 12;
+        this.vy = (Math.random() - 0.5) * 12 - 4;
+        this.radius = Math.random() * 5 + 4;
+        this.alpha = 1;
+        this.decay = Math.random() * 0.03 + 0.015;
+        this.color = color;
+      }
+      draw() {
+        ctx.save();
+        ctx.globalAlpha = this.alpha;
+        ctx.beginPath();
+        ctx.arc(this.x, this.y, this.radius, 0, Math.PI * 2);
+        ctx.fillStyle = this.color;
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = this.color;
+        ctx.fill();
+        ctx.restore();
+      }
+      update() {
+        this.x += this.vx;
+        this.y += this.vy;
+        this.vy += 0.2;
+        this.alpha -= this.decay;
+      }
+    }
+
+    function triggerVisualBurst(x, y, side) {
+      const color = side === 'Left' ? '#06b6d4' : '#ec4899';
+      for (let i = 0; i < 15; i++) {
+        particles.push(new Particle(x, y, color));
+      }
+    }
+
+    function handleParticleEngine() {
+      if (particles.length === 0) return;
+      particles.forEach((p, idx) => {
+        p.update();
+        p.draw();
+        if (p.alpha <= 0) {
+          particles.splice(idx, 1);
+        }
+      });
+    }
+
+    let activeStream = null;
+    let handTrackerAI = null;
+    let cameraFrameId = null;
+    let isProcessingFrame = false;
+    const video = document.getElementById('videoElement');
+
+    // Bounds configuration for interactive tracking alignment guides
+    const GUIDE_BOX_LEFT = { xMin: 0.58, xMax: 0.88, yMin: 0.25, yMax: 0.65 };
+    const GUIDE_BOX_RIGHT = { xMin: 0.12, xMax: 0.42, yMin: 0.25, yMax: 0.65 };
+
+    function drawTargetBoxes(leftValid, rightValid, leftDistLabel, rightDistLabel) {
+      ctx.save();
+      const width = canvas.width;
+      const height = canvas.height;
+
+      // Card overlay decoration
+      ctx.fillStyle = 'rgba(0, 0, 0, 0.75)';
+      ctx.fillRect(0, 0, width, 85);
+      
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 16px "Orbitron", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.fillText('ALIGN BOTH HANDS INSIDE BOXES', width / 2, 35);
+      
+      ctx.fillStyle = '#9ca3af';
+      ctx.font = '12px "Inter", sans-serif';
+      ctx.fillText('Stand back slightly and hold hands steady to calibrate', width / 2, 58);
+
+      // LEFT BOX (Target mapping to screen left)
+      const lx1 = GUIDE_BOX_LEFT.xMin * width;
+      const lx2 = GUIDE_BOX_LEFT.xMax * width;
+      const ly1 = GUIDE_BOX_LEFT.yMin * height;
+      const ly2 = GUIDE_BOX_LEFT.yMax * height;
+      const lw = lx2 - lx1;
+      const lh = ly2 - ly1;
+
+      ctx.lineWidth = 4;
+      ctx.strokeStyle = leftValid ? '#06b6d4' : '#ef4444';
+      ctx.shadowBlur = leftValid ? 15 : 0;
+      ctx.shadowColor = '#06b6d4';
+      ctx.strokeRect(lx1, ly1, lw, lh);
+      ctx.fillStyle = leftValid ? 'rgba(6, 182, 212, 0.12)' : 'rgba(239, 68, 68, 0.05)';
+      ctx.fillRect(lx1, ly1, lw, lh);
+
+      ctx.fillStyle = leftValid ? '#22d3ee' : '#f87171';
+      ctx.font = 'bold 11px monospace';
+      ctx.textAlign = 'center';
+      ctx.fillText(leftDistLabel, lx1 + (lw / 2), ly2 - 12);
+
+      // RIGHT BOX (Target mapping to screen right)
+      const rx1 = GUIDE_BOX_RIGHT.xMin * width;
+      const rx2 = GUIDE_BOX_RIGHT.xMax * width;
+      const ry1 = GUIDE_BOX_RIGHT.yMin * height;
+      const ry2 = GUIDE_BOX_RIGHT.yMax * height;
+      const rw = rx2 - rx1;
+      const rh = ry2 - ry1;
+
+      ctx.strokeStyle = rightValid ? '#ec4899' : '#ef4444';
+      ctx.shadowBlur = rightValid ? 15 : 0;
+      ctx.shadowColor = '#ec4899';
+      ctx.strokeRect(rx1, ry1, rw, rh);
+      ctx.fillStyle = rightValid ? 'rgba(236, 72, 153, 0.12)' : 'rgba(239, 68, 68, 0.05)';
+      ctx.fillRect(rx1, ry1, rw, rh);
+
+      ctx.fillStyle = rightValid ? '#f472b6' : '#f87171';
+      ctx.textAlign = 'center';
+      ctx.fillText(rightDistLabel, rx1 + (rw / 2), ry2 - 12);
+
+      // Calibration progress bar ring
+      const cx = width / 2;
+      const cy = height / 2 + 30;
+      const r = 45;
+
+      ctx.beginPath();
+      ctx.arc(cx, cy, r, 0, Math.PI * 2);
+      ctx.strokeStyle = '#374151';
+      ctx.lineWidth = 8;
+      ctx.shadowBlur = 0;
+      ctx.stroke();
+
+      if (STATE.calibrationProgress > 0) {
+        ctx.beginPath();
+        const startAngle = -Math.PI / 2;
+        const endAngle = startAngle + (Math.PI * 2 * (STATE.calibrationProgress / 100));
+        ctx.arc(cx, cy, r, startAngle, endAngle);
+        ctx.strokeStyle = '#a855f7';
+        ctx.lineWidth = 8;
+        ctx.lineCap = 'round';
+        ctx.shadowBlur = 10;
+        ctx.shadowColor = '#a855f7';
+        ctx.stroke();
+      }
+
+      ctx.fillStyle = '#ffffff';
+      ctx.font = 'bold 15px "Orbitron", sans-serif';
+      ctx.textAlign = 'center';
+      ctx.shadowBlur = 0;
+      ctx.fillText(`${STATE.calibrationProgress}%`, cx, cy + 5);
+
+      ctx.restore();
+    }
+
+    function processTrackResults(results) {
+      const now = Date.now();
+      STATE.fps = Math.round(1000 / (now - STATE.lastFrameTime));
+      STATE.lastFrameTime = now;
+      document.getElementById('diagFps').innerText = STATE.fps;
+
+      // Adjust dynamic overlay resolution to match natural video footprint
+      // This preserves strict aspect ratio of camera, ensuring widescreen or 4:3 doesn't stretch
+      if (canvas.width !== video.videoWidth || canvas.height !== video.videoHeight) {
+        canvas.width = video.videoWidth || 640;
+        canvas.height = video.videoHeight || 480;
+      }
+
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      
+      // Keep feed visibility fully active on canvas render layers
+      if (video.readyState >= 2) {
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+      }
+      
+      handleParticleEngine();
+
+      let leftFound = false;
+      let rightFound = false;
+      let leftValidPos = false;
+      let rightValidPos = false;
+
+      let leftDistLabel = "ALIGN LEFT HAND";
+      let rightDistLabel = "ALIGN RIGHT HAND";
+
+      let leftAmpVal = 0;
+      let rightAmpVal = 0;
+
+      if (results.multiHandLandmarks) {
+        for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+          const landmarks = results.multiHandLandmarks[i];
+          const palm = landmarks[9];
+          const wrist = landmarks[0];
+          
+          // Mirror correction coordinate calculation: Maps hands according to viewport projection
+          const side = palm.x > 0.5 ? 'Left' : 'Right';
+          const screenX = wrist.x * canvas.width;
+          const screenY = wrist.y * canvas.height;
+
+          const sensitivityVal = (18 - STATE.sensitivity) / 100;
+          const tracker = side === 'Left' ? leftTracker : rightTracker;
+          const updateResult = tracker.update(landmarks, sensitivityVal);
+
+          // Proximity tracking math
+          const handSpan = Math.sqrt(Math.pow(palm.x - wrist.x, 2) + Math.pow(palm.y - wrist.y, 2));
+          let distanceState = "OK";
+          if (handSpan > 0.28) distanceState = "TOO CLOSE";
+          else if (handSpan < 0.08) distanceState = "TOO FAR";
+
+          if (side === 'Left') {
+            leftFound = true;
+            leftAmpVal = updateResult.amplitude;
+            
+            const insideX = (palm.x >= GUIDE_BOX_LEFT.xMin && palm.x <= GUIDE_BOX_LEFT.xMax);
+            const insideY = (palm.y >= GUIDE_BOX_LEFT.yMin && palm.y <= GUIDE_BOX_LEFT.yMax);
+            
+            if (insideX && insideY) {
+              if (distanceState === "OK") {
+                leftValidPos = true;
+                leftDistLabel = "LOCKED IN";
+              } else {
+                leftDistLabel = distanceState;
+              }
+            } else {
+              leftDistLabel = "CENTER PALM";
+            }
+          } else {
+            rightFound = true;
+            rightAmpVal = updateResult.amplitude;
+
+            const insideX = (palm.x >= GUIDE_BOX_RIGHT.xMin && palm.x <= GUIDE_BOX_RIGHT.xMax);
+            const insideY = (palm.y >= GUIDE_BOX_RIGHT.yMin && palm.y <= GUIDE_BOX_RIGHT.yMax);
+
+            if (insideX && insideY) {
+              if (distanceState === "OK") {
+                rightValidPos = true;
+                rightDistLabel = "LOCKED IN";
+              } else {
+                rightDistLabel = distanceState;
+              }
+            } else {
+              rightDistLabel = "CENTER PALM";
+            }
+          }
+
+          // Count scoring triggers
+          if (updateResult.strokeDetected && STATE.gameMode === 'PLAYING') {
+            STATE.reps += 0.5;
+            const absoluteReps = Math.floor(STATE.reps);
+            
+            const prevText = document.getElementById('counterDisplay').innerText;
+            if (parseInt(prevText, 10) !== absoluteReps) {
+              document.getElementById('counterDisplay').innerText = String(absoluteReps).padStart(2, '0');
+              playSynthSound('count');
+              triggerVisualBurst(screenX, screenY, side);
+
+              if (absoluteReps % 3 === 0) {
+                triggerMemeSpeech();
+              }
+            }
+          }
+
+          drawHandOnCanvas(landmarks, side);
+
+          if (STATE.gameMode === 'PLAYING') {
+            drawThresholdGuides(updateResult, side, sensitivityVal);
+          }
+        }
+      }
+
+      // Handle setup progression states
+      if (STATE.gameMode === 'POSITIONING') {
+        document.getElementById('diagCalib').innerText = "CALIBRATING";
+        drawTargetBoxes(leftValidPos, rightValidPos, leftDistLabel, rightDistLabel);
+
+        if (leftValidPos && rightValidPos) {
+          STATE.calibrationProgress = Math.min(100, STATE.calibrationProgress + 2);
+          if (STATE.calibrationProgress % 20 === 0 && STATE.calibrationProgress < 100) {
+            playSynthSound('tick');
+          }
+          if (STATE.calibrationProgress >= 100) {
+            triggerCalibrationSuccess();
+          }
+        } else {
+          STATE.calibrationProgress = Math.max(0, STATE.calibrationProgress - 4);
+        }
+      } else if (STATE.gameMode === 'PLAYING') {
+        document.getElementById('diagCalib').innerText = "ACTIVE";
+      } else {
+        document.getElementById('diagCalib').innerText = "STANDBY";
+      }
+
+      updateStatusBadges(leftFound, rightFound, leftAmpVal, rightAmpVal);
+    }
+
+    function drawThresholdGuides(trackerResult, side, sensitivityVal) {
+      if (!trackerResult) return;
+      const baseLineScreenY = trackerResult.baselineY * canvas.height;
+      const thresholdPix = sensitivityVal * canvas.height;
+      const lineColor = side === 'Left' ? 'rgba(6, 182, 212, 0.4)' : 'rgba(236, 72, 153, 0.4)';
+      const activeColor = side === 'Left' ? '#06b6d4' : '#ec4899';
+
+      ctx.save();
+      ctx.setLineDash([5, 5]);
+      ctx.lineWidth = 1.5;
+
+      ctx.strokeStyle = lineColor;
+      ctx.beginPath();
+      ctx.moveTo(0, baseLineScreenY);
+      ctx.lineTo(canvas.width, baseLineScreenY);
+      ctx.stroke();
+
+      ctx.strokeStyle = trackerResult.state === 'high' ? activeColor : lineColor;
+      ctx.beginPath();
+      ctx.moveTo(0, baseLineScreenY - thresholdPix);
+      ctx.lineTo(canvas.width, baseLineScreenY - thresholdPix);
+      ctx.stroke();
+
+      ctx.strokeStyle = trackerResult.state === 'low' ? activeColor : lineColor;
+      ctx.beginPath();
+      ctx.moveTo(0, baseLineScreenY + thresholdPix);
+      ctx.lineTo(canvas.width, baseLineScreenY + thresholdPix);
+      ctx.stroke();
+
+      ctx.fillStyle = activeColor;
+      ctx.font = "bold 10px monospace";
+      const sideLabel = side === 'Left' ? "LEFT HAND SECTOR" : "RIGHT HAND SECTOR";
+      const labelX = side === 'Left' ? 20 : canvas.width - 150;
+      ctx.fillText(sideLabel, labelX, baseLineScreenY - thresholdPix - 4);
+      ctx.restore();
+    }
+
+    function updateStatusBadges(leftFound, rightFound, leftAmpVal, rightAmpVal) {
+      const lInd = document.getElementById('leftHandIndicator');
+      const rInd = document.getElementById('rightHandIndicator');
+
+      if (leftFound) {
+        lInd.className = 'px-1.5 py-0.5 rounded text-[9px] bg-cyan-500/20 text-cyan-300 border border-cyan-500/40 font-bold';
+        document.getElementById('leftAmpBar').style.height = `${leftAmpVal * 100}%`;
+      } else {
+        lInd.className = 'px-1.5 py-0.5 rounded text-[9px] bg-gray-800 text-gray-500 border border-gray-700';
+        document.getElementById('leftAmpBar').style.height = '0%';
+      }
+
+      if (rightFound) {
+        rInd.className = 'px-1.5 py-0.5 rounded text-[9px] bg-pink-500/20 text-pink-300 border border-pink-500/40 font-bold';
+        document.getElementById('rightAmpBar').style.height = `${rightAmpVal * 100}%`;
+      } else {
+        rInd.className = 'px-1.5 py-0.5 rounded text-[9px] bg-gray-800 text-gray-500 border border-gray-700';
+        document.getElementById('rightAmpBar').style.height = '0%';
+      }
+    }
+
+    function drawHandOnCanvas(landmarks, side) {
+      const primaryColor = side === 'Left' ? '#06b6d4' : '#ec4899';
+      
+      const connections = window.HAND_CONNECTIONS || (window.Hands ? window.Hands.HAND_CONNECTIONS : null);
+      if (connections && window.drawConnectors) {
+        drawConnectors(ctx, landmarks, connections, { color: primaryColor, lineWidth: 3 });
+      } else {
+        ctx.save();
+        ctx.strokeStyle = primaryColor;
+        ctx.lineWidth = 3;
+        ctx.beginPath();
+        const pointsToConnect = [0, 5, 9, 13, 17, 0];
+        pointsToConnect.forEach((idx, i) => {
+          const pt = landmarks[idx];
+          if (i === 0) ctx.moveTo(pt.x * canvas.width, pt.y * canvas.height);
+          else ctx.lineTo(pt.x * canvas.width, pt.y * canvas.height);
+        });
+        ctx.stroke();
+        ctx.restore();
+      }
+
+      if (window.drawLandmarks) {
+        drawLandmarks(ctx, landmarks, {
+          color: '#ffffff',
+          lineWidth: 1,
+          radius: (data) => (data.index % 4 === 0) ? 5 : 3.5
+        });
+      } else {
+        landmarks.forEach(point => {
+          ctx.beginPath();
+          ctx.arc(point.x * canvas.width, point.y * canvas.height, 4, 0, Math.PI * 2);
+          ctx.fillStyle = '#ffffff';
+          ctx.fill();
+        });
+      }
+    }
+
+    async function initMediaPipeModel() {
+      if (STATE.modelLoaded) return true;
+
+      document.getElementById('modelLoadingBarContainer').classList.remove('hidden');
+      document.getElementById('modelLoadingMessage').classList.remove('hidden');
+      
+      return new Promise((resolve, reject) => {
+        try {
+          handTrackerAI = new Hands({
+            locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands@0.4.1675469240/${file}`
+          });
+
+          handTrackerAI.setOptions({
+            maxNumHands: 2,
+            modelComplexity: 1,
+            minDetectionConfidence: 0.55,
+            minTrackingConfidence: 0.55
+          });
+
+          handTrackerAI.onResults(processTrackResults);
+          
+          STATE.modelLoaded = true;
+          document.getElementById('diagEngine').innerText = "ONLINE";
+          document.getElementById('diagEngine').className = "text-green-400";
+          document.getElementById('modelLoadingBarContainer').classList.add('hidden');
+          document.getElementById('modelLoadingMessage').classList.add('hidden');
+          resolve(true);
+        } catch (err) {
+          console.error("Critical model initialization failure:", err);
+          document.getElementById('modelLoadingMessage').innerText = "Load Failed. Switched to Mashing.";
+          document.getElementById('modelLoadingProgress').classList.add('bg-red-500');
+          document.getElementById('diagEngine').innerText = "CRASHED";
+          document.getElementById('diagEngine').className = "text-red-500";
+          reject(err);
+        }
+      });
+    }
+
+    async function nativeCameraTrackingLoop() {
+      if (!activeStream) return;
+
+      // Handle CPU Throttling using a semaphore flag
+      if (!isProcessingFrame && video.readyState >= 2) {
+        isProcessingFrame = true;
+        try {
+          if (handTrackerAI) {
+            await handTrackerAI.send({ image: video });
+          }
+        } catch (e) {
+          console.warn("Hand processing frame dropped:", e);
+        } finally {
+          isProcessingFrame = false;
+        }
+      }
+      cameraFrameId = requestAnimationFrame(nativeCameraTrackingLoop);
+    }
+
+    async function startCameraStream() {
+      // 1. Double check navigator capabilities to prevent crash inside constrained sandbox environments
+      if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+        console.warn("Navigator mediaDevices not supported or missing secure HTTPS origin.");
+        showToast("Webcam blocked or requires HTTPS. Switched to keyboard mode!");
+        triggerManualInputMode();
+        return;
+      }
+
+      try {
+        await initMediaPipeModel();
+      } catch (e) {
+        triggerManualInputMode();
+        return;
+      }
+
+      if (activeStream) return;
+
+      try {
+        // Fetch active hardware stream securely
+        const constraints = {
+          video: { 
+            width: { ideal: 640 }, 
+            height: { ideal: 480 }, 
+            facingMode: 'user' 
+          },
+          audio: false
+        };
+
+        const stream = await navigator.mediaDevices.getUserMedia(constraints);
+        activeStream = stream;
+        video.srcObject = stream;
+        
+        // Force rendering state rules for browser contexts
+        video.onloadedmetadata = async () => {
+          try {
+            await video.play();
+            video.classList.remove('opacity-0');
+            video.classList.add('opacity-100');
+            document.getElementById('cameraFallbackPlaceholder').classList.add('hidden');
+            document.getElementById('statusDot').className = "w-2.5 h-2.5 rounded-full bg-green-500 animate-pulse";
+            document.getElementById('statusTitle').innerText = "Webcam Connected";
+            document.getElementById('statusDesc').innerText = "Place hands inside guide regions to lock baseline.";
+            document.getElementById('amplitudeUI').classList.remove('opacity-0');
+
+            // FIX: Dynamically set aspect ratio properties on layout components to completely prevent any lengthwise distortion!
+            const naturalRatio = video.videoWidth / video.videoHeight;
+            video.style.aspectRatio = naturalRatio;
+            canvas.style.aspectRatio = naturalRatio;
+            
+            // Kickstart the processing animation pipeline
+            if (cameraFrameId) cancelAnimationFrame(cameraFrameId);
+            cameraFrameId = requestAnimationFrame(nativeCameraTrackingLoop);
+          } catch (playError) {
+            console.error("Autoplay loop blocked:", playError);
+          }
+        };
+
+      } catch (err) {
+        console.warn("Direct hardware stream block:", err);
+        showToast("Webcam error. Switched to alternative mashing mode!");
+        triggerManualInputMode();
+      }
+    }
+
+    function stopCameraStream() {
+      if (cameraFrameId) {
+        cancelAnimationFrame(cameraFrameId);
+        cameraFrameId = null;
+      }
+      if (activeStream) {
+        activeStream.getTracks().forEach(track => track.stop());
+        activeStream = null;
+      }
+      if (video.srcObject) {
+        video.srcObject = null;
+      }
+      video.classList.add('opacity-0');
+      document.getElementById('cameraFallbackPlaceholder').classList.remove('hidden');
+      document.getElementById('amplitudeUI').classList.add('opacity-0');
+    }
+
+    function triggerManualInputMode() {
+      STATE.inputMode = 'keyboard';
+      stopCameraStream();
+
+      document.getElementById('selectKeyboardMode').className = 'py-2.5 px-3 rounded-xl border-2 border-pink-500 bg-pink-500/10 text-white font-semibold text-xs flex items-center justify-center space-x-2 transition';
+      document.getElementById('selectCameraMode').className = 'py-2.5 px-3 rounded-xl border-2 border-transparent bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold text-xs flex items-center justify-center space-x-2 transition';
+      
+      document.getElementById('cameraContainer').classList.add('opacity-0', 'pointer-events-none');
+      document.getElementById('keyboardContainer').classList.remove('opacity-0', 'pointer-events-none');
+
+      document.getElementById('statusTitle').innerText = "Mashing Mode";
+      document.getElementById('statusDesc').innerText = "Alternately press 6 & 7 to dance!";
+      document.getElementById('statusDot').className = "w-2.5 h-2.5 rounded-full bg-pink-500 animate-pulse";
+    }
+
+    function triggerWebcamMode() {
+      STATE.inputMode = 'camera';
+      
+      document.getElementById('selectCameraMode').className = 'py-2.5 px-3 rounded-xl border-2 border-purple-500 bg-purple-500/10 text-white font-semibold text-xs flex items-center justify-center space-x-2 transition';
+      document.getElementById('selectKeyboardMode').className = 'py-2.5 px-3 rounded-xl border-2 border-transparent bg-gray-800 hover:bg-gray-700 text-gray-300 font-semibold text-xs flex items-center justify-center space-x-2 transition';
+      
+      document.getElementById('keyboardContainer').classList.add('opacity-0', 'pointer-events-none');
+      document.getElementById('cameraContainer').classList.remove('opacity-0', 'pointer-events-none');
+
+      document.getElementById('statusTitle').innerText = "Webcam Initializing";
+      document.getElementById('statusDesc').innerText = "Loading model elements...";
+      document.getElementById('statusDot').className = "w-2.5 h-2.5 rounded-full bg-yellow-500 animate-ping";
+
+      startCameraStream();
+    }
+
+    document.getElementById('selectKeyboardMode').addEventListener('click', triggerManualInputMode);
+    document.getElementById('selectCameraMode').addEventListener('click', triggerWebcamMode);
+    document.getElementById('directActivateCameraBtn').addEventListener('click', () => {
+      initAudio();
+      triggerWebcamMode();
+    });
+
+    let lastPressedKey = '';
+    
+    function processMashStroke(keyStr) {
+      if (STATE.gameMode !== 'PLAYING') return;
+
+      if (keyStr === lastPressedKey) return;
+      lastPressedKey = keyStr;
+
+      STATE.reps += 0.5;
+      const absoluteReps = Math.floor(STATE.reps);
+
+      const display = document.getElementById('counterDisplay');
+      if (parseInt(display.innerText, 10) !== absoluteReps) {
+        display.innerText = String(absoluteReps).padStart(2, '0');
+        playSynthSound('count');
+
+        if (keyStr === '6') {
+          const hand = document.getElementById('leftHandCartoon');
+          hand.style.transform = 'translateY(-20px) scale(1.1)';
+          setTimeout(() => hand.style.transform = 'translateY(0) scale(1)', 100);
+        } else if (keyStr === '7') {
+          const hand = document.getElementById('rightHandCartoon');
+          hand.style.transform = 'translateY(-20px) scale(1.1)';
+          setTimeout(() => hand.style.transform = 'translateY(0) scale(1)', 100);
+        }
+
+        if (absoluteReps % 3 === 0) {
+          triggerMemeSpeech();
+        }
+      }
+    }
+
+    // Keyboard inputs
+    window.addEventListener('keydown', (e) => {
+      if (STATE.inputMode !== 'keyboard') return;
+      if (e.key === '6' || e.key === '7') {
+        processMashStroke(e.key);
+      }
+    });
+
+    // Touch triggers
+    document.getElementById('touchTrigger6').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      processMashStroke('6');
+    });
+    document.getElementById('touchTrigger6').addEventListener('click', () => {
+      processMashStroke('6');
+    });
+
+    document.getElementById('touchTrigger7').addEventListener('touchstart', (e) => {
+      e.preventDefault();
+      processMashStroke('7');
+    });
+    document.getElementById('touchTrigger7').addEventListener('click', () => {
+      processMashStroke('7');
+    });
+
+    let gameplayCountdownInterval = null;
+
+    function startTimerProgressLoop() {
+      STATE.timeLeft = STATE.duration;
+      document.getElementById('timerText').innerText = formatTimerValue(STATE.timeLeft);
+      document.getElementById('timerProgress').style.width = '100%';
+
+      STATE.startTime = Date.now();
+
+      gameplayCountdownInterval = setInterval(() => {
+        STATE.timeLeft--;
+        
+        const percentage = (STATE.timeLeft / STATE.duration) * 100;
+        document.getElementById('timerProgress').style.width = `${percentage}%`;
+        document.getElementById('timerText').innerText = formatTimerValue(STATE.timeLeft);
+
+        const elapsedSeconds = (Date.now() - STATE.startTime) / 1000;
+        const currentPace = (STATE.reps / elapsedSeconds).toFixed(1);
+        document.getElementById('paceHelper').innerText = `Pace: ${currentPace} reps/sec`;
+
+        if (STATE.timeLeft <= 5 && STATE.timeLeft > 0) {
+          playSynthSound('tick');
+          document.getElementById('timerText').classList.add('scale-110', 'text-red-500');
+          setTimeout(() => document.getElementById('timerText').classList.remove('scale-110'), 200);
+        }
+
+        if (STATE.timeLeft <= 0) {
+          end67GameChallenge();
+        }
+      }, 1000);
+    }
+
+    function formatTimerValue(seconds) {
+      const m = Math.floor(seconds / 60);
+      const s = seconds % 60;
+      return `${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}`;
+    }
+
+    function triggerChallengeCountdown() {
+      initAudio();
+      
+      STATE.duration = parseInt(document.getElementById('challengeDuration').value, 10);
+      STATE.reps = 0;
+      document.getElementById('counterDisplay').innerText = '00';
+      
+      const mainBtn = document.getElementById('mainActionBtn');
+      mainBtn.disabled = true;
+      mainBtn.className = 'w-full bg-gray-800 text-gray-500 border border-gray-700 py-3.5 px-6 rounded-2xl cursor-not-allowed transition';
+
+      if (STATE.inputMode === 'camera') {
+        STATE.gameMode = 'POSITIONING';
+        STATE.calibrationProgress = 0;
+        
+        leftTracker.reset();
+        rightTracker.reset();
+
+        document.getElementById('statusTitle').innerText = "Calibrating Position";
+        document.getElementById('statusDesc').innerText = "Align both hands in calibration boxes!";
+        document.getElementById('statusDot').className = "w-2.5 h-2.5 rounded-full bg-cyan-400 animate-pulse";
+      } else {
+        runVisualOverlayCountdown();
+      }
+    }
+
+    function triggerCalibrationSuccess() {
+      playSynthSound('lock');
+      showToast("Ready! Calibration complete.");
+      runVisualOverlayCountdown();
+    }
+
+    function runVisualOverlayCountdown() {
+      STATE.gameMode = 'COUNTDOWN';
+
+      const overlay = document.getElementById('screenAnnounceOverlay');
+      const bigText = document.getElementById('announceBigText');
+      const subText = document.getElementById('announceSubText');
+
+      bigText.className = "orbitron font-extrabold text-7xl sm:text-8xl text-white transform scale-50 transition-transform duration-300";
+      overlay.classList.remove('opacity-0');
+      
+      let countdown = 3;
+      bigText.innerText = countdown;
+      bigText.style.transform = 'scale(1)';
+      subText.innerText = "Get ready to shake...";
+      playSynthSound('tick');
+
+      const cdInterval = setInterval(() => {
+        countdown--;
+        bigText.style.transform = 'scale(0.5)';
+        
+        setTimeout(() => {
+          if (countdown > 0) {
+            bigText.innerText = countdown;
+            bigText.style.transform = 'scale(1)';
+            playSynthSound('tick');
+          } else if (countdown === 0) {
+            bigText.innerText = "6-7!";
+            bigText.style.transform = 'scale(1.1)';
+            subText.innerText = "GO GO GO!";
+            playSynthSound('start');
+          } else {
+            clearInterval(cdInterval);
+            overlay.classList.add('opacity-0');
+            launchGameplayActiveState();
+          }
+        }, 150);
+
+      }, 1000);
+    }
+
+    function launchGameplayActiveState() {
+      STATE.gameMode = 'PLAYING';
+      
+      const mainBtn = document.getElementById('mainActionBtn');
+      mainBtn.disabled = false;
+      mainBtn.className = 'w-full bg-gradient-to-r from-red-600 to-pink-600 hover:from-red-500 hover:to-pink-500 text-white font-extrabold text-base py-3.5 px-6 rounded-2xl shadow-xl shadow-red-500/10 active:scale-[0.98] transition-all flex items-center justify-center space-x-3';
+      mainBtn.innerHTML = `<i class="fas fa-stop text-white"></i> <span>STOP CHALLENGE</span>`;
+
+      startTimerProgressLoop();
+    }
+
+    async function end67GameChallenge() {
+      clearInterval(gameplayCountdownInterval);
+      STATE.gameMode = 'GAMEOVER';
+      playSynthSound('gameover');
+
+      const absoluteScore = Math.floor(STATE.reps);
+      const nameVal = document.getElementById('playerNameInput').value.trim() || 'Guest_Shaker';
+
+      // Submit score to database right away
+      await submitScoreToLeaderboard(nameVal, absoluteScore);
+
+      let rank = "6-7 Rookie";
+      let colorClass = "text-gray-400";
+      if (absoluteScore >= 67) {
+        rank = "The Legendary 6-7 God!";
+        colorClass = "text-yellow-400 font-extrabold";
+      } else if (absoluteScore >= 50) {
+        rank = "Highway Bipper";
+        colorClass = "text-pink-400 font-bold";
+      } else if (absoluteScore >= 30) {
+        rank = "6-7 Master";
+        colorClass = "text-purple-400 font-semibold";
+      } else if (absoluteScore >= 12) {
+        rank = "6-7 Shaker";
+        colorClass = "text-blue-400";
+      }
+      
+      document.getElementById('rankBadge').innerText = rank;
+
+      let scoreAlertMessage = "";
+      if (absoluteScore > STATE.highScore) {
+        STATE.highScore = absoluteScore;
+        localStorage.setItem('6_7_high_score', String(absoluteScore));
+        document.getElementById('highScoreText').innerText = absoluteScore;
+        scoreAlertMessage = "🎉 NEW PERSONAL BEST! 🎉";
+        
+        confetti({
+          particleCount: 100,
+          spread: 70,
+          origin: { y: 0.6 }
+        });
+      }
+
+      // Automatically flip views to Leaderboard after score upload so they can see rank!
+      setTimeout(() => {
+        switchPanelTab('leaderboard');
+      }, 200);
+
+      const overlay = document.getElementById('screenAnnounceOverlay');
+      const bigText = document.getElementById('announceBigText');
+      const subText = document.getElementById('announceSubText');
+
+      overlay.classList.remove('opacity-0');
+      bigText.innerText = `${absoluteScore}`;
+      bigText.className = "orbitron font-black text-7xl sm:text-8xl text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-indigo-400 neon-text";
+      subText.innerHTML = `
+        <span class="block text-white text-base sm:text-lg font-bold uppercase tracking-widest">GAME OVER</span>
+        <span class="block text-xs uppercase tracking-wider mt-1 ${colorClass}">${rank}</span>
+        <span class="block text-[11px] text-yellow-400 font-bold mt-2">${scoreAlertMessage}</span>
+        <button id="restartFromOverlay" class="mt-4 px-4 py-2 bg-purple-600 hover:bg-purple-500 text-white rounded-lg text-xs font-bold uppercase transition active:scale-95 pointer-events-auto shadow-lg">Try Again</button>
+      `;
+
+      const mainBtn = document.getElementById('mainActionBtn');
+      mainBtn.disabled = false;
+      mainBtn.className = 'w-full bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-extrabold text-base py-3.5 px-6 rounded-2xl shadow-xl shadow-purple-500/20 active:scale-[0.98] transition-all flex items-center justify-center space-x-3';
+      mainBtn.innerHTML = `<i class="fas fa-rotate-right"></i> <span>START NEW CHALLENGE</span>`;
+      
+      document.getElementById('timerText').classList.remove('text-red-500');
+
+      document.getElementById('restartFromOverlay').addEventListener('click', () => {
+        overlay.classList.add('opacity-0');
+        switchPanelTab('settings');
+        triggerChallengeCountdown();
+      });
+    }
+
+    document.getElementById('mainActionBtn').addEventListener('click', () => {
+      if (STATE.gameMode === 'PLAYING') {
+        end67GameChallenge();
+      } else {
+        const overlay = document.getElementById('screenAnnounceOverlay');
+        overlay.classList.add('opacity-0');
+        triggerChallengeCountdown();
+      }
+    });
+
+    const slider = document.getElementById('sensitivitySlider');
+    slider.addEventListener('input', (e) => {
+      STATE.sensitivity = parseInt(e.target.value, 10);
+      const labels = {
+        3: "Hyper-Sensitive", 4: "Sensitive", 5: "Sensitive",
+        6: "Standard", 7: "Standard", 8: "Firm", 9: "Firm",
+        10: "Stiff", 11: "Stiff", 12: "Ultra-Stiff", 13: "Ultra-Stiff",
+        14: "Heavy", 15: "Heavy"
+      };
+      document.getElementById('sensitivityLabel').innerText = `Sensitivity: ${labels[STATE.sensitivity] || 'Standard'}`;
+    });
+
+    // Initialize application systems
+    window.onload = () => {
+      initFirebase();
+      startCameraStream();
+    };
+  </script>
+</body>
+</html>

@@ -6,6 +6,8 @@
     <title>Interactive Student Resume Builder</title>
     <!-- Tailwind CSS for modern client control design -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2pdf.js for client-side programmatic PDF downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
         
@@ -19,7 +21,7 @@
             background-color: #ffffff;
             width: 100%;
             max-width: 800px;
-            min-height: 1050px; /* Forces standard height balance */
+            min-height: 1050px;
             padding: 0.6in 0.7in;
             box-sizing: border-box;
             position: relative;
@@ -96,7 +98,6 @@
             .guide-hint {
                 display: none !important;
             }
-            /* Hide photo box entirely on PDF if no picture is uploaded */
             #resume-photo-box:not(.has-image) {
                 display: none !important;
             }
@@ -109,46 +110,55 @@
 <body class="theme-navy p-4 md:p-8 flex flex-col items-center">
 
     <!-- Controller Top Panel -->
-    <div class="no-print w-full max-w-3xl bg-white p-5 rounded-2xl shadow-lg border border-slate-200 mb-8 flex flex-wrap gap-5 justify-between items-center">
-        <div>
-            <h1 class="text-xl font-bold text-slate-800">Student Resume Builder</h1>
-            <p class="text-xs text-slate-500 mt-0.5">Fill details, toggle "Final Review" to compile, and save a clean PDF.</p>
+    <div class="no-print w-full max-w-3xl bg-white p-5 rounded-2xl shadow-lg border border-slate-200 mb-8 flex flex-col gap-4">
+        <div class="flex flex-wrap gap-5 justify-between items-center">
+            <div>
+                <h1 class="text-xl font-bold text-slate-800">Student Resume Builder</h1>
+                <p class="text-xs text-slate-500 mt-0.5">Fill details, check formatting, print or download your finished resume PDF.</p>
+            </div>
+            
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Separate Print Button -->
+                <button onclick="printResume()" class="bg-slate-600 hover:bg-slate-700 text-white font-medium text-xs md:text-sm px-4 py-2 rounded-lg shadow transition duration-150 flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" /></svg>
+                    Print
+                </button>
+                <!-- Separate Download Button -->
+                <button onclick="downloadResumePDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs md:text-sm px-4 py-2 rounded-lg shadow transition duration-150 flex items-center gap-1.5">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
+                    Download PDF
+                </button>
+            </div>
         </div>
-        
-        <div class="flex flex-wrap items-center gap-4">
+
+        <div class="flex flex-wrap gap-4 items-center justify-between border-t border-slate-100 pt-3">
             <!-- Mode Switcher -->
-            <div class="flex flex-col gap-1">
-                <span class="text-[10px] font-bold uppercase text-slate-400">Document Layout Mode</span>
-                <div class="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-1">
-                    <button id="edit-mode-btn" onclick="setDocumentMode('edit')" class="bg-white text-slate-800 shadow-sm text-xs font-semibold px-3 py-1.5 rounded-md transition">
+            <div class="flex flex-col gap-0.5">
+                <span class="text-[9px] font-bold uppercase text-slate-400">Document Layout Mode</span>
+                <div class="inline-flex rounded-lg border border-slate-200 bg-slate-100 p-1 self-start">
+                    <button id="edit-mode-btn" onclick="setDocumentMode('edit')" class="bg-white text-slate-800 shadow-sm text-xs font-semibold px-3 py-1 rounded-md transition">
                         ✍️ Edit Mode
                     </button>
-                    <button id="preview-mode-btn" onclick="setDocumentMode('preview')" class="text-slate-600 hover:text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-md transition">
+                    <button id="preview-mode-btn" onclick="setDocumentMode('preview')" class="text-slate-600 hover:text-slate-800 text-xs font-semibold px-3 py-1 rounded-md transition">
                         ✨ Final Review
                     </button>
                 </div>
             </div>
 
             <!-- Theme Controller -->
-            <div class="flex flex-col gap-1 edit-only">
-                <span class="text-[10px] font-bold uppercase text-slate-400">Color Palette</span>
+            <div class="flex flex-col gap-0.5 edit-only">
+                <span class="text-[9px] font-bold uppercase text-slate-400">Color Palette</span>
                 <div class="flex gap-2 py-1">
                     <button onclick="setTheme('navy')" class="w-6 h-6 rounded-full bg-blue-900 border-2 border-white ring-2 ring-blue-900/10 cursor-pointer"></button>
                     <button onclick="setTheme('slate')" class="w-6 h-6 rounded-full bg-slate-600 border-2 border-white ring-2 ring-slate-600/10 cursor-pointer"></button>
                     <button onclick="setTheme('teal')" class="w-6 h-6 rounded-full bg-teal-600 border-2 border-white ring-2 ring-teal-600/10 cursor-pointer"></button>
                 </div>
             </div>
-
-            <!-- Save as PDF Button -->
-            <button onclick="printOrSave()" class="bg-blue-600 hover:bg-blue-700 text-white font-medium text-xs md:text-sm px-5 py-2.5 rounded-xl shadow-md transition duration-150 flex items-center gap-2">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" /></svg>
-                Save / Print PDF
-            </button>
         </div>
     </div>
 
     <!-- The Resume Document -->
-    <div class="resume-sheet shadow-2xl border border-slate-200 rounded-lg flex flex-col gap-6">
+    <div id="resume-sheet" class="resume-sheet shadow-2xl border border-slate-200 rounded-lg flex flex-col gap-6">
         
         <!-- Header / Contact Information -->
         <div class="flex flex-col md:flex-row gap-6 items-center md:items-start border-b-2 pb-5" style="border-color: var(--accent-color, #1e3a8a);" id="header-section">
@@ -345,17 +355,15 @@
             syncResume();
 
             if (mode === 'preview') {
-                // Style Active Buttons
-                editBtn.className = "text-slate-600 hover:text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-md transition";
-                previewBtn.className = "bg-white text-slate-800 shadow-sm text-xs font-semibold px-3 py-1.5 rounded-md transition";
+                editBtn.className = "text-slate-600 hover:text-slate-800 text-xs font-semibold px-3 py-1 rounded-md transition";
+                previewBtn.className = "bg-white text-slate-800 shadow-sm text-xs font-semibold px-3 py-1 rounded-md transition";
                 
-                // Toggle Element Classes
                 document.querySelectorAll('.edit-only').forEach(el => el.style.setProperty('display', 'none', 'important'));
                 document.querySelectorAll('.preview-only').forEach(el => el.style.setProperty('display', 'block', 'important'));
                 document.querySelectorAll('.guide-hint').forEach(el => el.style.setProperty('display', 'none', 'important'));
             } else {
-                editBtn.className = "bg-white text-slate-800 shadow-sm text-xs font-semibold px-3 py-1.5 rounded-md transition";
-                previewBtn.className = "text-slate-600 hover:text-slate-800 text-xs font-semibold px-3 py-1.5 rounded-md transition";
+                editBtn.className = "bg-white text-slate-800 shadow-sm text-xs font-semibold px-3 py-1 rounded-md transition";
+                previewBtn.className = "text-slate-600 hover:text-slate-800 text-xs font-semibold px-3 py-1 rounded-md transition";
                 
                 document.querySelectorAll('.edit-only').forEach(el => el.style.display = '');
                 document.querySelectorAll('.preview-only').forEach(el => el.style.display = 'none');
@@ -363,16 +371,13 @@
             }
         }
 
-        // Live syncing value builder with dynamic element-omission logic
         function syncResume() {
-            // Identity fields
             document.getElementById('preview-full-name').innerText = document.getElementById('input-full-name').value || "";
             document.getElementById('preview-email').innerText = document.getElementById('input-email').value || "";
             document.getElementById('preview-phone').innerText = document.getElementById('input-phone').value || "";
             document.getElementById('preview-location').innerText = document.getElementById('input-location').value || "";
             document.getElementById('preview-portfolio').innerText = document.getElementById('input-portfolio').value || "";
 
-            // Objective (Hide block if empty in preview)
             const objVal = document.getElementById('input-objective').value.trim();
             document.getElementById('preview-objective').innerText = objVal;
             if (currentMode === 'preview' && objVal === '') {
@@ -381,23 +386,19 @@
                 document.getElementById('sec-objective').style.display = '';
             }
 
-            // Education Details
             document.getElementById('preview-edu-school').innerText = document.getElementById('input-edu-school').value || "";
             document.getElementById('preview-edu-grad').innerText = document.getElementById('input-edu-grad').value || "";
             document.getElementById('preview-edu-degree').innerText = document.getElementById('input-edu-degree').value || "";
 
-            // Education Bullets (Hide specific bullet nodes if blank)
             syncBulletAndContainer('input-edu-bullet-1', 'preview-edu-bullet-1', 'li-edu-bullet-1');
             syncBulletAndContainer('input-edu-bullet-2', 'preview-edu-bullet-2', 'li-edu-bullet-2');
 
-            // Project 1 sync
             document.getElementById('preview-p1-role').innerText = document.getElementById('input-p1-role').value || "";
             document.getElementById('preview-p1-date').innerText = document.getElementById('input-p1-date').value || "";
             document.getElementById('preview-p1-org').innerText = document.getElementById('input-p1-org').value || "";
             syncBulletAndContainer('input-p1-bullet-1', 'preview-p1-bullet-1', 'li-p1-bullet-1');
             syncBulletAndContainer('input-p1-bullet-2', 'preview-p1-bullet-2', 'li-p1-bullet-2');
 
-            // Project 2 sync (Hide entire block if fully blank)
             const p2Role = document.getElementById('input-p2-role').value.trim();
             const p2Org = document.getElementById('input-p2-org').value.trim();
             const p2Bullet = document.getElementById('input-p2-bullet-1').value.trim();
@@ -413,7 +414,6 @@
                 document.getElementById('container-project-2').style.display = '';
             }
 
-            // Skills (Conditionally hide unused numbering nodes)
             let activeSkillCount = 0;
             for (let i = 1; i <= 6; i++) {
                 const skillInput = document.getElementById('input-skill-' + i);
@@ -443,7 +443,6 @@
                 }
             }
 
-            // Adjust photo box visual layout on preview mode
             const photoBox = document.getElementById('resume-photo-box');
             if (currentMode === 'preview') {
                 if (!hasImageFile) {
@@ -460,7 +459,6 @@
             }
         }
 
-        // Helper: Hides empty bullets dynamically in final preview mode
         function syncBulletAndContainer(inputId, previewId, liId) {
             const val = document.getElementById(inputId).value.trim();
             document.getElementById(previewId).innerText = val;
@@ -499,17 +497,43 @@
             }
         }
 
-        function printOrSave() {
+        // Dedicated Print Function
+        function printResume() {
             const wasInEditMode = (currentMode === 'edit');
             if (wasInEditMode) {
                 setDocumentMode('preview');
             }
-            
             setTimeout(() => {
                 window.print();
                 if (wasInEditMode) {
                     setDocumentMode('edit');
                 }
+            }, 150);
+        }
+
+        // Dedicated direct PDF Download Function using html2pdf.js
+        function downloadResumePDF() {
+            const wasInEditMode = (currentMode === 'edit');
+            if (wasInEditMode) {
+                setDocumentMode('preview');
+            }
+
+            // Small delay to let DOM render changes perfectly
+            setTimeout(() => {
+                const element = document.getElementById('resume-sheet');
+                const opt = {
+                    margin:       [0.4, 0.4, 0.4, 0.4],
+                    filename:     'student_resume.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+
+                html2pdf().set(opt).from(element).save().then(() => {
+                    if (wasInEditMode) {
+                        setDocumentMode('edit');
+                    }
+                });
             }, 150);
         }
     </script>

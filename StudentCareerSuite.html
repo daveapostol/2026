@@ -1,0 +1,1878 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Student Career Prep Suite</title>
+    <!-- Tailwind CSS for modern interactive styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- html2pdf.js library for client-side high-fidelity PDF downloads -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+        
+        body {
+            font-family: 'Inter', 'Sarabun', sans-serif;
+            background-color: #f8fafc;
+        }
+
+        /* --- Theme Styling Variables --- */
+        .theme-navy {
+            --accent-color: #1e3a8a;
+            --accent-hover: #172554;
+            --accent-light: #eff6ff;
+            --accent-border: #bfdbfe;
+        }
+        .theme-slate {
+            --accent-color: #334155;
+            --accent-hover: #1e293b;
+            --accent-light: #f1f5f9;
+            --accent-border: #cbd5e1;
+        }
+        .theme-teal {
+            --accent-color: #0f766e;
+            --accent-hover: #115e59;
+            --accent-light: #f0fdfa;
+            --accent-border: #99f6e4;
+        }
+
+        /* Paper sheet simulation */
+        .letter-paper {
+            width: 100%;
+            max-width: 850px;
+            min-height: 1100px;
+            background-color: #ffffff;
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.05), 0 8px 10px -6px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+
+        /* Form styling tweaks during edit mode */
+        .workspace-input {
+            background-color: #ffffff;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.5rem;
+            padding: 0.5rem 0.75rem;
+            font-size: 0.875rem;
+            color: #1e293b;
+            outline: none;
+            transition: all 0.2s ease;
+            width: 100%;
+        }
+        .workspace-input:focus {
+            border-color: var(--accent-color, #1e3a8a);
+            box-shadow: 0 0 0 3px var(--accent-light, #eff6ff);
+        }
+
+        /* General form visual resets for bilingual app */
+        .form-input-clean {
+            border: none;
+            border-bottom: 1px dashed #cbd5e1;
+            font-size: 8.5pt;
+            padding: 1px 4px;
+            outline: none;
+            width: 100%;
+            transition: all 0.2s ease;
+            background-color: transparent;
+        }
+        .form-input-clean:focus {
+            border-bottom: 1.5px solid var(--accent-color, #1e3a8a);
+            background-color: var(--accent-light, #eff6ff);
+        }
+
+        .lbl-en {
+            font-size: 7.5pt;
+            font-weight: 600;
+            color: #1e293b;
+            text-transform: uppercase;
+            letter-spacing: 0.025em;
+        }
+        .lbl-th {
+            font-size: 7pt;
+            font-weight: 400;
+            color: #64748b;
+        }
+
+        /* Tables for PDF and Printing alignment */
+        .table-custom {
+            width: 100%;
+            border-collapse: collapse;
+            font-size: 8pt;
+        }
+        .table-custom th, .table-custom td {
+            border: 1px solid #cbd5e1;
+            padding: 4px 8px;
+        }
+        .table-custom th {
+            background-color: #f8fafc;
+            font-weight: 600;
+            color: #334155;
+        }
+
+        .bullet-list {
+            list-style-type: none;
+            padding-left: 0;
+        }
+        .bullet-list li {
+            position: relative;
+            padding-left: 1.25rem;
+            margin-bottom: 0.35rem;
+        }
+        .bullet-list li::before {
+            content: "•";
+            position: absolute;
+            left: 0.25rem;
+            color: var(--accent-color, #1e3a8a);
+            font-weight: bold;
+        }
+
+        /* Mode visibility control */
+        .preview-only {
+            display: none;
+        }
+
+        /* --- STREAMING_CHUNK: Styling print sheet rules for high fidelity outputs --- */
+        @media print {
+            body {
+                background-color: #ffffff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                color: #000 !important;
+            }
+            .no-print, .suite-header, .suite-tabs-nav, .assistant-panel, .edit-only, .guide-hint {
+                display: none !important;
+            }
+            .tab-pane:not(.active) {
+                display: none !important;
+            }
+            .tab-pane.active {
+                display: block !important;
+                width: 100% !important;
+                max-width: 100% !important;
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0 !important;
+            }
+            .letter-paper {
+                box-shadow: none !important;
+                border: none !important;
+                margin: 0 !important;
+                padding: 0.25in 0.3in !important;
+                max-width: 100% !important;
+                min-height: auto !important;
+            }
+            .preview-only {
+                display: block !important;
+            }
+            input::placeholder, textarea::placeholder {
+                color: transparent !important;
+            }
+            .section-header {
+                background-color: #f1f5f9 !important;
+                border-left-color: var(--accent-color, #1e3a8a) !important;
+                -webkit-print-color-adjust: exact;
+                print-color-adjust: exact;
+            }
+            #photo-box:not(.has-image), #resume-photo-box:not(.has-image) {
+                display: none !important;
+            }
+        }
+    </style>
+</head>
+<body class="theme-navy p-4 md:p-6 lg:p-8 flex flex-col items-center">
+
+    <header class="no-print w-full max-w-7xl bg-slate-900 text-white rounded-2xl shadow-xl p-6 mb-6 flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div>
+            <div class="flex items-center gap-2">
+                <span class="text-3xl">🎓</span>
+                <h1 class="text-xl md:text-2xl font-black tracking-tight uppercase bg-gradient-to-r from-blue-400 via-indigo-400 to-emerald-400 bg-clip-text text-transparent">Student Career Prep Suite</h1>
+            </div>
+            <p class="text-xs text-slate-400 mt-1">Design beautiful job applications, interactive resumes, and formal cover letters using pro templates.</p>
+        </div>
+        
+        <div class="flex flex-wrap gap-2">
+            <button onclick="triggerGlobalSave()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs md:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-lg transition flex items-center gap-1.5 hover:scale-[1.02]">
+                ☁️ Save Draft to Cloud
+            </button>
+            <button onclick="triggerGlobalLoad()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs md:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-lg transition flex items-center gap-1.5 hover:scale-[1.02]">
+                📂 Load Draft
+            </button>
+        </div>
+    </header>
+
+    <nav class="no-print w-full max-w-7xl bg-white border border-slate-200 rounded-2xl p-2 shadow-sm mb-6 flex flex-wrap gap-1">
+        <button onclick="switchTab('tab-application')" id="nav-btn-tab-application" class="tab-nav-btn active flex-1 min-w-[120px] text-center font-bold text-xs md:text-sm py-3 px-4 rounded-xl transition bg-indigo-50 text-indigo-900">
+            📝 1. Employment Form
+        </button>
+        <button onclick="switchTab('tab-resume')" id="nav-btn-tab-resume" class="tab-nav-btn flex-1 min-w-[120px] text-center font-bold text-xs md:text-sm py-3 px-4 rounded-xl transition text-slate-600 hover:bg-slate-50">
+            📄 2. Resume Builder
+        </button>
+        <button onclick="switchTab('tab-letter')" id="nav-btn-tab-letter" class="tab-nav-btn flex-1 min-w-[120px] text-center font-bold text-xs md:text-sm py-3 px-4 rounded-xl transition text-slate-600 hover:bg-slate-50">
+            ✉️ 3. Application Letter
+        </button>
+    </nav>
+
+    <!-- ============================================== -->
+    <!-- TAB 1: BILINGUAL EMPLOYMENT APPLICATION -->
+    <!-- ============================================== -->
+    <div id="tab-application" class="tab-pane active w-full max-w-7xl flex flex-col items-center">
+        <!-- Local Action Banner -->
+        <div class="no-print w-full max-w-4xl bg-white border border-slate-200 p-4 rounded-xl shadow-sm mb-4 flex flex-wrap gap-3 justify-between items-center">
+            <span class="text-xs font-semibold text-slate-600 flex items-center gap-1.5">
+                <span class="inline-block w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+                Perfectly formatted for clean printing on a single Letter-sized sheet of paper.
+            </span>
+            <div class="flex gap-2">
+                <button onclick="window.print()" class="bg-slate-700 hover:bg-slate-800 text-white font-medium text-xs px-3 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+                    🖨️ Print Form
+                </button>
+                <button onclick="downloadApplicationPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-medium text-xs px-3 py-2 rounded-lg shadow transition flex items-center gap-1.5">
+                    💾 Save PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Sheet Container -->
+        <div id="application-sheet" class="shadow-box w-full max-w-4xl bg-white rounded-xl shadow-xl border border-slate-200 p-8 flex flex-col gap-3">
+            <!-- Header & Photo Box -->
+            <div class="flex justify-between items-start border-b-2 border-slate-800 pb-3">
+                <div class="flex-1">
+                    <div class="flex items-center gap-3">
+                        <div class="bg-slate-850 text-white font-black text-xl px-3 py-1 rounded tracking-wider bg-slate-900">GEN</div>
+                        <div>
+                            <h1 class="text-lg font-bold tracking-tight text-slate-900 uppercase">Personal Particulars Form</h1>
+                            <p class="text-xs font-semibold text-slate-600 -mt-1">Application for Employment / ใบสมัครงาน</p>
+                        </div>
+                    </div>
+                    <div class="mt-4 flex items-center gap-2">
+                        <div>
+                            <span class="lbl-en">Date</span> <span class="lbl-th">/ วันที่ :</span>
+                        </div>
+                        <input type="text" id="app-date" class="form-input-clean" style="width: 150px;" placeholder="DD / MM / YYYY">
+                    </div>
+                </div>
+                
+                <!-- Interactive Photo -->
+                <div onclick="document.getElementById('photo-input').click()" class="cursor-pointer relative group w-[100px] h-[130px] border-2 border-dashed border-slate-300 rounded flex flex-col items-center justify-center text-center p-1 bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition overflow-hidden" id="photo-box">
+                    <input type="file" id="photo-input" accept="image/*" class="hidden" onchange="previewImage(this, 'photo-box')">
+                    <div id="photo-placeholder" class="flex flex-col items-center justify-center">
+                        <span class="text-[7pt] font-semibold text-slate-500 uppercase">Upload Photo</span>
+                        <span class="text-[6pt] text-slate-400 mt-1">ที่ติดรูปถ่าย<br>4 cm x 6 cm</span>
+                    </div>
+                    <img id="photo-box-img" class="hidden absolute inset-0 w-full h-full object-cover" />
+                </div>
+            </div>
+
+            <!-- Personal Data Section -->
+            <div>
+                <div class="section-header bg-slate-100 px-2 py-1 font-bold text-xs flex justify-between uppercase border-l-4 border-slate-800">
+                    <span>Personal Data / ประวัติส่วนตัว</span>
+                </div>
+                
+                <div class="grid grid-cols-12 gap-x-3 gap-y-1.5 mt-2">
+                    <div class="col-span-6 flex flex-col">
+                        <label><span class="lbl-en">Name in English</span> <span class="lbl-th">(Block Letters)</span></label>
+                        <input type="text" id="app-name-en" class="form-input-clean" placeholder="FIRST NAME - LAST NAME">
+                    </div>
+                    <div class="col-span-6 flex flex-col">
+                        <label><span class="lbl-en">ชื่อเป็นภาษาไทย</span> <span class="lbl-th">/ Name in Thai</span></label>
+                        <input type="text" id="app-name-th" class="form-input-clean" placeholder="ชื่อ - นามสกุล">
+                    </div>
+                    
+                    <div class="col-span-4 flex flex-col">
+                        <label><span class="lbl-en">I.D. / Passport No.</span> <span class="lbl-th">/ บัตรประชาชนหรือพาสปอร์ต</span></label>
+                        <input type="text" id="app-passport" class="form-input-clean">
+                    </div>
+                    <div class="col-span-4 flex flex-col">
+                        <label><span class="lbl-en">Permanent Address</span> <span class="lbl-th">/ ภูมิลำเนา</span></label>
+                        <input type="text" id="app-perm-address" class="form-input-clean">
+                    </div>
+                    <div class="col-span-4 flex flex-col">
+                        <label><span class="lbl-en">Telephone No.</span> <span class="lbl-th">/ โทรศัพท์</span></label>
+                        <input type="tel" id="app-phone" class="form-input-clean">
+                    </div>
+
+                    <div class="col-span-8 flex flex-col">
+                        <label><span class="lbl-en">Present Address</span> <span class="lbl-th">/ ที่อยู่ปัจจุบัน</span></label>
+                        <input type="text" id="app-pres-address" class="form-input-clean">
+                    </div>
+                    <div class="col-span-4 flex flex-col">
+                        <label><span class="lbl-en">Email Address</span> <span class="lbl-th">/ อีเมล</span></label>
+                        <input type="email" id="app-email" class="form-input-clean">
+                    </div>
+                    
+                    <div class="col-span-6 flex flex-col">
+                        <label><span class="lbl-en">Commute Time</span> <span class="lbl-th">/ เวลาเดินทางจากบ้านถึงที่ทำงาน</span></label>
+                        <input type="text" id="app-commute" class="form-input-clean" placeholder="e.g. 30 Minutes">
+                    </div>
+                    <div class="col-span-6 flex flex-col">
+                        <label><span class="lbl-en">Transportation</span> <span class="lbl-th">/ วิธีการเดินทาง</span></label>
+                        <input type="text" id="app-transport" class="form-input-clean" placeholder="e.g. Sky Train, Bus, Personal Car">
+                    </div>
+                    
+                    <div class="col-span-2 flex flex-col">
+                        <label><span class="lbl-en">Age</span> <span class="lbl-th">/ อายุ</span></label>
+                        <input type="text" id="app-age" class="form-input-clean">
+                    </div>
+                    <div class="col-span-3 flex flex-col">
+                        <label><span class="lbl-en">Date of Birth</span> <span class="lbl-th">/ วันเกิด</span></label>
+                        <input type="text" id="app-dob" class="form-input-clean" placeholder="DD/MM/YYYY">
+                    </div>
+                    <div class="col-span-3 flex flex-col">
+                        <label><span class="lbl-en">Place of Birth</span> <span class="lbl-th">/ สถานที่เกิด</span></label>
+                        <input type="text" id="app-pob" class="form-input-clean">
+                    </div>
+                    <div class="col-span-2 flex flex-col">
+                        <label><span class="lbl-en">Sex</span> <span class="lbl-th">/ เพศ</span></label>
+                        <div class="flex gap-2 items-center mt-1">
+                            <label class="inline-flex items-center text-xs"><input type="checkbox" id="app-sex-m" class="mr-1"> M</label>
+                            <label class="inline-flex items-center text-xs"><input type="checkbox" id="app-sex-f" class="mr-1"> F</label>
+                        </div>
+                    </div>
+                    <div class="col-span-2 flex flex-col">
+                        <label><span class="lbl-en">Religion</span> <span class="lbl-th">/ ศาสนา</span></label>
+                        <input type="text" id="app-religion" class="form-input-clean">
+                    </div>
+
+                    <div class="col-span-4 flex flex-col">
+                        <label><span class="lbl-en">Race / Nationality</span> <span class="lbl-th">/ เชื้อชาติ / สัญชาติ</span></label>
+                        <input type="text" id="app-race" class="form-input-clean">
+                    </div>
+                    <div class="col-span-4 flex flex-col">
+                        <label><span class="lbl-en">Marital Status</span> <span class="lbl-th">/ สถานะสมรส</span></label>
+                        <div class="flex gap-2 items-center mt-1 text-[8pt]">
+                            <label class="inline-flex items-center"><input type="checkbox" id="app-marital-single" class="mr-0.5"> Single</label>
+                            <label class="inline-flex items-center"><input type="checkbox" id="app-marital-married" class="mr-0.5"> Married</label>
+                            <label class="inline-flex items-center"><input type="checkbox" id="app-marital-divorced" class="mr-0.5"> Divorced</label>
+                        </div>
+                    </div>
+                    <div class="col-span-4 flex flex-col">
+                        <label><span class="lbl-en">No. of Children</span> <span class="lbl-th">/ จำนวนบุตร</span></label>
+                        <input type="text" id="app-children" class="form-input-clean">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Family Background & Emergency Contact -->
+            <div class="grid grid-cols-2 gap-4">
+                <div>
+                    <div class="section-header bg-slate-100 px-2 py-0.5 font-bold text-xs uppercase border-l-4 border-slate-800">
+                        <span>Family Details / ประวัติครอบครัว</span>
+                    </div>
+                    <div class="flex flex-col gap-1 mt-1.5">
+                        <div class="flex gap-1 items-baseline">
+                            <span class="lbl-en min-w-[80px]">Father / บิดา:</span>
+                            <input type="text" id="app-father" class="form-input-clean" placeholder="Name - Nationality - Occupation">
+                        </div>
+                        <div class="flex gap-1 items-baseline">
+                            <span class="lbl-en min-w-[80px]">Mother / มารดา:</span>
+                            <input type="text" id="app-mother" class="form-input-clean" placeholder="Name - Nationality - Occupation">
+                        </div>
+                    </div>
+                </div>
+                <div>
+                    <div class="section-header bg-slate-100 px-2 py-0.5 font-bold text-xs uppercase border-l-4 border-slate-800">
+                        <span>Emergency Notify / ติดต่อฉุกเฉิน</span>
+                    </div>
+                    <div class="flex flex-col gap-1 mt-1.5">
+                        <div class="flex gap-1 items-baseline">
+                            <span class="lbl-en min-w-[80px]">Name / ชื่อ:</span>
+                            <input type="text" id="app-emerg-name" class="form-input-clean">
+                        </div>
+                        <div class="flex gap-1 items-baseline">
+                            <span class="lbl-en min-w-[80px]">Tel / โทร:</span>
+                            <input type="tel" id="app-emerg-phone" class="form-input-clean">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Educational Background Table -->
+            <div>
+                <div class="section-header bg-slate-100 px-2 py-0.5 font-bold text-xs uppercase border-l-4 border-slate-800 mb-1">
+                    <span>Educational Background / ประวัติการศึกษา</span>
+                </div>
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th class="w-16">From (จาก)</th>
+                            <th class="w-16">To (ถึง)</th>
+                            <th>Course of Study / Level (ระดับการศึกษา)</th>
+                            <th>Name of School / Institution (ชื่อสถาบันการศึกษา)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" id="edu-from-1" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                            <td><input type="text" id="edu-to-1" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                            <td><input type="text" id="edu-course-1" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                            <td><input type="text" id="edu-school-1" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" id="edu-from-2" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                            <td><input type="text" id="edu-to-2" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                            <td><input type="text" id="edu-course-2" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                            <td><input type="text" id="edu-school-2" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Work Experience Table -->
+            <div>
+                <div class="section-header bg-slate-100 px-2 py-0.5 font-bold text-xs uppercase border-l-4 border-slate-800 mb-1">
+                    <span>Work Experience / ประสบการณ์ทำงาน</span>
+                </div>
+                <table class="table-custom">
+                    <thead>
+                        <tr>
+                            <th class="w-16">From (จาก)</th>
+                            <th class="w-16">To (ถึง)</th>
+                            <th>Name of Company (ชื่อบริษัท)</th>
+                            <th>Position (ตำแหน่ง)</th>
+                            <th class="w-24">Salary (เงินเดือน)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><input type="text" id="work-from-1" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                            <td><input type="text" id="work-to-1" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                            <td><input type="text" id="work-company-1" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                            <td><input type="text" id="work-pos-1" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                            <td><input type="text" id="work-sal-1" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                        </tr>
+                        <tr>
+                            <td><input type="text" id="work-from-2" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                            <td><input type="text" id="work-to-2" class="w-full bg-transparent border-none text-xs p-0 text-center outline-none"></td>
+                            <td><input type="text" id="work-company-2" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                            <td><input type="text" id="work-pos-2" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                            <td><input type="text" id="work-sal-2" class="w-full bg-transparent border-none text-xs p-0 outline-none"></td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Career Grid Section -->
+            <div class="border border-slate-800 rounded overflow-hidden">
+                <div class="bg-slate-300 px-3 py-1 font-bold text-xs uppercase text-slate-800 border-b border-slate-800">
+                    <span>Career / อาชีพ</span>
+                </div>
+                
+                <!-- Row 1: Desired Position, Available Date, Expected Salary -->
+                <div class="grid grid-cols-12 border-b border-slate-800">
+                    <div class="col-span-5 border-r border-slate-800 p-1.5">
+                        <span class="lbl-en block">Desired Position</span>
+                        <span class="lbl-th block -mt-1">ประเภทของงานที่ต้องการทำ</span>
+                        <input type="text" id="career-pos" class="form-input-clean mt-1">
+                    </div>
+                    <div class="col-span-3 border-r border-slate-800 p-1.5">
+                        <span class="lbl-en block">Available Date</span>
+                        <span class="lbl-th block -mt-1">วันที่พร้อมจะทำงาน</span>
+                        <input type="text" id="career-date" class="form-input-clean mt-1" placeholder="Immediately / DD-MM-YY">
+                    </div>
+                    <div class="col-span-4 p-1.5">
+                        <span class="lbl-en block">Expected Salary</span>
+                        <span class="lbl-th block -mt-1">เงินเดือนที่ต้องการ</span>
+                        <input type="text" id="career-sal" class="form-input-clean mt-1">
+                    </div>
+                </div>
+
+                <!-- Row 2: Skills, Business Machines -->
+                <div class="grid grid-cols-12 border-b border-slate-800">
+                    <div class="col-span-6 border-r border-slate-800 p-1.5">
+                        <span class="lbl-en block">Special Qualification / Skills</span>
+                        <span class="lbl-th block -mt-1">ความชำนาญและความสามารถพิเศษ</span>
+                        <input type="text" id="career-skills" class="form-input-clean mt-1">
+                    </div>
+                    <div class="col-span-6 p-1.5">
+                        <span class="lbl-en block">Business Machine You Operate</span>
+                        <span class="lbl-th block -mt-1">เครื่องมือเครื่องใช้ที่สามารถใช้ได้</span>
+                        <input type="text" id="career-machines" class="form-input-clean mt-1">
+                    </div>
+                </div>
+
+                <!-- Row 3: Hobbies -->
+                <div class="p-1.5 border-b border-slate-800">
+                    <span class="lbl-en block">Hobbies & Interests</span>
+                    <span class="lbl-th block -mt-1">งานอดิเรก</span>
+                    <input type="text" id="career-hobbies" class="form-input-clean mt-1">
+                </div>
+
+                <!-- Row 4: Friends/Relatives Employed -->
+                <div class="p-1.5 border-b border-slate-800">
+                    <span class="lbl-en block">Name of Friends / Relatives Employed by this Company</span>
+                    <span class="lbl-th block -mt-1">ชื่อของเพื่อนหรือญาติที่ทำงานอยู่ในบริษัทนี้ / แผนก</span>
+                    <input type="text" id="career-friends" class="form-input-clean mt-1">
+                </div>
+
+                <!-- Row 5: Reference -->
+                <div class="grid grid-cols-12 border-b border-slate-800">
+                    <div class="col-span-5 border-r border-slate-800 p-1.5">
+                        <span class="lbl-en block">Personal Reference(s)</span>
+                        <span class="lbl-th block -mt-1">ผู้รับรอง (ชื่อ)</span>
+                        <input type="text" id="career-ref-name" class="form-input-clean mt-1">
+                    </div>
+                    <div class="col-span-4 border-r border-slate-800 p-1.5">
+                        <span class="lbl-en block">Address</span>
+                        <span class="lbl-th block -mt-1">ที่อยู่</span>
+                        <input type="text" id="career-ref-addr" class="form-input-clean mt-1">
+                    </div>
+                    <div class="col-span-3 p-1.5">
+                        <span class="lbl-en block">Occupation</span>
+                        <span class="lbl-th block -mt-1">อาชีพ</span>
+                        <input type="text" id="career-ref-occ" class="form-input-clean mt-1">
+                    </div>
+                </div>
+
+                <!-- Row 6: Guarantor -->
+                <div class="grid grid-cols-12">
+                    <div class="col-span-9 border-r border-slate-800 p-1.5">
+                        <span class="lbl-en block">Guarantor</span>
+                        <span class="lbl-th block -mt-1">ผู้รับรอง</span>
+                        <input type="text" id="career-guar-name" class="form-input-clean mt-1">
+                    </div>
+                    <div class="col-span-3 p-1.5">
+                        <span class="lbl-en block">Occupation</span>
+                        <span class="lbl-th block -mt-1">อาชีพ</span>
+                        <input type="text" id="career-guar-occ" class="form-input-clean mt-1">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Affirmation and Signatures -->
+            <div class="mt-2 text-center flex flex-col items-center">
+                <span class="lbl-en text-xs">I hereby affirm that the information on this application is true and correct.</span>
+                <span class="lbl-th text-xs block -mt-1">ข้าพเจ้าขอรับรองว่าข้อความที่กรอกในใบสมัครงานนี้เป็นความจริงและถูกต้องทุกประการ</span>
+                
+                <div class="flex justify-between w-full mt-6 px-12">
+                    <div class="flex flex-col items-center w-64">
+                        <div class="w-full border-b border-slate-800 h-8"></div>
+                        <span class="lbl-en mt-1">Signature of Applicant</span>
+                        <span class="lbl-th -mt-1">ลายเซ็นผู้สมัครงาน</span>
+                    </div>
+                    <div class="flex flex-col items-center w-48">
+                        <div class="w-full border-b border-slate-800 h-8"></div>
+                        <span class="lbl-en mt-1">Date</span>
+                        <span class="lbl-th -mt-1">วันที่</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 2: UPGRADED STUDENT RESUME BUILDER -->
+    <!-- ============================================== -->
+    <div id="tab-resume" class="tab-pane hidden w-full max-w-7xl">
+        <div class="no-print w-full bg-white border border-slate-200 p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap gap-4 justify-between items-center">
+            <div class="flex items-center gap-4">
+                <!-- Toggle Mode Controller -->
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Layout Mode</span>
+                    <div class="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+                        <button id="resume-edit-btn" onclick="setResumeMode('edit')" class="bg-white text-slate-900 shadow-sm text-xs font-semibold px-4 py-2 rounded-lg transition-all">
+                            ✍️ Interactive Builder
+                        </button>
+                        <button id="resume-preview-btn" onclick="setResumeMode('preview')" class="text-slate-600 hover:text-slate-850 text-xs font-semibold px-4 py-2 rounded-lg transition-all">
+                            ✨ Final Paper Review
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Theme Controller -->
+                <div class="flex flex-col gap-1 edit-only">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Accent Hue</span>
+                    <div class="flex gap-1.5 py-1">
+                        <button onclick="setTheme('navy')" class="w-6 h-6 rounded-full bg-blue-900 border-2 border-white ring-2 ring-blue-950/20 hover:scale-110 transition"></button>
+                        <button onclick="setTheme('slate')" class="w-6 h-6 rounded-full bg-slate-600 border-2 border-white ring-2 ring-slate-800/20 hover:scale-110 transition"></button>
+                        <button onclick="setTheme('teal')" class="w-6 h-6 rounded-full bg-teal-600 border-2 border-white ring-2 ring-teal-800/20 hover:scale-110 transition"></button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="printResume()" class="bg-slate-700 hover:bg-slate-800 text-white font-semibold text-xs md:text-sm px-4 py-2.5 rounded-xl shadow transition duration-150 flex items-center gap-1.5">
+                    🖨️ Print Resume
+                </button>
+                <button onclick="downloadResumePDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs md:text-sm px-4 py-2.5 rounded-xl shadow transition duration-150 flex items-center gap-1.5">
+                    💾 Save PDF
+                </button>
+            </div>
+        </div>
+
+        <!-- Master Split Container (Form Editor Panel on Left / Beautiful Live Output on Right) -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Panel: Interactive Form Editor (Only visible when layoutMode == 'edit') -->
+            <div id="resume-editor-panel" class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col gap-6 no-print">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-base font-bold text-slate-950 flex items-center gap-2">
+                        <span class="text-xl">🛠️</span> Live Builder panel
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Modify fields below. Changes render immediately onto the sheet layout.</p>
+                </div>
+
+                <!-- 1. Contact -->
+                <div class="flex flex-col gap-3">
+                    <span class="text-xs font-extrabold tracking-wider text-slate-400 uppercase flex items-center gap-1">👤 Contact Identity</span>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="col-span-2">
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Full Name</label>
+                            <input type="text" id="input-full-name" oninput="syncResume()" class="workspace-input" placeholder="e.g. Somchai Dev">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Email</label>
+                            <input type="email" id="input-email" oninput="syncResume()" class="workspace-input" placeholder="name@domain.com">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Phone</label>
+                            <input type="tel" id="input-phone" oninput="syncResume()" class="workspace-input" placeholder="081-1234-567">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Location</label>
+                            <input type="text" id="input-location" oninput="syncResume()" class="workspace-input" placeholder="Bangkok, TH">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">LinkedIn / Portfolio</label>
+                            <input type="text" id="input-portfolio" oninput="syncResume()" class="workspace-input" placeholder="linkedin.com/in/somchai">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 2. Objective -->
+                <div class="flex flex-col gap-2">
+                    <span class="text-xs font-extrabold tracking-wider text-slate-400 uppercase">🎯 Professional Objective</span>
+                    <label class="text-[10px] font-bold text-slate-500 block">Briefly state your purpose & value proposition</label>
+                    <textarea id="input-objective" oninput="syncResume()" class="workspace-input h-20" placeholder="A highly driven student seeking a collaborative role..."></textarea>
+                </div>
+
+                <!-- 3. Education -->
+                <div class="flex flex-col gap-3">
+                    <span class="text-xs font-extrabold tracking-wider text-slate-400 uppercase">🎓 Education Profile</span>
+                    <div class="grid grid-cols-12 gap-3">
+                        <div class="col-span-8">
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">School / College</label>
+                            <input type="text" id="input-edu-school" oninput="syncResume()" class="workspace-input" placeholder="King Mongkut's University">
+                        </div>
+                        <div class="col-span-4">
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Grad Year</label>
+                            <input type="text" id="input-edu-grad" oninput="syncResume()" class="workspace-input" placeholder="2026">
+                        </div>
+                        <div class="col-span-12">
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Degree / Certifications Obtained</label>
+                            <input type="text" id="input-edu-degree" oninput="syncResume()" class="workspace-input" placeholder="B.Sc. Computer Science">
+                        </div>
+                        <div class="col-span-12">
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Highlight Bullet 1</label>
+                            <input type="text" id="input-edu-bullet-1" oninput="syncResume()" class="workspace-input" placeholder="GPA 3.8 / relevant projects">
+                        </div>
+                        <div class="col-span-12">
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Highlight Bullet 2</label>
+                            <input type="text" id="input-edu-bullet-2" oninput="syncResume()" class="workspace-input" placeholder="Outstanding student leadership award">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 4. Projects -->
+                <div class="flex flex-col gap-3">
+                    <span class="text-xs font-extrabold tracking-wider text-slate-400 uppercase">💼 Project Portfolio & Activities</span>
+                    <!-- Proj 1 -->
+                    <div class="border-l-2 pl-3 py-1 flex flex-col gap-2" style="border-color: var(--accent-color);">
+                        <div class="grid grid-cols-12 gap-2">
+                            <div class="col-span-8">
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Project 1 Role</label>
+                                <input type="text" id="input-p1-role" oninput="syncResume()" class="workspace-input" placeholder="Team Leader / Dev">
+                            </div>
+                            <div class="col-span-4">
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Dates</label>
+                                <input type="text" id="input-p1-date" oninput="syncResume()" class="workspace-input" placeholder="2025">
+                            </div>
+                            <div class="col-span-12">
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Organization</label>
+                                <input type="text" id="input-p1-org" oninput="syncResume()" class="workspace-input" placeholder="SUT Hackathon Project">
+                            </div>
+                            <div class="col-span-12">
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Bullet Task 1</label>
+                                <input type="text" id="input-p1-bullet-1" oninput="syncResume()" class="workspace-input" placeholder="Describe the outcome & metrics">
+                            </div>
+                            <div class="col-span-12">
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Bullet Task 2</label>
+                                <input type="text" id="input-p1-bullet-2" oninput="syncResume()" class="workspace-input" placeholder="Detail tech stack or leadership method">
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Proj 2 -->
+                    <div class="border-l-2 pl-3 py-1 flex flex-col gap-2" style="border-color: var(--accent-color);">
+                        <div class="grid grid-cols-12 gap-2">
+                            <div class="col-span-8">
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Project 2 Role</label>
+                                <input type="text" id="input-p2-role" oninput="syncResume()" class="workspace-input" placeholder="Volunteer">
+                            </div>
+                            <div class="col-span-4">
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Dates</label>
+                                <input type="text" id="input-p2-date" oninput="syncResume()" class="workspace-input" placeholder="2024">
+                            </div>
+                            <div class="col-span-12">
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Organization</label>
+                                <input type="text" id="input-p2-org" oninput="syncResume()" class="workspace-input" placeholder="Tech for Nonprofits">
+                            </div>
+                            <div class="col-span-12">
+                                <label class="text-[9px] font-bold text-slate-500 uppercase">Bullet Task 1</label>
+                                <input type="text" id="input-p2-bullet-1" oninput="syncResume()" class="workspace-input" placeholder="Managed community database update">
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 5. Skills -->
+                <div class="flex flex-col gap-3">
+                    <span class="text-xs font-extrabold tracking-wider text-slate-400 uppercase">⚙️ Core Skills</span>
+                    <div class="grid grid-cols-2 gap-2">
+                        <input type="text" id="input-skill-1" oninput="syncResume()" class="workspace-input" placeholder="Skill 1 (e.g. JS/Python)">
+                        <input type="text" id="input-skill-2" oninput="syncResume()" class="workspace-input" placeholder="Skill 2 (e.g. Figma)">
+                        <input type="text" id="input-skill-3" oninput="syncResume()" class="workspace-input" placeholder="Skill 3 (e.g. Communication)">
+                        <input type="text" id="input-skill-4" oninput="syncResume()" class="workspace-input" placeholder="Skill 4">
+                        <input type="text" id="input-skill-5" oninput="syncResume()" class="workspace-input" placeholder="Skill 5">
+                        <input type="text" id="input-skill-6" oninput="syncResume()" class="workspace-input" placeholder="Skill 6">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Panel: High-Fidelity Paper Simulation Sheet (With Sticky Scroll Behavior) -->
+            <div id="resume-preview-panel" class="lg:col-span-7 lg:sticky lg:top-6 flex justify-center">
+                <div id="resume-sheet" class="letter-paper p-10 md:p-14 rounded-2xl flex flex-col gap-6">
+                    <!-- Photo & Contact Header -->
+                    <div class="flex justify-between items-start border-b pb-6" style="border-color: var(--accent-color, #1e3a8a);">
+                        <div class="flex-1">
+                            <h2 id="preview-full-name" class="text-4xl font-serif font-bold text-slate-800 tracking-tight leading-none mb-3">SOMCHAI DEV</h2>
+                            <div class="grid grid-cols-2 gap-x-4 gap-y-1.5 text-xs text-slate-600">
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400">✉️</span>
+                                    <span id="preview-email" class="font-medium">somchai@domain.com</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400">📞</span>
+                                    <span id="preview-phone" class="font-medium">081-1234-567</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400">📍</span>
+                                    <span id="preview-location" class="font-medium">Bangkok, TH</span>
+                                </div>
+                                <div class="flex items-center gap-1.5">
+                                    <span class="text-slate-400">🌐</span>
+                                    <span id="preview-portfolio" class="font-medium">somchaidev.com</span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Interactive Resume Photo -->
+                        <div onclick="document.getElementById('resume-photo-input').click()" class="no-print shrink-0 relative group w-[90px] h-[110px] border-2 border-dashed border-slate-200 rounded-lg flex flex-col items-center justify-center text-center p-1 bg-slate-50 hover:bg-slate-100 hover:border-slate-400 transition-all overflow-hidden" id="resume-photo-box">
+                            <input type="file" id="resume-photo-input" accept="image/*" class="hidden" onchange="previewResumeImage(this)">
+                            <div id="resume-photo-placeholder" class="flex flex-col items-center justify-center">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 text-slate-400 group-hover:text-slate-600 mb-1 transition-all" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 9a2 2 0 012-2h.93a2 2 0 001.664-.89l.812-1.22A2 2 0 0110.07 4h3.86a2 2 0 011.664.89l.812 1.22A2 2 0 0018.07 7H19a2 2 0 012 2v9a2 2 0 01-2 2H5a2 2 0 01-2-2V9z" />
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 13a3 3 0 11-6 0 3 3 0 016 0z" />
+                                </svg>
+                                <span class="text-[7px] font-bold text-slate-400 uppercase tracking-wide">Photo</span>
+                            </div>
+                            <img id="resume-photo-img" class="hidden absolute inset-0 w-full h-full object-cover" />
+                        </div>
+                    </div>
+
+                    <!-- Objective Block -->
+                    <div id="sec-objective">
+                        <h3 class="text-xs font-bold uppercase tracking-widest mb-2 pb-0.5 border-b" style="color: var(--accent-color, #1e3a8a); border-color: var(--accent-border);">Professional Objective</h3>
+                        <p id="preview-objective" class="text-sm text-slate-700 leading-relaxed italic"></p>
+                    </div>
+
+                    <!-- Education Block -->
+                    <div id="sec-education">
+                        <h3 class="text-xs font-bold uppercase tracking-widest mb-3 pb-0.5 border-b" style="color: var(--accent-color, #1e3a8a); border-color: var(--accent-border);">Education</h3>
+                        <div class="flex justify-between items-baseline mb-1">
+                            <span id="preview-edu-school" class="text-sm font-bold text-slate-800">King Mongkut's University</span>
+                            <span id="preview-edu-grad" class="text-xs font-semibold italic text-slate-500">Graduation: 2026</span>
+                        </div>
+                        <p id="preview-edu-degree" class="text-xs font-semibold text-slate-600 mb-2"></p>
+                        <ul class="bullet-list text-xs text-slate-650 flex flex-col gap-1">
+                            <li id="li-edu-bullet-1"><span id="preview-edu-bullet-1"></span></li>
+                            <li id="li-edu-bullet-2"><span id="preview-edu-bullet-2"></span></li>
+                        </ul>
+                    </div>
+
+                    <!-- Projects & Experience Block -->
+                    <div id="sec-projects">
+                        <h3 class="text-xs font-bold uppercase tracking-widest mb-3 pb-0.5 border-b" style="color: var(--accent-color, #1e3a8a); border-color: var(--accent-border);">Projects & Activities</h3>
+                        
+                        <!-- Proj 1 -->
+                        <div id="container-project-1" class="mb-4">
+                            <div class="flex justify-between items-baseline mb-0.5">
+                                <span id="preview-p1-role" class="text-sm font-bold text-slate-800">Team Leader</span>
+                                <span id="preview-p1-date" class="text-xs font-semibold italic text-slate-500">2025</span>
+                            </div>
+                            <p id="preview-p1-org" class="text-xs font-semibold text-slate-600 mb-2">SUT Hackathon Project</p>
+                            <ul class="bullet-list text-xs text-slate-650 flex flex-col gap-1">
+                                <li id="li-p1-bullet-1"><span id="preview-p1-bullet-1"></span></li>
+                                <li id="li-p1-bullet-2"><span id="preview-p1-bullet-2"></span></li>
+                            </ul>
+                        </div>
+
+                        <!-- Proj 2 -->
+                        <div id="container-project-2">
+                            <div class="flex justify-between items-baseline mb-0.5">
+                                <span id="preview-p2-role" class="text-sm font-bold text-slate-800">Volunteer</span>
+                                <span id="preview-p2-date" class="text-xs font-semibold italic text-slate-500">2024</span>
+                            </div>
+                            <p id="preview-p2-org" class="text-xs font-semibold text-slate-600 mb-2">Tech for Nonprofits</p>
+                            <ul class="bullet-list text-xs text-slate-650 flex flex-col gap-1">
+                                <li id="li-p2-bullet-1"><span id="preview-p2-bullet-1"></span></li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Skills Block -->
+                    <div id="sec-skills">
+                        <h3 class="text-xs font-bold uppercase tracking-widest mb-3 pb-0.5 border-b" style="color: var(--accent-color, #1e3a8a); border-color: var(--accent-border);">Core Skills & Competencies</h3>
+                        <div class="grid grid-cols-2 md:grid-cols-3 gap-y-2 gap-x-6">
+                            <div id="container-skill-1" class="flex items-center gap-2 text-xs">
+                                <span id="num-skill-1" class="font-bold text-slate-400">1.</span>
+                                <span id="preview-skill-1" class="text-slate-700"></span>
+                            </div>
+                            <div id="container-skill-2" class="flex items-center gap-2 text-xs">
+                                <span id="num-skill-2" class="font-bold text-slate-400">2.</span>
+                                <span id="preview-skill-2" class="text-slate-700"></span>
+                            </div>
+                            <div id="container-skill-3" class="flex items-center gap-2 text-xs">
+                                <span id="num-skill-3" class="font-bold text-slate-400">3.</span>
+                                <span id="preview-skill-3" class="text-slate-700"></span>
+                            </div>
+                            <div id="container-skill-4" class="flex items-center gap-2 text-xs">
+                                <span id="num-skill-4" class="font-bold text-slate-400">4.</span>
+                                <span id="preview-skill-4" class="text-slate-700"></span>
+                            </div>
+                            <div id="container-skill-5" class="flex items-center gap-2 text-xs">
+                                <span id="num-skill-5" class="font-bold text-slate-400">5.</span>
+                                <span id="preview-skill-5" class="text-slate-700"></span>
+                            </div>
+                            <div id="container-skill-6" class="flex items-center gap-2 text-xs">
+                                <span id="num-skill-6" class="font-bold text-slate-400">6.</span>
+                                <span id="preview-skill-6" class="text-slate-700"></span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- TAB 3: UPGRADED APPLICATION LETTER BUILDER -->
+    <!-- ============================================== -->
+    <div id="tab-letter" class="tab-pane hidden w-full max-w-7xl">
+        <div class="no-print w-full bg-white border border-slate-200 p-4 rounded-2xl shadow-sm mb-6 flex flex-wrap gap-4 justify-between items-center">
+            <div class="flex items-center gap-4">
+                <div class="flex flex-col gap-1">
+                    <span class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Document Layout Mode</span>
+                    <div class="inline-flex rounded-xl border border-slate-200 bg-slate-50 p-1">
+                        <button id="letter-edit-btn" onclick="setLetterMode('edit')" class="bg-white text-slate-900 shadow-sm text-xs font-semibold px-4 py-2 rounded-lg transition-all">
+                            ✍️ Interactive Builder
+                        </button>
+                        <button id="letter-preview-btn" onclick="setLetterMode('preview')" class="text-slate-600 hover:text-slate-850 text-xs font-semibold px-4 py-2 rounded-lg transition-all">
+                            ✨ Final Paper Review
+                        </button>
+                    </div>
+                </div>
+                <button id="toggle-guides" onclick="toggleGuides()" class="bg-slate-50 hover:bg-slate-100 text-slate-700 text-xs font-semibold px-4 py-2 rounded-xl border border-slate-200 transition edit-only self-end mb-1">
+                    Toggle Help Hints
+                </button>
+            </div>
+            
+            <div class="flex gap-2">
+                <button onclick="printOrSaveLetter()" class="bg-slate-700 hover:bg-slate-800 text-white font-semibold text-xs md:text-sm px-4 py-2.5 rounded-xl shadow transition flex items-center gap-1.5">
+                    🖨️ Print Letter
+                </button>
+                <button onclick="downloadLetterPDF()" class="bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-xs md:text-sm px-4 py-2.5 rounded-xl shadow transition flex items-center gap-1.5">
+                    💾 Save PDF
+                </button>
+            </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Panel: Form Editor fields for clean Letter layout (Visible when layoutMode == 'edit') -->
+            <div id="letter-editor-panel" class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col gap-6 no-print">
+                <div class="border-b border-slate-100 pb-3">
+                    <h2 class="text-base font-bold text-slate-950 flex items-center gap-2">
+                        <span class="text-xl">✉️</span> Letter Composer
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Compose formal correspondence dynamically using the assistant panel below.</p>
+                </div>
+
+                <!-- Sender info block -->
+                <div class="flex flex-col gap-3">
+                    <span class="text-xs font-extrabold tracking-wider text-slate-400 uppercase">📝 Sender Contact details</span>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Sender Name</label>
+                        <input type="text" id="input-sender-name" oninput="syncLetterFields()" class="workspace-input" placeholder="Somchai Dev">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Address</label>
+                        <input type="text" id="input-sender-address" oninput="syncLetterFields()" class="workspace-input" placeholder="123 SUT University Rd, Korat">
+                    </div>
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Email</label>
+                            <input type="email" id="input-sender-email" oninput="syncLetterFields()" class="workspace-input" placeholder="somchai@domain.com">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Phone</label>
+                            <input type="tel" id="input-sender-phone" oninput="syncLetterFields()" class="workspace-input" placeholder="081-1234-567">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Letter Date</label>
+                        <input type="text" id="input-date" oninput="syncLetterFields()" class="workspace-input" placeholder="October 24, 2026">
+                    </div>
+                </div>
+
+                <!-- Recipient Info Block -->
+                <div class="flex flex-col gap-3 border-t pt-4">
+                    <span class="text-xs font-extrabold tracking-wider text-slate-400 uppercase">🏢 Recipient Particulars</span>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Contact / Department</label>
+                        <input type="text" id="input-recipient-name" oninput="syncLetterFields()" class="workspace-input" placeholder="The Hiring Manager">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Company Name</label>
+                        <input type="text" id="input-recipient-company" oninput="syncLetterFields()" class="workspace-input" placeholder="Innovative Tech Labs">
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Company Address</label>
+                        <input type="text" id="input-recipient-address" oninput="syncLetterFields()" class="workspace-input" placeholder="Sukhumvit Road, Bangkok">
+                    </div>
+                </div>
+
+                <!-- Salutation & Body sections -->
+                <div class="flex flex-col gap-3 border-t pt-4">
+                    <span class="text-xs font-extrabold tracking-wider text-slate-400 uppercase">💬 Letter Contents</span>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Salutation</label>
+                        <input type="text" id="input-salutation" oninput="syncLetterFields()" class="workspace-input" placeholder="Dear Hiring Committee,">
+                    </div>
+
+                    <!-- Paragraphs -->
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Paragraph 1: Introduction</label>
+                        <textarea id="paragraph-1" oninput="syncLetterFields()" class="workspace-input h-20" onfocus="setActiveField(this)" placeholder="State the role you are seeking and your general interest..."></textarea>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Paragraph 2: Competencies & Projects</label>
+                        <textarea id="paragraph-2" oninput="syncLetterFields()" class="workspace-input h-24" onfocus="setActiveField(this)" placeholder="Mention key student achievements, coursework, and values..."></textarea>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Paragraph 3: Mission Alignment</label>
+                        <textarea id="paragraph-3" oninput="syncLetterFields()" class="workspace-input h-20" onfocus="setActiveField(this)" placeholder="Describe how your goals match the company's objective..."></textarea>
+                    </div>
+                    <div>
+                        <label class="text-[10px] font-bold text-slate-500 block mb-1">Paragraph 4: Appreciation & Close</label>
+                        <textarea id="paragraph-4" oninput="syncLetterFields()" class="workspace-input h-16" onfocus="setActiveField(this)" placeholder="Thank them for their consideration and request a meeting..."></textarea>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-2">
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Signoff Word</label>
+                            <input type="text" id="input-signoff" oninput="syncLetterFields()" class="workspace-input" placeholder="Sincerely,">
+                        </div>
+                        <div>
+                            <label class="text-[10px] font-bold text-slate-500 block mb-1">Signed Name</label>
+                            <input type="text" id="input-signed-name" oninput="syncLetterFields()" class="workspace-input" placeholder="Somchai Dev">
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Middle Column: Elegant simulated paper cover letter preview (With Sticky Scroll Behavior) -->
+            <div id="letter-container" class="lg:col-span-7 lg:sticky lg:top-6 flex justify-center">
+                <div id="letter-sheet" class="letter-paper p-12 md:p-16 rounded-2xl flex flex-col gap-6 text-slate-850">
+                    
+                    <!-- Sender Details Header Block -->
+                    <div class="flex flex-col gap-1 border-b pb-4">
+                        <h2 id="preview-sender-name" class="text-3xl font-serif font-bold text-slate-800 uppercase tracking-wide">SOMCHAI DEV</h2>
+                        <div class="text-xs text-slate-500 flex flex-col gap-0.5 mt-2">
+                            <span id="preview-sender-address">123 SUT University Rd, Korat</span>
+                            <div class="flex gap-4">
+                                <span id="preview-sender-email" class="font-medium">somchai@domain.com</span>
+                                <span id="preview-sender-phone" class="font-medium">081-1234-567</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Date Field -->
+                    <div id="preview-date" class="text-sm font-semibold text-slate-750 my-2"></div>
+
+                    <!-- Recipient details block -->
+                    <div id="preview-recipient-block" class="text-sm text-slate-800 leading-normal flex flex-col gap-0.5 my-1">
+                        <span id="preview-recipient-name" class="font-bold">The Hiring Manager</span>
+                        <span id="preview-recipient-company" class="font-medium">Innovative Tech Labs</span>
+                        <span id="preview-recipient-address" class="text-slate-600">Sukhumvit Road, Bangkok</span>
+                    </div>
+
+                    <!-- Salutation -->
+                    <div id="preview-salutation" class="text-sm font-bold text-slate-800 mt-2"></div>
+
+                    <!-- Dynamic Paragraph blocks -->
+                    <div class="flex flex-col gap-4 text-sm text-slate-700 leading-relaxed text-left">
+                        <div id="preview-paragraph-1"></div>
+                        <div id="preview-paragraph-2"></div>
+                        <div id="preview-paragraph-3"></div>
+                        <div id="preview-paragraph-4"></div>
+                    </div>
+
+                    <!-- Sign-off Block -->
+                    <div class="mt-8 flex flex-col gap-1 text-sm text-slate-800">
+                        <span id="preview-signoff" class="font-medium">Sincerely,</span>
+                        <div class="w-48 h-10 border-b border-transparent"></div> <!-- empty spacing simulating handwritten signature -->
+                        <span id="preview-signed-name" class="font-bold border-t pt-2 border-slate-200">Somchai Dev</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right Column: Contextual Smart Assistant (Guides and inserts suggestions with Sticky Behavior) -->
+            <div id="assistant-panel" class="no-print lg:col-span-5 lg:sticky lg:top-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-5">
+                <div>
+                    <h2 class="font-bold text-slate-900 text-sm flex items-center gap-2">
+                        <span class="text-xl">✨</span> Smart writing helper
+                    </h2>
+                    <p class="text-xs text-slate-500 mt-1">Tap any paragraph field on the left to activate instant context-aware text insertions.</p>
+                </div>
+
+                <div id="active-field-banner" class="bg-blue-50 border border-blue-200 text-blue-700 rounded-xl p-3 text-xs font-semibold shadow-sm transition">
+                    👉 Click any paragraph field on the left to start importing writing blocks!
+                </div>
+
+                <!-- Suggested blocks -->
+                <div class="flex flex-col gap-4">
+                    <!-- Category 1 -->
+                    <div class="border border-slate-100 rounded-xl p-4 bg-slate-50 flex flex-col gap-2">
+                        <span class="text-[10px] font-extrabold text-indigo-700 uppercase tracking-widest block">Opening Sentences</span>
+                        <button onclick="insertPhrase('I am writing to express my enthusiastic interest in the Operations Assistant position. I am eager to apply my strong scheduling and brainstorming skills to support your creative team.')" class="text-left text-xs bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 p-2.5 rounded-lg shadow-sm transition">
+                            <span class="font-bold text-slate-700 block mb-0.5">Option A (Tech/Creative)</span>
+                            "I am writing to express my enthusiastic interest..."
+                        </button>
+                        <button onclick="insertPhrase('Please accept this letter as application for the available General Office Assistant opening. I am highly motivated to contribute my administrative talents to your esteemed organization.')" class="text-left text-xs bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 p-2.5 rounded-lg shadow-sm transition">
+                            <span class="font-bold text-slate-700 block mb-0.5">Option B (Corporate/Admin)</span>
+                            "Please accept this letter as application..."
+                        </button>
+                    </div>
+
+                    <!-- Category 2 -->
+                    <div class="border border-slate-100 rounded-xl p-4 bg-slate-50 flex flex-col gap-2">
+                        <span class="text-[10px] font-extrabold text-indigo-700 uppercase tracking-widest block">Core Strengths & Skills</span>
+                        <button onclick="insertPhrase('Through my academic history, I have built excellent organizational habits and time management strategies. I am highly focused on high-precision tasks and have a great attention to detail.')" class="text-left text-xs bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 p-2.5 rounded-lg shadow-sm transition">
+                            <span class="font-bold text-slate-700 block mb-0.5">Focus: Organization & Detail</span>
+                            "Through my academic history, I have built..."
+                        </button>
+                        <button onclick="insertPhrase('I pride myself on my polite communication, strong written habits, and empathetic approach. I have experience collaborating inside diverse school clubs and solving basic client challenges.')" class="text-left text-xs bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 p-2.5 rounded-lg shadow-sm transition">
+                            <span class="font-bold text-slate-700 block mb-0.5">Focus: Communication & Synergy</span>
+                            "I pride myself on my polite communication..."
+                        </button>
+                    </div>
+
+                    <!-- Category 3 -->
+                    <div class="border border-slate-100 rounded-xl p-4 bg-slate-50 flex flex-col gap-2">
+                        <span class="text-[10px] font-extrabold text-indigo-700 uppercase tracking-widest block">Value Matches</span>
+                        <button onclick="insertPhrase('I align completely with your studio mission to construct imaginative projects that inspire people to learn through play, and to demonstrate that technology can create positive global change.')" class="text-left text-xs bg-white hover:bg-indigo-50 border border-slate-200 hover:border-indigo-200 p-2.5 rounded-lg shadow-sm transition">
+                            <span class="font-bold text-slate-700 block mb-0.5">Focus: Mission Alignment</span>
+                            "I align completely with your studio mission..."
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- GLOBAL CORE MODALS -->
+    <!-- ============================================== -->
+    <div id="save-modal" class="fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 hidden no-print">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">☁️ Save Progress to Cloud</h3>
+            <p class="text-xs text-slate-500 mt-2">Uploading application contents securely to the cloud. You can copy the code below to resume later.</p>
+            
+            <div id="save-status-loading" class="my-4 text-center py-4">
+                <div class="inline-block animate-spin rounded-full h-8 w-8 border-4 border-indigo-600 border-t-transparent mb-2"></div>
+                <p class="text-xs text-indigo-700 font-semibold">Generating your cloud draft...</p>
+            </div>
+
+            <div id="save-status-ready" class="hidden my-4">
+                <div class="bg-indigo-50 border border-indigo-100 p-3.5 rounded-xl flex items-center justify-between">
+                    <div>
+                        <span class="text-[9px] text-indigo-500 font-bold uppercase tracking-wider">Your Draft Code</span>
+                        <div id="cloud-draft-code" class="text-2xl font-black text-indigo-900 tracking-widest mt-0.5">------</div>
+                    </div>
+                    <button onclick="copyDraftCode()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-3 py-2 rounded-lg transition">Copy Code</button>
+                </div>
+                <p class="text-[10px] text-slate-500 mt-2 italic text-center">📝 Write this code down! Type it on any device to continue your progress.</p>
+            </div>
+
+            <div class="mt-4 border-t border-slate-100 pt-3 bg-slate-50 p-3 rounded-lg text-[10px] text-slate-500">
+                <span class="font-bold text-slate-700">🚀 Class GitHub deployment note:</span>
+                <p class="mt-1">Once uploaded to your GitHub repository, replace the default dummy Firebase configuration inside this file with your own Firebase keys to activate private database storage.</p>
+            </div>
+
+            <div class="flex justify-end gap-2 mt-4">
+                <button onclick="closeSaveModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg transition">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Cloud Loading Modal -->
+    <div id="load-modal" class="fixed inset-0 bg-slate-900/60 flex items-center justify-center p-4 z-50 hidden no-print">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-2xl border border-slate-200">
+            <h3 class="text-lg font-bold text-slate-800 flex items-center gap-2">📂 Load Progress from Cloud</h3>
+            <p class="text-xs text-slate-500 mt-2">Enter your unique 10-character Draft Code below to load your saved details instantly.</p>
+            
+            <div class="my-4">
+                <input type="text" id="input-load-code" class="w-full text-center text-xl font-bold uppercase tracking-widest bg-slate-50 border border-slate-200 rounded-xl py-3 outline-none focus:border-indigo-500 transition" placeholder="SUT-123456" maxlength="15">
+            </div>
+
+            <div id="load-status" class="text-xs font-semibold text-center my-2 text-rose-600 hidden"></div>
+
+            <div class="flex justify-end gap-2 mt-4">
+                <button onclick="closeLoadModal()" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold text-xs px-4 py-2.5 rounded-lg transition">Cancel</button>
+                <button onclick="executeGlobalCloudLoad()" id="btn-cloud-load-go" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-xs px-5 py-2.5 rounded-lg transition flex items-center gap-1">Load Draft</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- ============================================== -->
+    <!-- GLOBAL CLOUD DATABASING BLOCK -->
+    <!-- ============================================== -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        let db = null;
+        let auth = null;
+        let appId = typeof __app_id !== 'undefined' ? __app_id : 'mock-interview-classroom';
+        let user = null;
+
+        async function initFirebase() {
+            try {
+                let firebaseConfig = {
+                    apiKey: "AIzaSyDummyKey_PleaseReplaceThisWithActualKeyOnGitHub",
+                    authDomain: "mock-classroom-save.firebaseapp.com",
+                    projectId: "mock-classroom-save",
+                    storageBucket: "mock-classroom-save.appspot.com",
+                    messagingSenderId: "1234567890",
+                    appId: "1:1234567890:web:abcdef"
+                };
+
+                const app = initializeApp(firebaseConfig);
+                db = getFirestore(app);
+                auth = getAuth(app);
+
+                const cred = await signInAnonymously(auth);
+                user = cred.user;
+                console.log("Suite Firebase auth loaded:", user.uid);
+            } catch (err) {
+                console.warn("Firebase Operating in local-only / dummy credentials mode.", err);
+            }
+        }
+
+        window.addEventListener('DOMContentLoaded', initFirebase);
+
+        window.saveGlobalSuiteToCloud = async function() {
+            if (!db || !auth) {
+                alert("Cloud Offline: Please replace custom configuration credentials inside code variables to connect Firebase storage!");
+                closeSaveModal();
+                return;
+            }
+
+            try {
+                const packageData = {
+                    app: {
+                        date: document.getElementById('app-date').value,
+                        nameEn: document.getElementById('app-name-en').value,
+                        nameTh: document.getElementById('app-name-th').value,
+                        passport: document.getElementById('app-passport').value,
+                        permAddr: document.getElementById('app-perm-address').value,
+                        phone: document.getElementById('app-phone').value,
+                        presAddr: document.getElementById('app-pres-address').value,
+                        email: document.getElementById('app-email').value,
+                        commute: document.getElementById('app-commute').value,
+                        transport: document.getElementById('app-transport').value,
+                        age: document.getElementById('app-age').value,
+                        dob: document.getElementById('app-dob').value,
+                        pob: document.getElementById('app-pob').value,
+                        sexM: document.getElementById('app-sex-m').checked,
+                        sexF: document.getElementById('app-sex-f').checked,
+                        religion: document.getElementById('app-religion').value,
+                        race: document.getElementById('app-race').value,
+                        maritalSingle: document.getElementById('app-marital-single').checked,
+                        maritalMarried: document.getElementById('app-marital-married').checked,
+                        maritalDivorced: document.getElementById('app-marital-divorced').checked,
+                        children: document.getElementById('app-children').value,
+                        father: document.getElementById('app-father').value,
+                        mother: document.getElementById('app-mother').value,
+                        emergName: document.getElementById('app-emerg-name').value,
+                        emergPhone: document.getElementById('app-emerg-phone').value,
+                        eduFrom1: document.getElementById('edu-from-1').value,
+                        eduTo1: document.getElementById('edu-to-1').value,
+                        eduCourse1: document.getElementById('edu-course-1').value,
+                        eduSchool1: document.getElementById('edu-school-1').value,
+                        eduFrom2: document.getElementById('edu-from-2').value,
+                        eduTo2: document.getElementById('edu-to-2').value,
+                        eduCourse2: document.getElementById('edu-course-2').value,
+                        eduSchool2: document.getElementById('edu-school-2').value,
+                        workFrom1: document.getElementById('work-from-1').value,
+                        workTo1: document.getElementById('work-to-1').value,
+                        workCompany1: document.getElementById('work-company-1').value,
+                        workPos1: document.getElementById('work-pos-1').value,
+                        workSal1: document.getElementById('work-sal-1').value,
+                        workFrom2: document.getElementById('work-from-2').value,
+                        workTo2: document.getElementById('work-to-2').value,
+                        workCompany2: document.getElementById('work-company-2').value,
+                        workPos2: document.getElementById('work-pos-2').value,
+                        workSal2: document.getElementById('work-sal-2').value,
+                        careerPos: document.getElementById('career-pos').value,
+                        careerDate: document.getElementById('career-date').value,
+                        careerSal: document.getElementById('career-sal').value,
+                        careerSkills: document.getElementById('career-skills').value,
+                        careerMachines: document.getElementById('career-machines').value,
+                        careerHobbies: document.getElementById('career-hobbies').value,
+                        careerFriends: document.getElementById('career-friends').value,
+                        careerRefName: document.getElementById('career-ref-name').value,
+                        careerRefAddr: document.getElementById('career-ref-addr').value,
+                        careerRefOcc: document.getElementById('career-ref-occ').value,
+                        careerGuarName: document.getElementById('career-guar-name').value,
+                        careerGuarOcc: document.getElementById('career-guar-occ').value,
+                        photoSrc: window.globalAppPhotoBase64 || null
+                    },
+                    resume: {
+                        fullName: document.getElementById('input-full-name').value,
+                        email: document.getElementById('input-email').value,
+                        phone: document.getElementById('input-phone').value,
+                        location: document.getElementById('input-location').value,
+                        portfolio: document.getElementById('input-portfolio').value,
+                        objective: document.getElementById('input-objective').value,
+                        eduSchool: document.getElementById('input-edu-school').value,
+                        eduGrad: document.getElementById('input-edu-grad').value,
+                        eduDegree: document.getElementById('input-edu-degree').value,
+                        eduBullet1: document.getElementById('input-edu-bullet-1').value,
+                        eduBullet2: document.getElementById('input-edu-bullet-2').value,
+                        p1Role: document.getElementById('input-p1-role').value,
+                        p1Date: document.getElementById('input-p1-date').value,
+                        p1Org: document.getElementById('input-p1-org').value,
+                        p1Bullet1: document.getElementById('input-p1-bullet-1').value,
+                        p1Bullet2: document.getElementById('input-p1-bullet-2').value,
+                        p2Role: document.getElementById('input-p2-role').value,
+                        p2Date: document.getElementById('input-p2-date').value,
+                        p2Org: document.getElementById('input-p2-org').value,
+                        p2Bullet1: document.getElementById('input-p2-bullet-1').value,
+                        skill1: document.getElementById('input-skill-1').value,
+                        skill2: document.getElementById('input-skill-2').value,
+                        skill3: document.getElementById('input-skill-3').value,
+                        skill4: document.getElementById('input-skill-4').value,
+                        skill5: document.getElementById('input-skill-5').value,
+                        skill6: document.getElementById('input-skill-6').value,
+                        photoSrc: window.globalResumePhotoBase64 || null
+                    },
+                    letter: {
+                        senderName: document.getElementById('input-sender-name').value,
+                        senderAddress: document.getElementById('input-sender-address').value,
+                        senderEmail: document.getElementById('input-sender-email').value,
+                        senderPhone: document.getElementById('input-sender-phone').value,
+                        date: document.getElementById('input-date').value,
+                        recipientName: document.getElementById('input-recipient-name').value,
+                        recipientCompany: document.getElementById('input-recipient-company').value,
+                        recipientAddress: document.getElementById('input-recipient-address').value,
+                        salutation: document.getElementById('input-salutation').value,
+                        paragraph1: document.getElementById('paragraph-1').value,
+                        paragraph2: document.getElementById('paragraph-2').value,
+                        paragraph3: document.getElementById('paragraph-3').value,
+                        paragraph4: document.getElementById('paragraph-4').value,
+                        signoff: document.getElementById('input-signoff').value,
+                        signedName: document.getElementById('input-signed-name').value
+                    }
+                };
+
+                const randomId = Math.floor(100000 + Math.random() * 900000);
+                const draftCode = `SUT-${randomId}`;
+
+                const draftRef = doc(db, 'artifacts', appId, 'public', 'data', 'drafts', draftCode);
+                await setDoc(draftRef, {
+                    draftData: packageData,
+                    updatedAt: new Date().toISOString()
+                });
+
+                document.getElementById('cloud-draft-code').innerText = draftCode;
+                document.getElementById('save-status-loading').classList.add('hidden');
+                document.getElementById('save-status-ready').classList.remove('hidden');
+            } catch (err) {
+                console.error("Cloud Save write failure:", err);
+                alert("Transmit failed. Make sure your database path authorizations accept write permissions.");
+                closeSaveModal();
+            }
+        };
+
+        window.loadGlobalSuiteFromCloud = async function(draftCode) {
+            if (!db || !auth) {
+                return { success: false, error: "Cloud Server Offline." };
+            }
+
+            try {
+                const draftRef = doc(db, 'artifacts', appId, 'public', 'data', 'drafts', draftCode);
+                const docSnap = await getDoc(draftRef);
+
+                if (docSnap.exists()) {
+                    const data = docSnap.data().draftData;
+                    
+                    // Repopulate Form
+                    const app = data.app || {};
+                    document.getElementById('app-date').value = app.date || "";
+                    document.getElementById('app-name-en').value = app.nameEn || "";
+                    document.getElementById('app-name-th').value = app.nameTh || "";
+                    document.getElementById('app-passport').value = app.passport || "";
+                    document.getElementById('app-perm-address').value = app.permAddr || "";
+                    document.getElementById('app-phone').value = app.phone || "";
+                    document.getElementById('app-pres-address').value = app.presAddr || "";
+                    document.getElementById('app-email').value = app.email || "";
+                    document.getElementById('app-commute').value = app.commute || "";
+                    document.getElementById('app-transport').value = app.transport || "";
+                    document.getElementById('app-age').value = app.age || "";
+                    document.getElementById('app-dob').value = app.dob || "";
+                    document.getElementById('app-pob').value = app.pob || "";
+                    document.getElementById('app-sex-m').checked = !!app.sexM;
+                    document.getElementById('app-sex-f').checked = !!app.sexF;
+                    document.getElementById('app-religion').value = app.religion || "";
+                    document.getElementById('app-race').value = app.race || "";
+                    document.getElementById('app-marital-single').checked = !!app.maritalSingle;
+                    document.getElementById('app-marital-married').checked = !!app.maritalMarried;
+                    document.getElementById('app-marital-divorced').checked = !!app.maritalDivorced;
+                    document.getElementById('app-children').value = app.children || "";
+                    document.getElementById('app-father').value = app.father || "";
+                    document.getElementById('app-mother').value = app.mother || "";
+                    document.getElementById('app-emerg-name').value = app.emergName || "";
+                    document.getElementById('app-emerg-phone').value = app.emergPhone || "";
+                    document.getElementById('edu-from-1').value = app.eduFrom1 || "";
+                    document.getElementById('edu-to-1').value = app.eduTo1 || "";
+                    document.getElementById('edu-course-1').value = app.eduCourse1 || "";
+                    document.getElementById('edu-school-1').value = app.eduSchool1 || "";
+                    document.getElementById('edu-from-2').value = app.eduFrom2 || "";
+                    document.getElementById('edu-to-2').value = app.eduTo2 || "";
+                    document.getElementById('edu-course-2').value = app.eduCourse2 || "";
+                    document.getElementById('edu-school-2').value = app.eduSchool2 || "";
+                    document.getElementById('work-from-1').value = app.workFrom1 || "";
+                    document.getElementById('work-to-1').value = app.workTo1 || "";
+                    document.getElementById('work-company-1').value = app.workCompany1 || "";
+                    document.getElementById('work-pos-1').value = app.workPos1 || "";
+                    document.getElementById('work-sal-1').value = app.workSal1 || "";
+                    document.getElementById('work-from-2').value = app.workFrom2 || "";
+                    document.getElementById('work-to-2').value = app.workTo2 || "";
+                    document.getElementById('work-company-2').value = app.workCompany2 || "";
+                    document.getElementById('work-pos-2').value = app.workPos2 || "";
+                    document.getElementById('work-sal-2').value = app.workSal2 || "";
+                    document.getElementById('career-pos').value = app.careerPos || "";
+                    document.getElementById('career-date').value = app.careerDate || "";
+                    document.getElementById('career-sal').value = app.careerSal || "";
+                    document.getElementById('career-skills').value = app.careerSkills || "";
+                    document.getElementById('career-machines').value = app.careerMachines || "";
+                    document.getElementById('career-hobbies').value = app.careerHobbies || "";
+                    document.getElementById('career-friends').value = app.careerFriends || "";
+                    document.getElementById('career-ref-name').value = app.careerRefName || "";
+                    document.getElementById('career-ref-addr').value = app.careerRefAddr || "";
+                    document.getElementById('career-ref-occ').value = app.careerRefOcc || "";
+                    document.getElementById('career-guar-name').value = app.careerGuarName || "";
+                    document.getElementById('career-guar-occ').value = app.careerGuarOcc || "";
+                    
+                    if (app.photoSrc) {
+                        window.globalAppPhotoBase64 = app.photoSrc;
+                        const img = document.getElementById('photo-box-img');
+                        img.src = app.photoSrc;
+                        img.classList.remove('hidden');
+                        document.getElementById('photo-placeholder').classList.add('hidden');
+                        document.getElementById('photo-box').classList.add('has-image');
+                    }
+
+                    // Repopulate Resume
+                    const res = data.resume || {};
+                    document.getElementById('input-full-name').value = res.fullName || "";
+                    document.getElementById('input-email').value = res.email || "";
+                    document.getElementById('input-phone').value = res.phone || "";
+                    document.getElementById('input-location').value = res.location || "";
+                    document.getElementById('input-portfolio').value = res.portfolio || "";
+                    document.getElementById('input-objective').value = res.objective || "";
+                    document.getElementById('input-edu-school').value = res.eduSchool || "";
+                    document.getElementById('input-edu-grad').value = res.eduGrad || "";
+                    document.getElementById('input-edu-degree').value = res.eduDegree || "";
+                    document.getElementById('input-edu-bullet-1').value = res.eduBullet1 || "";
+                    document.getElementById('input-edu-bullet-2').value = res.eduBullet2 || "";
+                    document.getElementById('input-p1-role').value = res.p1Role || "";
+                    document.getElementById('input-p1-date').value = res.p1Date || "";
+                    document.getElementById('input-p1-org').value = res.p1Org || "";
+                    document.getElementById('input-p1-bullet-1').value = res.p1Bullet1 || "";
+                    document.getElementById('input-p1-bullet-2').value = res.p1Bullet2 || "";
+                    document.getElementById('input-p2-role').value = res.p2Role || "";
+                    document.getElementById('input-p2-date').value = res.p2Date || "";
+                    document.getElementById('input-p2-org').value = res.p2Org || "";
+                    document.getElementById('input-p2-bullet-1').value = res.p2Bullet1 || "";
+                    document.getElementById('input-skill-1').value = res.skill1 || "";
+                    document.getElementById('input-skill-2').value = res.skill2 || "";
+                    document.getElementById('input-skill-3').value = res.skill3 || "";
+                    document.getElementById('input-skill-4').value = res.skill4 || "";
+                    document.getElementById('input-skill-5').value = res.skill5 || "";
+                    document.getElementById('input-skill-6').value = res.skill6 || "";
+
+                    if (res.photoSrc) {
+                        window.globalResumePhotoBase64 = res.photoSrc;
+                        const img = document.getElementById('resume-photo-img');
+                        img.src = res.photoSrc;
+                        img.classList.remove('hidden');
+                        document.getElementById('resume-photo-placeholder').classList.add('hidden');
+                        document.getElementById('resume-photo-box').classList.add('has-image');
+                        window.hasImageFile = true;
+                    }
+
+                    // Repopulate Letter
+                    const letData = data.letter || {};
+                    document.getElementById('input-sender-name').value = letData.senderName || "";
+                    document.getElementById('input-sender-address').value = letData.senderAddress || "";
+                    document.getElementById('input-sender-email').value = letData.senderEmail || "";
+                    document.getElementById('input-sender-phone').value = letData.senderPhone || "";
+                    document.getElementById('input-date').value = letData.date || "";
+                    document.getElementById('input-recipient-name').value = letData.recipientName || "";
+                    document.getElementById('input-recipient-company').value = letData.recipientCompany || "";
+                    document.getElementById('input-recipient-address').value = letData.recipientAddress || "";
+                    document.getElementById('input-salutation').value = letData.salutation || "";
+                    document.getElementById('paragraph-1').value = letData.paragraph1 || "";
+                    document.getElementById('paragraph-2').value = letData.paragraph2 || "";
+                    document.getElementById('paragraph-3').value = letData.paragraph3 || "";
+                    document.getElementById('paragraph-4').value = letData.paragraph4 || "";
+                    document.getElementById('input-signoff').value = letData.signoff || "";
+                    document.getElementById('input-signed-name').value = letData.signedName || "";
+
+                    // Trigger Sync routines
+                    window.syncResume();
+                    window.syncLetterFields();
+
+                    return { success: true };
+                } else {
+                    return { success: false, error: "Draft code not found." };
+                }
+            } catch (err) {
+                console.error("Cloud lookup failed:", err);
+                return { success: false, error: "Authentication or connection failure." };
+            }
+        };
+    </script>
+
+    <!-- ============================================== -->
+    <!-- MASTER WORKSPACE SCRIPTS -->
+    <!-- ============================================== -->
+    <script>
+        window.globalAppPhotoBase64 = null;
+        window.globalResumePhotoBase64 = null;
+        window.hasImageFile = false;
+        let activeTabName = 'tab-application';
+
+        function switchTab(tabId) {
+            activeTabName = tabId;
+            document.querySelectorAll('.tab-pane').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.tab-nav-btn').forEach(btn => {
+                btn.classList.remove('bg-indigo-50', 'text-indigo-900', 'font-bold');
+                btn.classList.add('text-slate-600');
+            });
+            
+            const activeNav = document.getElementById('nav-btn-' + tabId);
+            activeNav.classList.add('bg-indigo-50', 'text-indigo-900', 'font-bold');
+            activeNav.classList.remove('text-slate-600');
+        }
+
+        // Photo Preview Renderers
+        function previewImage(input, boxId) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById(boxId + '-img');
+                    const placeholder = document.getElementById(boxId + '-placeholder');
+                    const box = document.getElementById(boxId);
+                    
+                    window.globalAppPhotoBase64 = e.target.result;
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    box.classList.add('has-image');
+                    box.style.borderStyle = 'solid';
+                    box.style.borderColor = 'transparent';
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        function previewResumeImage(input) {
+            const file = input.files[0];
+            if (file) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    const img = document.getElementById('resume-photo-img');
+                    const placeholder = document.getElementById('resume-photo-placeholder');
+                    const box = document.getElementById('resume-photo-box');
+                    
+                    window.globalResumePhotoBase64 = e.target.result;
+                    img.src = e.target.result;
+                    img.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    box.classList.add('has-image');
+                    box.style.borderStyle = 'solid';
+                    box.style.borderColor = 'transparent';
+                    window.hasImageFile = true;
+                    syncResume();
+                }
+                reader.readAsDataURL(file);
+            }
+        }
+
+        // ==========================================
+        // Tab 2: Upgraded Resume Logic
+        // ==========================================
+        let resumeMode = 'edit';
+        function setTheme(theme) {
+            document.body.className = '';
+            document.body.classList.add('theme-' + theme, 'p-4', 'md:p-6', 'lg:p-8', 'flex', 'flex-col', 'items-center');
+        }
+
+        function setResumeMode(mode) {
+            resumeMode = mode;
+            const editBtn = document.getElementById('resume-edit-btn');
+            const previewBtn = document.getElementById('resume-preview-btn');
+            const editorPanel = document.getElementById('resume-editor-panel');
+            const previewPanel = document.getElementById('resume-preview-panel');
+            
+            syncResume();
+
+            if (mode === 'preview') {
+                editBtn.className = "text-slate-600 hover:text-slate-855 text-xs font-semibold px-4 py-2 rounded-lg transition-all";
+                previewBtn.className = "bg-white text-slate-900 shadow-sm text-xs font-semibold px-4 py-2 rounded-lg transition-all";
+                editorPanel.style.setProperty('display', 'none', 'important');
+                previewPanel.classList.remove('lg:col-span-7');
+                previewPanel.classList.add('lg:col-span-12');
+                document.querySelectorAll('#tab-resume .edit-only').forEach(el => el.style.setProperty('display', 'none', 'important'));
+                document.querySelectorAll('#tab-resume .preview-only').forEach(el => el.style.setProperty('display', 'block', 'important'));
+            } else {
+                editBtn.className = "bg-white text-slate-900 shadow-sm text-xs font-semibold px-4 py-2 rounded-lg transition-all";
+                previewBtn.className = "text-slate-600 hover:text-slate-855 text-xs font-semibold px-4 py-2 rounded-lg transition-all";
+                editorPanel.style.display = '';
+                previewPanel.classList.remove('lg:col-span-12');
+                previewPanel.classList.add('lg:col-span-7');
+                document.querySelectorAll('#tab-resume .edit-only').forEach(el => el.style.display = '');
+                document.querySelectorAll('#tab-resume .preview-only').forEach(el => el.style.display = 'none');
+            }
+        }
+
+        function syncResume() {
+            document.getElementById('preview-full-name').innerText = document.getElementById('input-full-name').value || "SOMCHAI DEV";
+            document.getElementById('preview-email').innerText = document.getElementById('input-email').value || "somchai@domain.com";
+            document.getElementById('preview-phone').innerText = document.getElementById('input-phone').value || "081-1234-567";
+            document.getElementById('preview-location').innerText = document.getElementById('input-location').value || "Bangkok, TH";
+            document.getElementById('preview-portfolio').innerText = document.getElementById('input-portfolio').value || "somchaidev.com";
+
+            const objVal = document.getElementById('input-objective').value.trim();
+            document.getElementById('preview-objective').innerText = objVal || "A dedicated and highly motivated computer science student seeking a collaborative role to apply system design, programming, and learning agility to help the engineering department hit production goals...";
+
+            document.getElementById('preview-edu-school').innerText = document.getElementById('input-edu-school').value || "Suranaree University of Technology";
+            document.getElementById('preview-edu-grad').innerText = "Graduation: " + (document.getElementById('input-edu-grad').value || "2026");
+            document.getElementById('preview-edu-degree').innerText = document.getElementById('input-edu-degree').value || "Bachelor of Science in Computer Science";
+
+            syncBulletAndContainer('input-edu-bullet-1', 'preview-edu-bullet-1', 'li-edu-bullet-1', "Relevant Coursework: Database Management, Advanced Algorithms, Web Application Architecture");
+            syncBulletAndContainer('input-edu-bullet-2', 'preview-edu-bullet-2', 'li-edu-bullet-2', "Academic Merits: Class Representative, SUT Dean's List (3 Consecutive Terms)");
+
+            document.getElementById('preview-p1-role').innerText = document.getElementById('input-p1-role').value || "Team Lead & Lead Developer";
+            document.getElementById('preview-p1-date').innerText = document.getElementById('input-p1-date').value || "Summer 2025";
+            document.getElementById('preview-p1-org').innerText = document.getElementById('input-p1-org').value || "SUT Hackathon Project: Smart Campus Planner";
+            syncBulletAndContainer('input-p1-bullet-1', 'preview-p1-bullet-1', 'li-p1-bullet-1', "Spearheaded a 4-person student engineering team to design, prototype, and build a local campus navigation application using React & Google Cloud APIs.");
+            syncBulletAndContainer('input-p1-bullet-2', 'preview-p1-bullet-2', 'li-p1-bullet-2', "Delivered high-performance routing that reduced load times by 35% compared to baseline student tools, winning first place in the optimization category.");
+
+            const p2Role = document.getElementById('input-p2-role').value.trim();
+            const p2Org = document.getElementById('input-p2-org').value.trim();
+            
+            document.getElementById('preview-p2-role').innerText = p2Role || "SUT Web Coordinator & Assistant";
+            document.getElementById('preview-p2-date').innerText = document.getElementById('input-p2-date').value || "2024 - Present";
+            document.getElementById('preview-p2-org').innerText = p2Org || "Suranaree University Computing Club";
+            syncBulletAndContainer('input-p2-bullet-1', 'preview-p2-bullet-1', 'li-p2-bullet-1', "Collaborated on designing student portal prototypes, organizing peer training workshops, and maintaining the club registration dashboard.");
+
+            let activeSkillCount = 0;
+            const defaultSkills = ["HTML/CSS/JavaScript", "Python & Pandas Dataframes", "Git & GitHub Versioning", "System Administration", "Communication", "English Fluency"];
+            for (let i = 1; i <= 6; i++) {
+                const skillInput = document.getElementById('input-skill-' + i);
+                const skillPreview = document.getElementById('preview-skill-' + i);
+                const skillContainer = document.getElementById('container-skill-' + i);
+                const skillNum = document.getElementById('num-skill-' + i);
+                
+                const val = skillInput.value.trim() || defaultSkills[i-1];
+                skillPreview.innerText = val;
+                skillNum.innerText = i + ".";
+            }
+
+            const photoBox = document.getElementById('resume-photo-box');
+            if (resumeMode === 'preview') {
+                if (!window.hasImageFile) {
+                    photoBox.style.setProperty('display', 'none', 'important');
+                } else {
+                    photoBox.style.display = 'block';
+                    photoBox.style.borderStyle = 'none';
+                }
+            } else {
+                photoBox.style.display = '';
+                if (!window.hasImageFile) {
+                    photoBox.style.borderStyle = 'dashed';
+                }
+            }
+        }
+
+        function syncBulletAndContainer(inputId, previewId, liId, defaultText) {
+            const val = document.getElementById(inputId).value.trim();
+            document.getElementById(previewId).innerText = val || defaultText;
+        }
+
+        function printResume() {
+            const wasInEdit = (resumeMode === 'edit');
+            if (wasInEdit) setResumeMode('preview');
+            setTimeout(() => {
+                window.print();
+                if (wasInEdit) setResumeMode('edit');
+            }, 150);
+        }
+
+        function downloadResumePDF() {
+            const wasInEdit = (resumeMode === 'edit');
+            if (wasInEdit) setResumeMode('preview');
+            setTimeout(() => {
+                const element = document.getElementById('resume-sheet');
+                const opt = {
+                    margin:       [0.4, 0.4, 0.4, 0.4],
+                    filename:     'student_resume.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+                html2pdf().set(opt).from(element).save().then(() => {
+                    if (wasInEdit) setResumeMode('edit');
+                });
+            }, 150);
+        }
+
+        // ==========================================
+        // Tab 3: Cover Letter Logic
+        // ==========================================
+        let letterMode = 'edit';
+        let letterGuidesVisible = true;
+        let activeFieldElement = null;
+
+        function toggleGuides() {
+            const hints = document.querySelectorAll('#tab-letter .guide-hint');
+            const btn = document.getElementById('toggle-guides');
+            
+            if (letterGuidesVisible) {
+                hints.forEach(h => h.style.setProperty('display', 'none', 'important'));
+                btn.textContent = 'Show Help Hints';
+                letterGuidesVisible = false;
+            } else {
+                hints.forEach(h => h.style.setProperty('display', 'flex', 'important'));
+                btn.textContent = 'Hide Help Hints';
+                letterGuidesVisible = true;
+            }
+        }
+
+        function setLetterMode(mode) {
+            letterMode = mode;
+            const editBtn = document.getElementById('letter-edit-btn');
+            const previewBtn = document.getElementById('letter-preview-btn');
+            const editorPanel = document.getElementById('letter-editor-panel');
+            const letterContainer = document.getElementById('letter-container');
+            const assistantPanel = document.getElementById('assistant-panel');
+            
+            syncLetterFields();
+
+            if (mode === 'preview') {
+                editBtn.className = "text-slate-600 hover:text-slate-855 text-xs font-semibold px-4 py-2 rounded-lg transition-all";
+                previewBtn.className = "bg-white text-slate-900 shadow-sm text-xs font-semibold px-4 py-2 rounded-lg transition-all";
+                
+                editorPanel.style.setProperty('display', 'none', 'important');
+                letterContainer.classList.remove('lg:col-span-7');
+                letterContainer.classList.add('lg:col-span-12');
+                assistantPanel.style.setProperty('display', 'none', 'important');
+                document.querySelectorAll('#tab-letter .edit-only').forEach(el => el.style.setProperty('display', 'none', 'important'));
+                document.querySelectorAll('#tab-letter .preview-only').forEach(el => el.style.setProperty('display', 'block', 'important'));
+            } else {
+                editBtn.className = "bg-white text-slate-900 shadow-sm text-xs font-semibold px-4 py-2 rounded-lg transition-all";
+                previewBtn.className = "text-slate-600 hover:text-slate-855 text-xs font-semibold px-4 py-2 rounded-lg transition-all";
+                
+                editorPanel.style.display = '';
+                letterContainer.classList.remove('lg:col-span-12');
+                letterContainer.classList.add('lg:col-span-7');
+                assistantPanel.style.display = '';
+                document.querySelectorAll('#tab-letter .edit-only').forEach(el => el.style.display = '');
+                document.querySelectorAll('#tab-letter .preview-only').forEach(el => el.style.display = 'none');
+            }
+        }
+
+        function syncLetterFields() {
+            document.getElementById('preview-sender-name').innerText = document.getElementById('input-sender-name').value || "SOMCHAI DEV";
+            document.getElementById('preview-sender-address').innerText = document.getElementById('input-sender-address').value || "123 SUT University Rd, Korat";
+            document.getElementById('preview-sender-email').innerText = document.getElementById('input-sender-email').value || "somchai@domain.com";
+            document.getElementById('preview-sender-phone').innerText = document.getElementById('input-sender-phone').value || "081-1234-567";
+            document.getElementById('preview-date').innerText = document.getElementById('input-date').value || "October 24, 2026";
+
+            document.getElementById('preview-recipient-name').innerText = document.getElementById('input-recipient-name').value || "The Hiring Manager";
+            document.getElementById('preview-recipient-company').innerText = document.getElementById('input-recipient-company').value || "Innovative Tech Labs";
+            document.getElementById('preview-recipient-address').innerText = document.getElementById('input-recipient-address').value || "Sukhumvit Road, Bangkok";
+
+            document.getElementById('preview-salutation').innerText = document.getElementById('input-salutation').value || "Dear Hiring Committee,";
+            document.getElementById('preview-signoff').innerText = document.getElementById('input-signoff').value || "Sincerely,";
+            document.getElementById('preview-signed-name').innerText = document.getElementById('input-signed-name').value || "Somchai Dev";
+
+            document.getElementById('preview-paragraph-1').innerText = document.getElementById('paragraph-1').value || "I am writing to express my strong, passionate interest in the Junior Software Developer position at Innovative Tech Labs. Having completed several robust school-level web application and system architecture projects, I am eager to apply my technical and learning abilities to support your high-performance engineering team.";
+            document.getElementById('preview-paragraph-2').innerText = document.getElementById('paragraph-2').value || "As a dedicated computer science student, I have established high standards of performance and organizational excellence. Through Suranaree University's technical hackathons, I led development teams to construct React applications, manage RESTful APIs, and integrate backend structures under high pressure, receiving high praise for speed, modularity, and accuracy.";
+            document.getElementById('preview-paragraph-3').innerText = document.getElementById('paragraph-3').value || "I admire your organization's commitment to building sustainable, highly scalable digital tools that empower local communities. I am eager to contribute my development drive to hit milestones and help align SUT student-led engineering talents with your dynamic company values.";
+            document.getElementById('preview-paragraph-4').innerText = document.getElementById('paragraph-4').value || "Thank you for your valuable time and consideration. I have attached my application, portfolio links, and formal resume for your convenience. I look forward to the possibility of discussing how my skills and determination align with your strategic requirements during an interview.";
+        }
+
+        function setActiveField(element) {
+            activeFieldElement = element;
+            const banner = document.getElementById('active-field-banner');
+            
+            let fieldLabel = "Selected Field";
+            if (element.id === 'paragraph-1') fieldLabel = "Paragraph 1 (Opening)";
+            if (element.id === 'paragraph-2') fieldLabel = "Paragraph 2 (Skills)";
+            if (element.id === 'paragraph-3') fieldLabel = "Paragraph 3 (Mission Alignment)";
+            if (element.id === 'paragraph-4') fieldLabel = "Paragraph 4 (Closing)";
+            
+            banner.innerHTML = `✍️ Writing Assistant active on: <span class="font-bold underline">${fieldLabel}</span>`;
+            banner.classList.remove('bg-blue-50', 'text-blue-700', 'border-blue-200');
+            banner.classList.add('bg-emerald-50', 'text-emerald-800', 'border-emerald-200');
+        }
+
+        function insertPhrase(phraseText) {
+            if (!activeFieldElement) return;
+            if (activeFieldElement.value === "") {
+                activeFieldElement.value = phraseText;
+            } else {
+                activeFieldElement.value = activeFieldElement.value.trim() + " " + phraseText;
+            }
+            syncLetterFields();
+            activeFieldElement.focus();
+        }
+
+        function printOrSaveLetter() {
+            const wasInEdit = (letterMode === 'edit');
+            if (wasInEdit) setLetterMode('preview');
+            setTimeout(() => {
+                window.print();
+                if (wasInEdit) setLetterMode('edit');
+            }, 150);
+        }
+
+        function downloadLetterPDF() {
+            const wasInEdit = (letterMode === 'edit');
+            if (wasInEdit) setLetterMode('preview');
+            setTimeout(() => {
+                const element = document.getElementById('letter-sheet');
+                const opt = {
+                    margin:       [0.5, 0.5, 0.5, 0.5],
+                    filename:     'letter_of_application.pdf',
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true, logging: false },
+                    jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+                };
+                html2pdf().set(opt).from(element).save().then(() => {
+                    if (wasInEdit) setLetterMode('edit');
+                });
+            }, 150);
+        }
+
+        // ==========================================
+        // Global Cloud Dialog Controller
+        // ==========================================
+        function triggerGlobalSave() {
+            document.getElementById('save-status-loading').classList.remove('hidden');
+            document.getElementById('save-status-ready').classList.add('hidden');
+            document.getElementById('save-modal').classList.remove('hidden');
+            window.saveGlobalSuiteToCloud();
+        }
+
+        function closeSaveModal() {
+            document.getElementById('save-modal').classList.add('hidden');
+        }
+
+        function triggerGlobalLoad() {
+            document.getElementById('load-status').classList.add('hidden');
+            document.getElementById('input-load-code').value = "";
+            document.getElementById('load-modal').classList.remove('hidden');
+        }
+
+        function closeLoadModal() {
+            document.getElementById('load-modal').classList.add('hidden');
+        }
+
+        async function executeGlobalCloudLoad() {
+            const codeInput = document.getElementById('input-load-code').value.trim().toUpperCase();
+            const errorDiv = document.getElementById('load-status');
+            const loadBtn = document.getElementById('btn-cloud-load-go');
+
+            if (!codeInput) {
+                errorDiv.innerText = "Please enter a draft code.";
+                errorDiv.classList.remove('hidden');
+                return;
+            }
+
+            loadBtn.disabled = true;
+            loadBtn.innerText = "Searching...";
+
+            const res = await window.loadGlobalSuiteFromCloud(codeInput);
+            
+            loadBtn.disabled = false;
+            loadBtn.innerText = "Load Draft";
+
+            if (res.success) {
+                closeLoadModal();
+            } else {
+                errorDiv.innerText = res.error;
+                errorDiv.classList.remove('hidden');
+            }
+        }
+
+        function copyDraftCode() {
+            const txt = document.getElementById('cloud-draft-code').innerText;
+            const el = document.createElement('textarea');
+            el.value = txt;
+            document.body.appendChild(el);
+            el.select();
+            document.execCommand('copy');
+            document.body.removeChild(el);
+        }
+
+        function downloadApplicationPDF() {
+            const element = document.getElementById('application-sheet');
+            const opt = {
+                margin:       [0.2, 0.2, 0.2, 0.2],
+                filename:     'employment_application.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2, useCORS: true, logging: false },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        }
+
+        // Initialize state syncing on startup
+        window.onload = function() {
+            syncResume();
+            syncLetterFields();
+        };
+    </script>
+</body>
+</html>

@@ -191,14 +191,38 @@
         </div>
         
         <div class="flex flex-wrap gap-2">
-            <button onclick="triggerGlobalSave()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs md:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-lg transition flex items-center gap-1.5 hover:scale-[1.02]">
-                ☁️ Save Draft to Cloud
+            <button onclick="triggerGlobalSave()" class="bg-slate-700 hover:bg-slate-650 text-slate-300 text-xs md:text-sm font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 opacity-60 hover:opacity-100" title="Optional Cloud Draft Save (Requires Database Config)">
+                ☁️ Save to Cloud
             </button>
-            <button onclick="triggerGlobalLoad()" class="bg-slate-700 hover:bg-slate-600 text-white text-xs md:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-lg transition flex items-center gap-1.5 hover:scale-[1.02]">
-                📂 Load Draft
+            <button onclick="triggerGlobalLoad()" class="bg-slate-700 hover:bg-slate-650 text-slate-300 text-xs md:text-sm font-semibold px-4 py-2.5 rounded-xl transition flex items-center gap-1.5 opacity-60 hover:opacity-100" title="Optional Cloud Draft Load (Requires Database Config)">
+                📂 Load Cloud
             </button>
+            <button onclick="exportDraftToFile()" class="bg-teal-600 hover:bg-teal-700 text-white text-xs md:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-lg transition flex items-center gap-1.5 hover:scale-[1.02] ring-2 ring-teal-450/40" title="Download a JSON draft backup file of your progress">
+                💾 Export File (.json)
+            </button>
+            <button onclick="triggerFileImport()" class="bg-amber-600 hover:bg-amber-750 text-white text-xs md:text-sm font-semibold px-4 py-2.5 rounded-xl shadow-lg transition flex items-center gap-1.5 hover:scale-[1.02] ring-2 ring-amber-450/40" title="Upload a previously saved JSON draft file">
+                📤 Import File (.json)
+            </button>
+            <!-- Hidden File Input for parsing importing of JSON files -->
+            <input type="file" id="import-file-input" accept=".json" class="hidden" onchange="importDraftFromFile(this)">
         </div>
     </header>
+
+    <!-- Interactive Zero-Database Local Workspace Guide -->
+    <div id="local-guide-banner" class="no-print w-full max-w-7xl bg-amber-50 border border-amber-200 text-amber-900 rounded-2xl p-4 mb-6 shadow-sm flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 transition-all duration-300">
+        <div class="flex items-start gap-3">
+            <span class="text-2xl mt-0.5">💡</span>
+            <div>
+                <h4 class="text-xs font-bold uppercase tracking-wide text-amber-950">No Database Setup? No Problem! (Portable Saves)</h4>
+                <p class="text-xs text-amber-850 mt-1 leading-relaxed">
+                    You can save your entire portfolio locally! Just click <strong class="underline">Export File (.json)</strong> to download your draft. To resume on another device, click <strong class="underline">Import File (.json)</strong> and open it. No accounts, internet, or databases required!
+                </p>
+            </div>
+        </div>
+        <button onclick="document.getElementById('local-guide-banner').classList.add('hidden')" class="bg-amber-100 hover:bg-amber-200 text-amber-900 text-xs font-bold px-3 py-1.5 rounded-xl transition self-end sm:self-center shrink-0">
+            Got it, Hide
+        </button>
+    </div>
 
     <nav class="no-print w-full max-w-7xl bg-white border border-slate-200 rounded-2xl p-2 shadow-sm mb-6 flex flex-wrap gap-1">
         <button onclick="switchTab('tab-application')" id="nav-btn-tab-application" class="tab-nav-btn active flex-1 min-w-[120px] text-center font-bold text-xs md:text-sm py-3 px-4 rounded-xl transition bg-indigo-50 text-indigo-900">
@@ -1204,8 +1228,8 @@
 
         window.addEventListener('DOMContentLoaded', initFirebase);
 
-        window.saveGlobalSuiteToCloud = async function() {
-            const packageData = {
+        window.getSuiteDataPackage = function() {
+            return {
                 app: {
                     date: document.getElementById('app-date').value,
                     nameEn: document.getElementById('app-name-en').value,
@@ -1311,7 +1335,10 @@
                     signedName: document.getElementById('input-signed-name').value
                 }
             };
+        };
 
+        window.saveGlobalSuiteToCloud = async function() {
+            const packageData = window.getSuiteDataPackage();
             const randomId = Math.floor(100000 + Math.random() * 900000);
             const draftCode = `SUT-${randomId}`;
 
@@ -1528,6 +1555,9 @@
             window.syncResume();
             window.syncLetterFields();
         }
+
+        // Export applyLoadedData globally so it can be called by local import handlers
+        window.applyLoadedData = applyLoadedData;
     </script>
 
     <!-- ============================================== -->
@@ -1538,6 +1568,59 @@
         window.globalResumePhotoBase64 = null;
         window.hasImageFile = false;
         let activeTabName = 'tab-application';
+
+        function exportDraftToFile() {
+            try {
+                const packageData = window.getSuiteDataPackage();
+                const jsonString = JSON.stringify(packageData, null, 2);
+                const blob = new Blob([jsonString], { type: "application/json" });
+                const url = URL.createObjectURL(blob);
+                
+                const studentName = document.getElementById('input-full-name').value.trim() || "student";
+                const sanitizedName = studentName.toLowerCase().replace(/[^a-z0-9]/g, "_");
+                const filename = `${sanitizedName}_career_prep_draft.json`;
+                
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = filename;
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+            } catch (err) {
+                console.error("Local draft export failed:", err);
+                alert("Failed to export draft: " + err.message);
+            }
+        }
+
+        function triggerFileImport() {
+            document.getElementById('import-file-input').click();
+        }
+
+        function importDraftFromFile(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const parsedData = JSON.parse(e.target.result);
+                    if (!parsedData.app || !parsedData.resume || !parsedData.letter) {
+                        throw new Error("Invalid draft file format. Must contain 'app', 'resume', and 'letter' components.");
+                    }
+                    
+                    window.applyLoadedData(parsedData);
+                    alert("🎉 Draft File loaded successfully! All forms updated.");
+                } catch (err) {
+                    console.error("File Import Error:", err);
+                    alert("Import Failed: " + err.message);
+                } finally {
+                    // Reset input so the same file can be selected again
+                    input.value = "";
+                }
+            };
+            reader.readAsText(file);
+        }
 
         function switchTab(tabId) {
             activeTabName = tabId;

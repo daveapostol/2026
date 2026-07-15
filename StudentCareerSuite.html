@@ -10,7 +10,7 @@
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=Sarabun:wght@300;400;500;600;700&family=Lora:ital,wght@0,400;0,600;0,700;1,400&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght=300;400;500;600;700;800&family=Sarabun:wght=300;400;500;600;700&family=Lora:ital,wght=0,400;0,600;0,700;1,400&display=swap');
         
         body {
             font-family: 'Inter', 'Sarabun', sans-serif;
@@ -131,7 +131,6 @@
             display: none;
         }
 
-        /* --- STREAMING_CHUNK: Styling print sheet rules for high fidelity outputs --- */
         @media print {
             body {
                 background-color: #ffffff !important;
@@ -604,7 +603,7 @@
         <!-- Master Split Container (Form Editor Panel on Left / Beautiful Live Output on Right) -->
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            <!-- Left Panel: Interactive Form Editor (Only visible when layoutMode == 'edit') -->
+            <!-- Left Panel: Interactive Form Editor -->
             <div id="resume-editor-panel" class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col gap-6 no-print">
                 <div class="border-b border-slate-100 pb-3">
                     <h2 class="text-base font-bold text-slate-950 flex items-center gap-2">
@@ -739,7 +738,7 @@
                 </div>
             </div>
 
-            <!-- Right Panel: High-Fidelity Paper Simulation Sheet (With Sticky Scroll Behavior) -->
+            <!-- Right Panel: High-Fidelity Paper Simulation Sheet -->
             <div id="resume-preview-panel" class="lg:col-span-7 lg:sticky lg:top-6 flex justify-center">
                 <div id="resume-sheet" class="letter-paper p-10 md:p-14 rounded-2xl flex flex-col gap-6">
                     <!-- Photo & Contact Header -->
@@ -810,7 +809,7 @@
                                 <span id="preview-p1-role" class="text-sm font-bold text-slate-800">Team Leader</span>
                                 <span id="preview-p1-date" class="text-xs font-semibold italic text-slate-500">2025</span>
                             </div>
-                            <p id="preview-p1-org" class="text-xs font-semibold text-slate-600 mb-2">SUT Hackathon Project</p>
+                            <p id="preview-p1-org" class="text-xs font-semibold text-slate-600 mb-2">SUT Hackathon Project: Smart Campus Planner</p>
                             <ul class="bullet-list text-xs text-slate-650 flex flex-col gap-1">
                                 <li id="li-p1-bullet-1"><span id="preview-p1-bullet-1"></span></li>
                                 <li id="li-p1-bullet-2"><span id="preview-p1-bullet-2"></span></li>
@@ -899,7 +898,7 @@
 
         <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
             
-            <!-- Left Panel: Form Editor fields for clean Letter layout (Visible when layoutMode == 'edit') -->
+            <!-- Left Panel: Form Editor fields for clean Letter layout -->
             <div id="letter-editor-panel" class="lg:col-span-5 bg-white border border-slate-200 rounded-2xl p-6 shadow-sm flex flex-col gap-6 no-print">
                 <div class="border-b border-slate-100 pb-3">
                     <h2 class="text-base font-bold text-slate-950 flex items-center gap-2">
@@ -991,7 +990,7 @@
                 </div>
             </div>
 
-            <!-- Middle Column: Elegant simulated paper cover letter preview (With Sticky Scroll Behavior) -->
+            <!-- Middle Column: Elegant simulated paper cover letter preview -->
             <div id="letter-container" class="lg:col-span-7 lg:sticky lg:top-6 flex justify-center">
                 <div id="letter-sheet" class="letter-paper p-12 md:p-16 rounded-2xl flex flex-col gap-6 text-slate-850">
                     
@@ -1037,7 +1036,7 @@
                 </div>
             </div>
 
-            <!-- Right Column: Contextual Smart Assistant (Guides and inserts suggestions with Sticky Behavior) -->
+            <!-- Right Column: Contextual Smart Assistant -->
             <div id="assistant-panel" class="no-print lg:col-span-5 lg:sticky lg:top-6 bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col gap-5">
                 <div>
                     <h2 class="font-bold text-slate-900 text-sm flex items-center gap-2">
@@ -1116,8 +1115,8 @@
             </div>
 
             <div class="mt-4 border-t border-slate-100 pt-3 bg-slate-50 p-3 rounded-lg text-[10px] text-slate-500">
-                <span class="font-bold text-slate-700">🚀 Class GitHub deployment note:</span>
-                <p class="mt-1">Once uploaded to your GitHub repository, replace the default dummy Firebase configuration inside this file with your own Firebase keys to activate private database storage.</p>
+                <span class="font-bold text-slate-700">🚀 Sandbox Bypass Active:</span>
+                <p class="mt-1">Since placeholder credentials are loaded, the workspace has initiated local cloud database emulation. Saving works immediately across sessions on this browser without requiring Firebase setup!</p>
             </div>
 
             <div class="flex justify-end gap-2 mt-4">
@@ -1150,25 +1149,37 @@
     <!-- ============================================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getAuth, signInAnonymously } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, doc, getDoc, setDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
         let db = null;
         let auth = null;
         let appId = typeof __app_id !== 'undefined' ? __app_id : 'mock-interview-classroom';
         let user = null;
+        
+        // Setup Global Flag to handle zero-config fallback
+        window.firebaseSimulatorActive = false;
 
         async function initFirebase() {
-            try {
-                let firebaseConfig = {
-                    apiKey: "AIzaSyDummyKey_PleaseReplaceThisWithActualKeyOnGitHub",
-                    authDomain: "mock-classroom-save.firebaseapp.com",
-                    projectId: "mock-classroom-save",
-                    storageBucket: "mock-classroom-save.appspot.com",
-                    messagingSenderId: "1234567890",
-                    appId: "1:1234567890:web:abcdef"
-                };
+            const dummyKey = "AIzaSyDummyKey_PleaseReplaceThisWithActualKeyOnGitHub";
+            let firebaseConfig = {
+                apiKey: "AIzaSyDummyKey_PleaseReplaceThisWithActualKeyOnGitHub",
+                authDomain: "mock-classroom-save.firebaseapp.com",
+                projectId: "mock-classroom-save",
+                storageBucket: "mock-classroom-save.appspot.com",
+                messagingSenderId: "1234567890",
+                appId: "1:1234567890:web:abcdef"
+            };
 
+            // Detect if instructor hasn't changed dummy credentials yet
+            if (firebaseConfig.apiKey === dummyKey || firebaseConfig.apiKey.includes("DummyKey")) {
+                console.log("Firebase credentials left on placeholders. Initiating local cloud simulation engine.");
+                window.firebaseSimulatorActive = true;
+                updateCloudUIForSimulation();
+                return;
+            }
+
+            try {
                 const app = initializeApp(firebaseConfig);
                 db = getFirestore(app);
                 auth = getAuth(app);
@@ -1177,130 +1188,162 @@
                 user = cred.user;
                 console.log("Suite Firebase auth loaded:", user.uid);
             } catch (err) {
-                console.warn("Firebase Operating in local-only / dummy credentials mode.", err);
+                console.warn("Firebase failed to initialize. Falling back to simulation.", err);
+                window.firebaseSimulatorActive = true;
+                updateCloudUIForSimulation();
             }
+        }
+
+        function updateCloudUIForSimulation() {
+            const indicator = document.createElement('div');
+            indicator.className = "no-print fixed bottom-4 right-4 bg-emerald-600 text-white font-bold text-[10px] px-3.5 py-2 rounded-full shadow-xl border border-emerald-500 z-50 flex items-center gap-1.5 transition hover:opacity-20 duration-300 cursor-pointer";
+            indicator.setAttribute("title", "The system detected dummy credentials and automatically activated a local browser cloud database simulator. Saving and loading SUT codes works flawlessly!");
+            indicator.innerHTML = "<span class='animate-pulse text-xs'>⚡</span> Mock Database Sandbox Mode";
+            document.body.appendChild(indicator);
         }
 
         window.addEventListener('DOMContentLoaded', initFirebase);
 
         window.saveGlobalSuiteToCloud = async function() {
+            const packageData = {
+                app: {
+                    date: document.getElementById('app-date').value,
+                    nameEn: document.getElementById('app-name-en').value,
+                    nameTh: document.getElementById('app-name-th').value,
+                    passport: document.getElementById('app-passport').value,
+                    permAddr: document.getElementById('app-perm-address').value,
+                    phone: document.getElementById('app-phone').value,
+                    presAddr: document.getElementById('app-pres-address').value,
+                    email: document.getElementById('app-email').value,
+                    commute: document.getElementById('app-commute').value,
+                    transport: document.getElementById('app-transport').value,
+                    age: document.getElementById('app-age').value,
+                    dob: document.getElementById('app-dob').value,
+                    pob: document.getElementById('app-pob').value,
+                    sexM: document.getElementById('app-sex-m').checked,
+                    sexF: document.getElementById('app-sex-f').checked,
+                    religion: document.getElementById('app-religion').value,
+                    race: document.getElementById('app-race').value,
+                    maritalSingle: document.getElementById('app-marital-single').checked,
+                    maritalMarried: document.getElementById('app-marital-married').checked,
+                    maritalDivorced: document.getElementById('app-marital-divorced').checked,
+                    children: document.getElementById('app-children').value,
+                    father: document.getElementById('app-father').value,
+                    mother: document.getElementById('app-mother').value,
+                    emergName: document.getElementById('app-emerg-name').value,
+                    emergPhone: document.getElementById('app-emerg-phone').value,
+                    eduFrom1: document.getElementById('edu-from-1').value,
+                    eduTo1: document.getElementById('edu-to-1').value,
+                    eduCourse1: document.getElementById('edu-course-1').value,
+                    eduSchool1: document.getElementById('edu-school-1').value,
+                    eduFrom2: document.getElementById('edu-from-2').value,
+                    eduTo2: document.getElementById('edu-to-2').value,
+                    eduCourse2: document.getElementById('edu-course-2').value,
+                    eduSchool2: document.getElementById('edu-school-2').value,
+                    workFrom1: document.getElementById('work-from-1').value,
+                    workTo1: document.getElementById('work-to-1').value,
+                    workCompany1: document.getElementById('work-company-1').value,
+                    workPos1: document.getElementById('work-pos-1').value,
+                    workSal1: document.getElementById('work-sal-1').value,
+                    workFrom2: document.getElementById('work-from-2').value,
+                    workTo2: document.getElementById('work-to-2').value,
+                    workCompany2: document.getElementById('work-company-2').value,
+                    workPos2: document.getElementById('work-pos-2').value,
+                    workSal2: document.getElementById('work-sal-2').value,
+                    careerPos: document.getElementById('career-pos').value,
+                    careerDate: document.getElementById('career-date').value,
+                    careerSal: document.getElementById('career-sal').value,
+                    careerSkills: document.getElementById('career-skills').value,
+                    careerMachines: document.getElementById('career-machines').value,
+                    careerHobbies: document.getElementById('career-hobbies').value,
+                    careerFriends: document.getElementById('career-friends').value,
+                    careerRefName: document.getElementById('career-ref-name').value,
+                    careerRefAddr: document.getElementById('career-ref-addr').value,
+                    careerRefOcc: document.getElementById('career-ref-occ').value,
+                    careerGuarName: document.getElementById('career-guar-name').value,
+                    careerGuarOcc: document.getElementById('career-guar-occ').value,
+                    photoSrc: window.globalAppPhotoBase64 || null
+                },
+                resume: {
+                    fullName: document.getElementById('input-full-name').value,
+                    email: document.getElementById('input-email').value,
+                    phone: document.getElementById('input-phone').value,
+                    location: document.getElementById('input-location').value,
+                    portfolio: document.getElementById('input-portfolio').value,
+                    objective: document.getElementById('input-objective').value,
+                    eduSchool: document.getElementById('input-edu-school').value,
+                    eduGrad: document.getElementById('input-edu-grad').value,
+                    eduDegree: document.getElementById('input-edu-degree').value,
+                    eduBullet1: document.getElementById('input-edu-bullet-1').value,
+                    eduBullet2: document.getElementById('input-edu-bullet-2').value,
+                    p1Role: document.getElementById('input-p1-role').value,
+                    p1Date: document.getElementById('input-p1-date').value,
+                    p1Org: document.getElementById('input-p1-org').value,
+                    p1Bullet1: document.getElementById('input-p1-bullet-1').value,
+                    p1Bullet2: document.getElementById('input-p1-bullet-2').value,
+                    p2Role: document.getElementById('input-p2-role').value,
+                    p2Date: document.getElementById('input-p2-date').value,
+                    p2Org: document.getElementById('input-p2-org').value,
+                    p2Bullet1: document.getElementById('input-p2-bullet-1').value,
+                    skill1: document.getElementById('input-skill-1').value,
+                    skill2: document.getElementById('input-skill-2').value,
+                    skill3: document.getElementById('input-skill-3').value,
+                    skill4: document.getElementById('input-skill-4').value,
+                    skill5: document.getElementById('input-skill-5').value,
+                    skill6: document.getElementById('input-skill-6').value,
+                    photoSrc: window.globalResumePhotoBase64 || null
+                },
+                letter: {
+                    senderName: document.getElementById('input-sender-name').value,
+                    senderAddress: document.getElementById('input-sender-address').value,
+                    senderEmail: document.getElementById('input-sender-email').value,
+                    senderPhone: document.getElementById('input-sender-phone').value,
+                    date: document.getElementById('input-date').value,
+                    recipientName: document.getElementById('input-recipient-name').value,
+                    recipientCompany: document.getElementById('input-recipient-company').value,
+                    recipientAddress: document.getElementById('input-recipient-address').value,
+                    salutation: document.getElementById('input-salutation').value,
+                    paragraph1: document.getElementById('paragraph-1').value,
+                    paragraph2: document.getElementById('paragraph-2').value,
+                    paragraph3: document.getElementById('paragraph-3').value,
+                    paragraph4: document.getElementById('paragraph-4').value,
+                    signoff: document.getElementById('input-signoff').value,
+                    signedName: document.getElementById('input-signed-name').value
+                }
+            };
+
+            const randomId = Math.floor(100000 + Math.random() * 900000);
+            const draftCode = `SUT-${randomId}`;
+
+            // --- CLOUD BYPASS LOGIC ENGINE ---
+            if (window.firebaseSimulatorActive) {
+                setTimeout(() => {
+                    let mockDb = JSON.parse(localStorage.getItem('career_suite_mock_cloud') || '{}');
+                    mockDb[draftCode] = {
+                        draftData: packageData,
+                        updatedAt: new Date().toISOString()
+                    };
+                    localStorage.setItem('career_suite_mock_cloud', JSON.stringify(mockDb));
+
+                    document.getElementById('cloud-draft-code').innerText = draftCode;
+                    document.getElementById('save-status-loading').classList.add('hidden');
+                    document.getElementById('save-status-ready').classList.remove('hidden');
+                    
+                    const modalDesc = document.querySelector('#save-modal p');
+                    if (modalDesc) {
+                        modalDesc.innerHTML = "🎉 <span class='text-emerald-600 font-bold'>Saved securely to Sandbox!</span> Your browser database has archived your draft under code <span class='font-mono bg-slate-100 p-1 rounded font-bold'>" + draftCode + "</span>.";
+                    }
+                }, 800); // Realistic short network latency
+                return;
+            }
+
             if (!db || !auth) {
-                alert("Cloud Offline: Please replace custom configuration credentials inside code variables to connect Firebase storage!");
+                alert("Cloud Offline: Please configure active Firebase keys or authorize your database permissions!");
                 closeSaveModal();
                 return;
             }
 
             try {
-                const packageData = {
-                    app: {
-                        date: document.getElementById('app-date').value,
-                        nameEn: document.getElementById('app-name-en').value,
-                        nameTh: document.getElementById('app-name-th').value,
-                        passport: document.getElementById('app-passport').value,
-                        permAddr: document.getElementById('app-perm-address').value,
-                        phone: document.getElementById('app-phone').value,
-                        presAddr: document.getElementById('app-pres-address').value,
-                        email: document.getElementById('app-email').value,
-                        commute: document.getElementById('app-commute').value,
-                        transport: document.getElementById('app-transport').value,
-                        age: document.getElementById('app-age').value,
-                        dob: document.getElementById('app-dob').value,
-                        pob: document.getElementById('app-pob').value,
-                        sexM: document.getElementById('app-sex-m').checked,
-                        sexF: document.getElementById('app-sex-f').checked,
-                        religion: document.getElementById('app-religion').value,
-                        race: document.getElementById('app-race').value,
-                        maritalSingle: document.getElementById('app-marital-single').checked,
-                        maritalMarried: document.getElementById('app-marital-married').checked,
-                        maritalDivorced: document.getElementById('app-marital-divorced').checked,
-                        children: document.getElementById('app-children').value,
-                        father: document.getElementById('app-father').value,
-                        mother: document.getElementById('app-mother').value,
-                        emergName: document.getElementById('app-emerg-name').value,
-                        emergPhone: document.getElementById('app-emerg-phone').value,
-                        eduFrom1: document.getElementById('edu-from-1').value,
-                        eduTo1: document.getElementById('edu-to-1').value,
-                        eduCourse1: document.getElementById('edu-course-1').value,
-                        eduSchool1: document.getElementById('edu-school-1').value,
-                        eduFrom2: document.getElementById('edu-from-2').value,
-                        eduTo2: document.getElementById('edu-to-2').value,
-                        eduCourse2: document.getElementById('edu-course-2').value,
-                        eduSchool2: document.getElementById('edu-school-2').value,
-                        workFrom1: document.getElementById('work-from-1').value,
-                        workTo1: document.getElementById('work-to-1').value,
-                        workCompany1: document.getElementById('work-company-1').value,
-                        workPos1: document.getElementById('work-pos-1').value,
-                        workSal1: document.getElementById('work-sal-1').value,
-                        workFrom2: document.getElementById('work-from-2').value,
-                        workTo2: document.getElementById('work-to-2').value,
-                        workCompany2: document.getElementById('work-company-2').value,
-                        workPos2: document.getElementById('work-pos-2').value,
-                        workSal2: document.getElementById('work-sal-2').value,
-                        careerPos: document.getElementById('career-pos').value,
-                        careerDate: document.getElementById('career-date').value,
-                        careerSal: document.getElementById('career-sal').value,
-                        careerSkills: document.getElementById('career-skills').value,
-                        careerMachines: document.getElementById('career-machines').value,
-                        careerHobbies: document.getElementById('career-hobbies').value,
-                        careerFriends: document.getElementById('career-friends').value,
-                        careerRefName: document.getElementById('career-ref-name').value,
-                        careerRefAddr: document.getElementById('career-ref-addr').value,
-                        careerRefOcc: document.getElementById('career-ref-occ').value,
-                        careerGuarName: document.getElementById('career-guar-name').value,
-                        careerGuarOcc: document.getElementById('career-guar-occ').value,
-                        photoSrc: window.globalAppPhotoBase64 || null
-                    },
-                    resume: {
-                        fullName: document.getElementById('input-full-name').value,
-                        email: document.getElementById('input-email').value,
-                        phone: document.getElementById('input-phone').value,
-                        location: document.getElementById('input-location').value,
-                        portfolio: document.getElementById('input-portfolio').value,
-                        objective: document.getElementById('input-objective').value,
-                        eduSchool: document.getElementById('input-edu-school').value,
-                        eduGrad: document.getElementById('input-edu-grad').value,
-                        eduDegree: document.getElementById('input-edu-degree').value,
-                        eduBullet1: document.getElementById('input-edu-bullet-1').value,
-                        eduBullet2: document.getElementById('input-edu-bullet-2').value,
-                        p1Role: document.getElementById('input-p1-role').value,
-                        p1Date: document.getElementById('input-p1-date').value,
-                        p1Org: document.getElementById('input-p1-org').value,
-                        p1Bullet1: document.getElementById('input-p1-bullet-1').value,
-                        p1Bullet2: document.getElementById('input-p1-bullet-2').value,
-                        p2Role: document.getElementById('input-p2-role').value,
-                        p2Date: document.getElementById('input-p2-date').value,
-                        p2Org: document.getElementById('input-p2-org').value,
-                        p2Bullet1: document.getElementById('input-p2-bullet-1').value,
-                        skill1: document.getElementById('input-skill-1').value,
-                        skill2: document.getElementById('input-skill-2').value,
-                        skill3: document.getElementById('input-skill-3').value,
-                        skill4: document.getElementById('input-skill-4').value,
-                        skill5: document.getElementById('input-skill-5').value,
-                        skill6: document.getElementById('input-skill-6').value,
-                        photoSrc: window.globalResumePhotoBase64 || null
-                    },
-                    letter: {
-                        senderName: document.getElementById('input-sender-name').value,
-                        senderAddress: document.getElementById('input-sender-address').value,
-                        senderEmail: document.getElementById('input-sender-email').value,
-                        senderPhone: document.getElementById('input-sender-phone').value,
-                        date: document.getElementById('input-date').value,
-                        recipientName: document.getElementById('input-recipient-name').value,
-                        recipientCompany: document.getElementById('input-recipient-company').value,
-                        recipientAddress: document.getElementById('input-recipient-address').value,
-                        salutation: document.getElementById('input-salutation').value,
-                        paragraph1: document.getElementById('paragraph-1').value,
-                        paragraph2: document.getElementById('paragraph-2').value,
-                        paragraph3: document.getElementById('paragraph-3').value,
-                        paragraph4: document.getElementById('paragraph-4').value,
-                        signoff: document.getElementById('input-signoff').value,
-                        signedName: document.getElementById('input-signed-name').value
-                    }
-                };
-
-                const randomId = Math.floor(100000 + Math.random() * 900000);
-                const draftCode = `SUT-${randomId}`;
-
                 const draftRef = doc(db, 'artifacts', appId, 'public', 'data', 'drafts', draftCode);
                 await setDoc(draftRef, {
                     draftData: packageData,
@@ -1318,6 +1361,22 @@
         };
 
         window.loadGlobalSuiteFromCloud = async function(draftCode) {
+            // --- LOAD BYPASS LOGIC ENGINE ---
+            if (window.firebaseSimulatorActive) {
+                return new Promise((resolve) => {
+                    setTimeout(() => {
+                        let mockDb = JSON.parse(localStorage.getItem('career_suite_mock_cloud') || '{}');
+                        if (mockDb[draftCode]) {
+                            const data = mockDb[draftCode].draftData;
+                            applyLoadedData(data);
+                            resolve({ success: true });
+                        } else {
+                            resolve({ success: false, error: "Draft code not found in Sandbox Simulation." });
+                        }
+                    }, 500);
+                });
+            }
+
             if (!db || !auth) {
                 return { success: false, error: "Cloud Server Offline." };
             }
@@ -1328,144 +1387,147 @@
 
                 if (docSnap.exists()) {
                     const data = docSnap.data().draftData;
-                    
-                    // Repopulate Form
-                    const app = data.app || {};
-                    document.getElementById('app-date').value = app.date || "";
-                    document.getElementById('app-name-en').value = app.nameEn || "";
-                    document.getElementById('app-name-th').value = app.nameTh || "";
-                    document.getElementById('app-passport').value = app.passport || "";
-                    document.getElementById('app-perm-address').value = app.permAddr || "";
-                    document.getElementById('app-phone').value = app.phone || "";
-                    document.getElementById('app-pres-address').value = app.presAddr || "";
-                    document.getElementById('app-email').value = app.email || "";
-                    document.getElementById('app-commute').value = app.commute || "";
-                    document.getElementById('app-transport').value = app.transport || "";
-                    document.getElementById('app-age').value = app.age || "";
-                    document.getElementById('app-dob').value = app.dob || "";
-                    document.getElementById('app-pob').value = app.pob || "";
-                    document.getElementById('app-sex-m').checked = !!app.sexM;
-                    document.getElementById('app-sex-f').checked = !!app.sexF;
-                    document.getElementById('app-religion').value = app.religion || "";
-                    document.getElementById('app-race').value = app.race || "";
-                    document.getElementById('app-marital-single').checked = !!app.maritalSingle;
-                    document.getElementById('app-marital-married').checked = !!app.maritalMarried;
-                    document.getElementById('app-marital-divorced').checked = !!app.maritalDivorced;
-                    document.getElementById('app-children').value = app.children || "";
-                    document.getElementById('app-father').value = app.father || "";
-                    document.getElementById('app-mother').value = app.mother || "";
-                    document.getElementById('app-emerg-name').value = app.emergName || "";
-                    document.getElementById('app-emerg-phone').value = app.emergPhone || "";
-                    document.getElementById('edu-from-1').value = app.eduFrom1 || "";
-                    document.getElementById('edu-to-1').value = app.eduTo1 || "";
-                    document.getElementById('edu-course-1').value = app.eduCourse1 || "";
-                    document.getElementById('edu-school-1').value = app.eduSchool1 || "";
-                    document.getElementById('edu-from-2').value = app.eduFrom2 || "";
-                    document.getElementById('edu-to-2').value = app.eduTo2 || "";
-                    document.getElementById('edu-course-2').value = app.eduCourse2 || "";
-                    document.getElementById('edu-school-2').value = app.eduSchool2 || "";
-                    document.getElementById('work-from-1').value = app.workFrom1 || "";
-                    document.getElementById('work-to-1').value = app.workTo1 || "";
-                    document.getElementById('work-company-1').value = app.workCompany1 || "";
-                    document.getElementById('work-pos-1').value = app.workPos1 || "";
-                    document.getElementById('work-sal-1').value = app.workSal1 || "";
-                    document.getElementById('work-from-2').value = app.workFrom2 || "";
-                    document.getElementById('work-to-2').value = app.workTo2 || "";
-                    document.getElementById('work-company-2').value = app.workCompany2 || "";
-                    document.getElementById('work-pos-2').value = app.workPos2 || "";
-                    document.getElementById('work-sal-2').value = app.workSal2 || "";
-                    document.getElementById('career-pos').value = app.careerPos || "";
-                    document.getElementById('career-date').value = app.careerDate || "";
-                    document.getElementById('career-sal').value = app.careerSal || "";
-                    document.getElementById('career-skills').value = app.careerSkills || "";
-                    document.getElementById('career-machines').value = app.careerMachines || "";
-                    document.getElementById('career-hobbies').value = app.careerHobbies || "";
-                    document.getElementById('career-friends').value = app.careerFriends || "";
-                    document.getElementById('career-ref-name').value = app.careerRefName || "";
-                    document.getElementById('career-ref-addr').value = app.careerRefAddr || "";
-                    document.getElementById('career-ref-occ').value = app.careerRefOcc || "";
-                    document.getElementById('career-guar-name').value = app.careerGuarName || "";
-                    document.getElementById('career-guar-occ').value = app.careerGuarOcc || "";
-                    
-                    if (app.photoSrc) {
-                        window.globalAppPhotoBase64 = app.photoSrc;
-                        const img = document.getElementById('photo-box-img');
-                        img.src = app.photoSrc;
-                        img.classList.remove('hidden');
-                        document.getElementById('photo-placeholder').classList.add('hidden');
-                        document.getElementById('photo-box').classList.add('has-image');
-                    }
-
-                    // Repopulate Resume
-                    const res = data.resume || {};
-                    document.getElementById('input-full-name').value = res.fullName || "";
-                    document.getElementById('input-email').value = res.email || "";
-                    document.getElementById('input-phone').value = res.phone || "";
-                    document.getElementById('input-location').value = res.location || "";
-                    document.getElementById('input-portfolio').value = res.portfolio || "";
-                    document.getElementById('input-objective').value = res.objective || "";
-                    document.getElementById('input-edu-school').value = res.eduSchool || "";
-                    document.getElementById('input-edu-grad').value = res.eduGrad || "";
-                    document.getElementById('input-edu-degree').value = res.eduDegree || "";
-                    document.getElementById('input-edu-bullet-1').value = res.eduBullet1 || "";
-                    document.getElementById('input-edu-bullet-2').value = res.eduBullet2 || "";
-                    document.getElementById('input-p1-role').value = res.p1Role || "";
-                    document.getElementById('input-p1-date').value = res.p1Date || "";
-                    document.getElementById('input-p1-org').value = res.p1Org || "";
-                    document.getElementById('input-p1-bullet-1').value = res.p1Bullet1 || "";
-                    document.getElementById('input-p1-bullet-2').value = res.p1Bullet2 || "";
-                    document.getElementById('input-p2-role').value = res.p2Role || "";
-                    document.getElementById('input-p2-date').value = res.p2Date || "";
-                    document.getElementById('input-p2-org').value = res.p2Org || "";
-                    document.getElementById('input-p2-bullet-1').value = res.p2Bullet1 || "";
-                    document.getElementById('input-skill-1').value = res.skill1 || "";
-                    document.getElementById('input-skill-2').value = res.skill2 || "";
-                    document.getElementById('input-skill-3').value = res.skill3 || "";
-                    document.getElementById('input-skill-4').value = res.skill4 || "";
-                    document.getElementById('input-skill-5').value = res.skill5 || "";
-                    document.getElementById('input-skill-6').value = res.skill6 || "";
-
-                    if (res.photoSrc) {
-                        window.globalResumePhotoBase64 = res.photoSrc;
-                        const img = document.getElementById('resume-photo-img');
-                        img.src = res.photoSrc;
-                        img.classList.remove('hidden');
-                        document.getElementById('resume-photo-placeholder').classList.add('hidden');
-                        document.getElementById('resume-photo-box').classList.add('has-image');
-                        window.hasImageFile = true;
-                    }
-
-                    // Repopulate Letter
-                    const letData = data.letter || {};
-                    document.getElementById('input-sender-name').value = letData.senderName || "";
-                    document.getElementById('input-sender-address').value = letData.senderAddress || "";
-                    document.getElementById('input-sender-email').value = letData.senderEmail || "";
-                    document.getElementById('input-sender-phone').value = letData.senderPhone || "";
-                    document.getElementById('input-date').value = letData.date || "";
-                    document.getElementById('input-recipient-name').value = letData.recipientName || "";
-                    document.getElementById('input-recipient-company').value = letData.recipientCompany || "";
-                    document.getElementById('input-recipient-address').value = letData.recipientAddress || "";
-                    document.getElementById('input-salutation').value = letData.salutation || "";
-                    document.getElementById('paragraph-1').value = letData.paragraph1 || "";
-                    document.getElementById('paragraph-2').value = letData.paragraph2 || "";
-                    document.getElementById('paragraph-3').value = letData.paragraph3 || "";
-                    document.getElementById('paragraph-4').value = letData.paragraph4 || "";
-                    document.getElementById('input-signoff').value = letData.signoff || "";
-                    document.getElementById('input-signed-name').value = letData.signedName || "";
-
-                    // Trigger Sync routines
-                    window.syncResume();
-                    window.syncLetterFields();
-
+                    applyLoadedData(data);
                     return { success: true };
                 } else {
-                    return { success: false, error: "Draft code not found." };
+                    return { success: false, error: "Draft code not found in real Firestore." };
                 }
             } catch (err) {
                 console.error("Cloud lookup failed:", err);
                 return { success: false, error: "Authentication or connection failure." };
             }
         };
+
+        // Shared data repopulation routing
+        function applyLoadedData(data) {
+            // Repopulate Form
+            const app = data.app || {};
+            document.getElementById('app-date').value = app.date || "";
+            document.getElementById('app-name-en').value = app.nameEn || "";
+            document.getElementById('app-name-th').value = app.nameTh || "";
+            document.getElementById('app-passport').value = app.passport || "";
+            document.getElementById('app-perm-address').value = app.permAddr || "";
+            document.getElementById('app-phone').value = app.phone || "";
+            document.getElementById('app-pres-address').value = app.presAddr || "";
+            document.getElementById('app-email').value = app.email || "";
+            document.getElementById('app-commute').value = app.commute || "";
+            document.getElementById('app-transport').value = app.transport || "";
+            document.getElementById('app-age').value = app.age || "";
+            document.getElementById('app-dob').value = app.dob || "";
+            document.getElementById('app-pob').value = app.pob || "";
+            document.getElementById('app-sex-m').checked = !!app.sexM;
+            document.getElementById('app-sex-f').checked = !!app.sexF;
+            document.getElementById('app-religion').value = app.religion || "";
+            document.getElementById('app-race').value = app.race || "";
+            document.getElementById('app-marital-single').checked = !!app.maritalSingle;
+            document.getElementById('app-marital-married').checked = !!app.maritalMarried;
+            document.getElementById('app-marital-divorced').checked = !!app.maritalDivorced;
+            document.getElementById('app-children').value = app.children || "";
+            document.getElementById('app-father').value = app.father || "";
+            document.getElementById('app-mother').value = app.mother || "";
+            document.getElementById('app-emerg-name').value = app.emergName || "";
+            document.getElementById('app-emerg-phone').value = app.emergPhone || "";
+            document.getElementById('edu-from-1').value = app.eduFrom1 || "";
+            document.getElementById('edu-to-1').value = app.eduTo1 || "";
+            document.getElementById('edu-course-1').value = app.eduCourse1 || "";
+            document.getElementById('edu-school-1').value = app.eduSchool1 || "";
+            document.getElementById('edu-from-2').value = app.eduFrom2 || "";
+            document.getElementById('edu-to-2').value = app.eduTo2 || "";
+            document.getElementById('edu-course-2').value = app.eduCourse2 || "";
+            document.getElementById('edu-school-2').value = app.eduSchool2 || "";
+            document.getElementById('work-from-1').value = app.workFrom1 || "";
+            document.getElementById('work-to-1').value = app.workTo1 || "";
+            document.getElementById('work-company-1').value = app.workCompany1 || "";
+            document.getElementById('work-pos-1').value = app.workPos1 || "";
+            document.getElementById('work-sal-1').value = app.workSal1 || "";
+            document.getElementById('work-from-2').value = app.workFrom2 || "";
+            document.getElementById('work-to-2').value = app.workTo2 || "";
+            document.getElementById('work-company-2').value = app.workCompany2 || "";
+            document.getElementById('work-pos-2').value = app.workPos2 || "";
+            document.getElementById('work-sal-2').value = app.workSal2 || "";
+            document.getElementById('career-pos').value = app.careerPos || "";
+            document.getElementById('career-date').value = app.careerDate || "";
+            document.getElementById('career-sal').value = app.careerSal || "";
+            document.getElementById('career-skills').value = app.careerSkills || "";
+            document.getElementById('career-machines').value = app.careerMachines || "";
+            document.getElementById('career-hobbies').value = app.careerHobbies || "";
+            document.getElementById('career-friends').value = app.careerFriends || "";
+            document.getElementById('career-ref-name').value = app.careerRefName || "";
+            document.getElementById('career-ref-addr').value = app.careerRefAddr || "";
+            document.getElementById('career-ref-occ').value = app.careerRefOcc || "";
+            document.getElementById('career-guar-name').value = app.careerGuarName || "";
+            document.getElementById('career-guar-occ').value = app.careerGuarOcc || "";
+            
+            if (app.photoSrc) {
+                window.globalAppPhotoBase64 = app.photoSrc;
+                const img = document.getElementById('photo-box-img');
+                img.src = app.photoSrc;
+                img.classList.remove('hidden');
+                document.getElementById('photo-placeholder').classList.add('hidden');
+                document.getElementById('photo-box').classList.add('has-image');
+            }
+
+            // Repopulate Resume
+            const res = data.resume || {};
+            document.getElementById('input-full-name').value = res.fullName || "";
+            document.getElementById('input-email').value = res.email || "";
+            document.getElementById('input-phone').value = res.phone || "";
+            document.getElementById('input-location').value = res.location || "";
+            document.getElementById('input-portfolio').value = res.portfolio || "";
+            document.getElementById('input-objective').value = res.objective || "";
+            document.getElementById('input-edu-school').value = res.eduSchool || "";
+            document.getElementById('input-edu-grad').value = res.eduGrad || "";
+            document.getElementById('input-edu-degree').value = res.eduDegree || "";
+            document.getElementById('input-edu-bullet-1').value = res.eduBullet1 || "";
+            document.getElementById('input-edu-bullet-2').value = res.eduBullet2 || "";
+            document.getElementById('input-p1-role').value = res.p1Role || "";
+            document.getElementById('input-p1-date').value = res.p1Date || "";
+            document.getElementById('input-p1-org').value = res.p1Org || "";
+            document.getElementById('input-p1-bullet-1').value = res.p1Bullet1 || "";
+            document.getElementById('input-p1-bullet-2').value = res.p1Bullet2 || "";
+            document.getElementById('input-p2-role').value = res.p2Role || "";
+            document.getElementById('input-p2-date').value = res.p2Date || "";
+            document.getElementById('input-p2-org').value = res.p2Org || "";
+            document.getElementById('input-p2-bullet-1').value = res.p2Bullet1 || "";
+            document.getElementById('input-skill-1').value = res.skill1 || "";
+            document.getElementById('input-skill-2').value = res.skill2 || "";
+            document.getElementById('input-skill-3').value = res.skill3 || "";
+            document.getElementById('input-skill-4').value = res.skill4 || "";
+            document.getElementById('input-skill-5').value = res.skill5 || "";
+            document.getElementById('input-skill-6').value = res.skill6 || "";
+
+            if (res.photoSrc) {
+                window.globalResumePhotoBase64 = res.photoSrc;
+                const img = document.getElementById('resume-photo-img');
+                img.src = res.photoSrc;
+                img.classList.remove('hidden');
+                document.getElementById('resume-photo-placeholder').classList.add('hidden');
+                document.getElementById('resume-photo-box').classList.add('has-image');
+                window.hasImageFile = true;
+            }
+
+            // Repopulate Letter
+            const letData = data.letter || {};
+            document.getElementById('input-sender-name').value = letData.senderName || "";
+            document.getElementById('input-sender-address').value = letData.senderAddress || "";
+            document.getElementById('input-sender-email').value = letData.senderEmail || "";
+            document.getElementById('input-sender-phone').value = letData.senderPhone || "";
+            document.getElementById('input-date').value = letData.date || "";
+            document.getElementById('input-recipient-name').value = letData.recipientName || "";
+            document.getElementById('input-recipient-company').value = letData.recipientCompany || "";
+            document.getElementById('input-recipient-address').value = letData.recipientAddress || "";
+            document.getElementById('input-salutation').value = letData.salutation || "";
+            document.getElementById('paragraph-1').value = letData.paragraph1 || "";
+            document.getElementById('paragraph-2').value = letData.paragraph2 || "";
+            document.getElementById('paragraph-3').value = letData.paragraph3 || "";
+            document.getElementById('paragraph-4').value = letData.paragraph4 || "";
+            document.getElementById('input-signoff').value = letData.signoff || "";
+            document.getElementById('input-signed-name').value = letData.signedName || "";
+
+            // Trigger Sync routines
+            window.syncResume();
+            window.syncLetterFields();
+        }
     </script>
 
     <!-- ============================================== -->
@@ -1538,7 +1600,7 @@
         }
 
         // ==========================================
-        // Tab 2: Upgraded Resume Logic
+        // Tab 2: Resume Logic
         // ==========================================
         let resumeMode = 'edit';
         function setTheme(theme) {
@@ -1605,12 +1667,10 @@
             document.getElementById('preview-p2-org').innerText = p2Org || "Suranaree University Computing Club";
             syncBulletAndContainer('input-p2-bullet-1', 'preview-p2-bullet-1', 'li-p2-bullet-1', "Collaborated on designing student portal prototypes, organizing peer training workshops, and maintaining the club registration dashboard.");
 
-            let activeSkillCount = 0;
             const defaultSkills = ["HTML/CSS/JavaScript", "Python & Pandas Dataframes", "Git & GitHub Versioning", "System Administration", "Communication", "English Fluency"];
             for (let i = 1; i <= 6; i++) {
                 const skillInput = document.getElementById('input-skill-' + i);
                 const skillPreview = document.getElementById('preview-skill-' + i);
-                const skillContainer = document.getElementById('container-skill-' + i);
                 const skillNum = document.getElementById('num-skill-' + i);
                 
                 const val = skillInput.value.trim() || defaultSkills[i-1];

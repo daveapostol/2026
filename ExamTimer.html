@@ -1,0 +1,1054 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Semester 1/2026 Midterm Examinations - Grade 11 Exam Clock</title>
+    <!-- Tailwind CSS for high quality styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts for crisp readability -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .digital-font {
+            font-family: 'Share Tech Mono', monospace;
+        }
+        /* Custom animations for urgent status */
+        @keyframes pulse-fast {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+        .pulse-urgent {
+            animation: pulse-fast 1s infinite;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-white min-h-screen transition-colors duration-300">
+
+    <div class="container mx-auto px-4 py-6 max-w-7xl">
+        <!-- Top Navbar & Header Info -->
+        <header class="flex flex-col md:flex-row justify-between items-center mb-8 border-b border-slate-800 pb-6 gap-4">
+            <div>
+                <div class="flex items-center gap-2 mb-1 justify-center md:justify-start">
+                    <span class="px-2 py-0.5 text-xs font-bold uppercase rounded bg-indigo-600 text-white animate-pulse">Grade 11</span>
+                    <span class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Semester 1/2026 Midterm Examinations</span>
+                </div>
+                <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
+                    ตารางสอบกลางภาคเรียนที่ 1/2569
+                </h1>
+                <p class="text-sm text-slate-400 mt-1">
+                    Configured with Grade 11 schedule from <span class="underline decoration-indigo-500 font-medium">Screenshot 2569-07-20 at 8.26.26 AM.jpg</span>
+                </p>
+            </div>
+            
+            <!-- Quick Configuration Actions -->
+            <div class="flex flex-wrap items-center gap-2">
+                <!-- Theme Select -->
+                <button id="btnToggleTheme" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border border-slate-700 transition" title="Toggle classroom-optimized theme">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                    <span>High Contrast Mode</span>
+                </button>
+                
+                <!-- Audio Test Button -->
+                <button id="btnBellTest" class="bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border border-slate-700 transition" title="Test synthetic school bell">
+                    <svg class="w-4 h-4 text-yellow-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 17h5l-1.405-1.405A2.032 2.032 0 0118 14.158V11a6.002 6.002 0 00-4-5.659V5a2 2 0 10-4 0v.341C7.67 6.165 6 8.388 6 11v3.159c0 .538-.214 1.055-.595 1.436L4 17h5m6 0v1a3 3 0 11-6 0v-1m6 0H9"></path></svg>
+                    <span>Test Bell</span>
+                </button>
+
+                <!-- Fullscreen Button -->
+                <button onclick="toggleFullScreen()" class="bg-slate-800 hover:bg-slate-700 text-slate-200 p-2 rounded-lg border border-slate-700 transition" title="Toggle Fullscreen">
+                    <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 8V4m0 0h4M4 4l5 5m11-1V4m0 0h-4m4 0l-5 5M4 16v4m0 0h4m-4 0l5-5m11 5v-4m0 4h-4m4 0l-5-5"></path></svg>
+                </button>
+            </div>
+        </header>
+
+        <!-- Main Dashboard Section -->
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
+            
+            <!-- Left 2 Columns: Large Active Test Counter & Information -->
+            <div id="activeTestContainer" class="lg:col-span-2 bg-slate-950 rounded-2xl border border-slate-800 p-6 md:p-8 flex flex-col justify-between shadow-xl relative overflow-hidden transition-all duration-300">
+                <!-- Decorative background elements -->
+                <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl"></div>
+                <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl"></div>
+
+                <div>
+                    <!-- Active State Tag -->
+                    <div class="flex items-center justify-between mb-6">
+                        <div class="flex items-center gap-2">
+                            <span class="w-3.5 h-3.5 bg-red-500 rounded-full animate-ping" id="statusIndicatorPing"></span>
+                            <span class="text-xs font-semibold uppercase tracking-wider text-red-400" id="statusIndicatorText">Now Live</span>
+                        </div>
+                        <div class="text-right">
+                            <span class="text-[10px] text-slate-500 block uppercase font-bold tracking-wide">Selected Testing Day</span>
+                            <span id="activeDateDisplay" class="text-sm font-bold text-indigo-400">Monday, 20 July 2026</span>
+                        </div>
+                    </div>
+
+                    <!-- Subjects Container (supports single or multi-column layout for overlapping exams) -->
+                    <div id="liveExamsGrid" class="grid grid-cols-1 gap-6 mb-4">
+                        <!-- Dynamic exam cards injected here -->
+                    </div>
+                </div>
+            </div>
+
+            <!-- Right 1 Column: Real-time clock & sandbox controllers -->
+            <div class="space-y-6">
+                <!-- Clock Card -->
+                <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 shadow-xl relative overflow-hidden">
+                    <span class="text-xs text-slate-500 font-semibold tracking-wider uppercase block mb-2">Current System Clock</span>
+                    <div id="clockDisplay" class="digital-font text-4xl md:text-5xl font-extrabold text-indigo-400 tracking-wider mb-2">
+                        08:42:45
+                    </div>
+                    <div class="flex justify-between items-center text-xs text-slate-400 font-medium">
+                        <span id="clockDateDisplay">Monday, 20 July 2026</span>
+                        <div class="flex items-center gap-2">
+                            <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
+                            <span id="clockFormatLabel">24H MODE</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Next Subject Indicator -->
+                <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 shadow-xl">
+                    <span class="text-xs text-slate-500 font-semibold tracking-wider uppercase block mb-3">Up Next</span>
+                    <div id="upNextContainer" class="space-y-4">
+                        <!-- Injected by JavaScript -->
+                    </div>
+                </div>
+
+                <!-- Sandbox Time Controller (Highly essential for showcasing or manual scheduling shifts) -->
+                <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 shadow-xl relative overflow-hidden">
+                    <div class="absolute top-0 right-0 left-0 h-1 bg-gradient-to-r from-amber-500 to-amber-600"></div>
+                    <div class="flex items-center justify-between mb-4">
+                        <span class="text-xs text-amber-400 font-bold tracking-wider uppercase">Sandbox / Simulation Controls</span>
+                        <label class="relative inline-flex items-center cursor-pointer select-none">
+                            <input type="checkbox" id="chkSimulateTime" class="sr-only peer">
+                            <div class="w-9 h-5 bg-slate-800 peer-focus:outline-none rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-slate-300 after:border-slate-300 after:border after:rounded-full after:h-4 after:w-4 after:transition-all peer-checked:bg-amber-500"></div>
+                            <span class="ml-2 text-xs font-semibold text-slate-300">Enable</span>
+                        </label>
+                    </div>
+                    <p class="text-[11px] text-slate-400 mb-4">
+                        Toggle sandbox mode to test transitions, sound effects, and overlapping exam windows easily.
+                    </p>
+
+                    <div id="simulationInputs" class="space-y-3 opacity-40 pointer-events-none transition-all duration-300">
+                        <!-- Simulated Date Selector -->
+                        <div>
+                            <label class="block text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-1">Simulated Day</label>
+                            <select id="simDateSelect" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                                <option value="2026-07-20">Monday, 20 July 2026</option>
+                                <option value="2026-07-22">Wednesday, 22 July 2026</option>
+                            </select>
+                        </div>
+                        <!-- Simulated Time Selector -->
+                        <div>
+                            <label class="block text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-1">Simulated Time</label>
+                            <div class="flex items-center gap-2">
+                                <input type="time" id="simTimeInput" value="08:45" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
+                                <button id="btnSetToNow" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-[10px] font-bold px-2 py-1.5 rounded-md border border-slate-700 uppercase whitespace-nowrap">
+                                    Sync Real Time
+                                </button>
+                            </div>
+                        </div>
+                        <!-- Simple Speed Slider to see clock pass by -->
+                        <div>
+                            <div class="flex justify-between text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-1">
+                                <span>Sim Speed multiplier</span>
+                                <span id="lblSpeedMult" class="text-amber-400">1x (Realtime)</span>
+                            </div>
+                            <input type="range" id="rngSpeedMult" min="1" max="120" value="1" class="w-full h-1 bg-slate-800 rounded-lg appearance-none cursor-pointer accent-amber-500">
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Schedule Display & Customization Section -->
+        <section class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-xl mb-12">
+            <!-- Tabs & Configuration Header -->
+            <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center border-b border-slate-800 p-4 bg-slate-900/40 gap-4">
+                <!-- Day Select Tabs -->
+                <div class="flex gap-1.5 p-1 bg-slate-900 rounded-xl max-w-sm border border-slate-800">
+                    <button id="tabMonday" class="flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition whitespace-nowrap bg-indigo-600 text-white">
+                        Mon, 20 July
+                    </button>
+                    <button id="tabWednesday" class="flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition text-slate-400 hover:text-slate-200">
+                        Wed, 22 July
+                    </button>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <button id="btnEditSchedule" class="bg-indigo-600 hover:bg-indigo-500 text-white px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase flex items-center gap-1.5 shadow-lg shadow-indigo-600/15 transition">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"></path></svg>
+                        <span>Edit Schedule</span>
+                    </button>
+                    
+                    <!-- Custom Safe Double Click Reset Button -->
+                    <button id="btnResetToDefault" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition relative overflow-hidden group" title="Restore back to Screenshot default">
+                        <span id="resetLabel">Reset Default</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Schedule Grid Table container -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="border-b border-slate-800 text-[11px] uppercase tracking-wider text-slate-400 font-bold bg-slate-900/20">
+                            <th class="py-3.5 px-6 w-32">Time Window</th>
+                            <th class="py-3.5 px-6 w-32">Duration</th>
+                            <th class="py-3.5 px-6">Subject / Activity Name (Grade 11 Curriculum)</th>
+                            <th class="py-3.5 px-6 w-28 text-center">Status</th>
+                        </tr>
+                    </thead>
+                    <tbody id="scheduleTableBody" class="divide-y divide-slate-800/60">
+                        <!-- Populated programmatically by JS -->
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </div>
+
+    <!-- Schedule Editor Modal Backdrop -->
+    <div id="modalEditor" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+        <!-- Modal Window -->
+        <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl">
+            <header class="p-6 border-b border-slate-800 flex justify-between items-center bg-slate-900/50">
+                <div>
+                    <h3 class="font-extrabold text-lg text-white">Customize Grade 11 Schedule</h3>
+                    <p class="text-xs text-slate-400 mt-1">Changes are instantly saved to local browser storage.</p>
+                </div>
+                <button id="btnDismissModal" class="text-slate-400 hover:text-white p-1 rounded-lg transition">
+                    <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
+                </button>
+            </header>
+
+            <div class="p-6 overflow-y-auto space-y-6 flex-1">
+                <!-- Select Day to Edit -->
+                <div class="flex items-center gap-3 bg-slate-950 p-3 rounded-xl border border-slate-800">
+                    <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Target Day to Edit:</span>
+                    <select id="editorDaySelect" class="bg-slate-900 border border-slate-800 text-sm font-semibold rounded-lg px-3 py-1 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
+                        <option value="2026-07-20">Monday, 20 July 2026</option>
+                        <option value="2026-07-22">Wednesday, 22 July 2026</option>
+                    </select>
+                </div>
+
+                <!-- Editor items list -->
+                <div id="editorRowsContainer" class="space-y-3.5">
+                    <!-- Row templates filled dynamically -->
+                </div>
+
+                <!-- Button to append new entry -->
+                <button id="btnAddNewRow" class="w-full py-2.5 border-2 border-dashed border-slate-800 hover:border-slate-700 rounded-xl text-xs font-bold text-slate-400 hover:text-slate-200 transition flex items-center justify-center gap-1.5">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path></svg>
+                    <span>Add New Schedule Block</span>
+                </button>
+            </div>
+
+            <footer class="p-4 border-t border-slate-800 bg-slate-900/50 flex gap-3 justify-end">
+                <button id="btnCancelChanges" class="px-5 py-2 rounded-xl text-xs font-bold uppercase text-slate-400 hover:text-white hover:bg-slate-800 transition">
+                    Discard
+                </button>
+                <button id="btnSaveChanges" class="bg-indigo-600 hover:bg-indigo-500 text-white px-6 py-2 rounded-xl text-xs font-bold uppercase shadow-lg shadow-indigo-600/10 transition">
+                    Apply Changes
+                </button>
+            </footer>
+        </div>
+    </div>
+
+    <!-- Alert Toast Message Element -->
+    <div id="toastMessage" class="fixed bottom-6 right-6 bg-emerald-600 text-white px-5 py-3.5 rounded-xl shadow-2xl border border-emerald-500/30 flex items-center gap-3 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <svg class="w-5 h-5 shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+        <span id="toastText" class="text-xs font-bold uppercase tracking-wide">Schedule saved successfully!</span>
+    </div>
+
+    <script>
+        // Default schedules compiled directly from Screenshot 2569-07-20 at 8.26.26 AM.jpg
+        const DEFAULT_SCHEDULE = {
+            "2026-07-20": [ // Monday, 20 July 2026
+                { id: "m1", start: "07:50", end: "08:15", subject: "Homeroom" },
+                { id: "m2", start: "08:15", end: "09:45", subject: "English Mathematics / คณิตศาสตร์ (ภาคภาษาอังกฤษ)" },
+                { id: "m3", start: "09:45", end: "10:00", subject: "Morning Break" },
+                // Grade 11 Overlapping Exam slots:
+                { id: "m4", start: "10:00", end: "11:00", subject: "Thai Mathematics / คณิตศาสตร์ (ทักษะความเข้าใจ - ภาคภาษาไทย)" },
+                { id: "m5", start: "10:00", end: "11:30", subject: "Geography / ภูมิศาสตร์" },
+                { id: "m6", start: "11:30", end: "12:30", subject: "Lunch Break" },
+                { id: "m7", start: "12:30", end: "14:00", subject: "Gen Science วิทยาศาสตร์ทั่วไป / Chemistry เคมี" },
+                { id: "m8", start: "14:00", end: "14:15", subject: "Afternoon Break" },
+                { id: "m9", start: "14:15", end: "15:25", subject: "SAT Math / ทักษะคณิตศาสตร์" }
+            ],
+            "2026-07-22": [ // Wednesday, 22 July 2026
+                { id: "w1", start: "07:50", end: "08:15", subject: "Homeroom" },
+                { id: "w2", start: "08:15", end: "09:45", subject: "Physics ฟิสิกส์ / Business ธุรกิจเบื้องต้น" },
+                { id: "w3", start: "09:45", end: "10:00", subject: "Morning Break" },
+                { id: "w4", start: "10:00", end: "11:30", subject: "Biology ชีววิทยา" },
+                { id: "w5", start: "11:30", end: "12:30", subject: "Lunch Break" },
+                { id: "w6", start: "12:30", end: "13:30", subject: "Thai Social Studies / สังคมศึกษา ศาสนาและวัฒนธรรม (ภาคภาษาไทย)" },
+                { id: "w7", start: "13:30", end: "13:45", subject: "Afternoon Break" },
+                { id: "w8", start: "13:45", end: "14:45", subject: "Thai Language / ภาษาไทย" },
+                { id: "w9", start: "14:45", end: "15:30", subject: "Homeroom" }
+            ]
+        };
+
+        // Date Label Mapping
+        const DATE_LABELS = {
+            "2026-07-20": "Monday, 20 July 2026",
+            "2026-07-22": "Wednesday, 22 July 2026"
+        };
+
+        // Application State Management
+        let appState = {
+            schedule: {},
+            activeDate: "2026-07-20", // Default to Monday
+            simulatedMode: false,
+            simulatedDate: "2026-07-20",
+            simulatedTimeSeconds: 0, // Time in seconds within active day
+            speedMultiplier: 1,
+            lastClockTick: Date.now(),
+            audioContext: null,
+            bellRungForBlock: {}, // Keeps track of transition bell trigger per block ID
+            warningRungForBlock: {}, // Keeps track of 5-minute warning bell trigger per block ID
+            resetConfirmationTimeout: null // For double-click button
+        };
+
+        // Load custom settings or fallback to default
+        function initStorage() {
+            const saved = localStorage.getItem("grade11_midterm_schedule_v2");
+            if (saved) {
+                try {
+                    appState.schedule = JSON.parse(saved);
+                } catch(e) {
+                    appState.schedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
+                }
+            } else {
+                appState.schedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
+            }
+        }
+
+        // Synchronize local storage saving
+        function saveToStorage() {
+            localStorage.setItem("grade11_midterm_schedule_v2", JSON.stringify(appState.schedule));
+        }
+
+        // Web Audio Synthesizer: School bell chime
+        function playChime(chimeType = 'start') {
+            try {
+                if (!appState.audioContext) {
+                    appState.audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                }
+                const ctx = appState.audioContext;
+                if (ctx.state === 'suspended') {
+                    ctx.resume();
+                }
+
+                if (chimeType === 'warning') {
+                    // Short rhythmic warning beep for 5-minute alert
+                    playTone(587.33, 0.15, 0.1); // D5
+                    setTimeout(() => playTone(587.33, 0.3, 0.1), 200);
+                } else {
+                    // Standard exam school bell sound (rhythmic dual tones)
+                    let delay = 0;
+                    for (let i = 0; i < 3; i++) {
+                        setTimeout(() => {
+                            playTone(440, 0.3, 0.3); // A4
+                            playTone(554.37, 0.3, 0.3); // C#5
+                        }, delay);
+                        delay += 550;
+                    }
+                    setTimeout(() => {
+                        playTone(330, 0.8, 0.5); // E4
+                        playTone(440, 0.8, 0.5); // A4
+                    }, delay);
+                }
+            } catch (e) {
+                console.warn("Audio Context error: ", e);
+            }
+        }
+
+        // Single Frequency Tone Creator
+        function playTone(frequency, duration, decay) {
+            const ctx = appState.audioContext;
+            const osc = ctx.createOscillator();
+            const gain = ctx.createGain();
+
+            osc.connect(gain);
+            gain.connect(ctx.destination);
+
+            osc.type = 'sine';
+            osc.frequency.setValueAtTime(frequency, ctx.currentTime);
+
+            gain.gain.setValueAtTime(0, ctx.currentTime);
+            gain.gain.linearRampToValueAtTime(0.25, ctx.currentTime + 0.05);
+            gain.gain.exponentialRampToValueAtTime(0.0001, ctx.currentTime + duration);
+
+            osc.start(ctx.currentTime);
+            osc.stop(ctx.currentTime + duration);
+        }
+
+        // Convert Time String ("08:30") to minutes from midnight
+        function timeToMinutes(timeStr) {
+            if (!timeStr) return 0;
+            const parts = timeStr.replace('.', ':').split(':');
+            return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
+        }
+
+        // Convert Minutes from midnight back to time string HH:MM
+        function minutesToTimeStr(minutes) {
+            const hrs = Math.floor(minutes / 60);
+            const mins = minutes % 60;
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
+        }
+
+        // Return elapsed minutes of dynamic block
+        function getBlockDuration(block) {
+            return timeToMinutes(block.end) - timeToMinutes(block.start);
+        }
+
+        // Format Seconds integer into human-readable HH:MM:SS or MM:SS
+        function formatCountdown(totalSeconds) {
+            if (totalSeconds < 0) return "00:00:00";
+            const hrs = Math.floor(totalSeconds / 3600);
+            const mins = Math.floor((totalSeconds % 3600) / 60);
+            const secs = Math.floor(totalSeconds % 60);
+
+            return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+        }
+
+        // Show Toast Dialog
+        function triggerToast(text, type = "success") {
+            const toast = document.getElementById("toastMessage");
+            const toastText = document.getElementById("toastText");
+            toastText.textContent = text;
+            
+            if (type === "warning") {
+                toast.classList.remove("bg-emerald-600", "border-emerald-500/30");
+                toast.classList.add("bg-amber-600", "border-amber-500/30");
+            } else {
+                toast.classList.remove("bg-amber-600", "border-amber-500/30");
+                toast.classList.add("bg-emerald-600", "border-emerald-500/30");
+            }
+
+            toast.classList.remove("opacity-0", "translate-y-20", "pointer-events-none");
+            
+            setTimeout(() => {
+                toast.classList.add("opacity-0", "translate-y-20", "pointer-events-none");
+            }, 3000);
+        }
+
+        // Fullscreen Toggle action
+        function toggleFullScreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.error("Fullscreen error:", err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
+
+        // Main evaluation block: updates countdowns, next subjects, highlighted grids, and alarms
+        function tickEngine() {
+            const nowReal = Date.now();
+            const deltaMs = nowReal - appState.lastClockTick;
+            appState.lastClockTick = nowReal;
+
+            let curDateStr = appState.activeDate;
+            let currentSecondsOfDay = 0;
+
+            if (appState.simulatedMode) {
+                // Advance the simulator state
+                appState.simulatedTimeSeconds += (deltaMs / 1000) * appState.speedMultiplier;
+                // Loop simulation around midnight
+                if (appState.simulatedTimeSeconds >= 86400) {
+                    appState.simulatedTimeSeconds = 0;
+                }
+                currentSecondsOfDay = appState.simulatedTimeSeconds;
+                curDateStr = appState.simulatedDate;
+            } else {
+                // Real system clock integration
+                const d = new Date();
+                
+                // Synchronize active date selection to real calendar on matching days
+                const calendarDateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+                
+                // If real day matches Monday or Wednesday schedule exactly, auto track it
+                if (appState.schedule[calendarDateStr]) {
+                    curDateStr = calendarDateStr;
+                    appState.activeDate = calendarDateStr;
+                }
+
+                currentSecondsOfDay = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
+            }
+
+            // Sync visual active date display
+            const activeDateDisplay = document.getElementById("activeDateDisplay");
+            activeDateDisplay.textContent = DATE_LABELS[curDateStr] || curDateStr;
+
+            // Render live clock display
+            const clockDisplay = document.getElementById("clockDisplay");
+            const hrs = Math.floor(currentSecondsOfDay / 3600);
+            const mins = Math.floor((currentSecondsOfDay % 3600) / 60);
+            const secs = Math.floor(currentSecondsOfDay % 60);
+            
+            clockDisplay.textContent = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
+            
+            const clockDateDisplay = document.getElementById("clockDateDisplay");
+            clockDateDisplay.textContent = DATE_LABELS[curDateStr] || curDateStr;
+
+            // Parse schedule list
+            const blockList = appState.schedule[curDateStr] || [];
+            
+            let activeBlocks = [];
+            let activeIndicesMap = {}; // tracks which index is active
+
+            const currentMinsFloat = currentSecondsOfDay / 60;
+
+            // Find all active blocks (there can be multiple active concurrently for Grade 11!)
+            blockList.forEach((block, idx) => {
+                const startMins = timeToMinutes(block.start);
+                const endMins = timeToMinutes(block.end);
+
+                if (currentMinsFloat >= startMins && currentMinsFloat < endMins) {
+                    activeBlocks.push(block);
+                    activeIndicesMap[idx] = true;
+                }
+            });
+
+            // Find next block(s) starting after current time
+            let upcomingBlocks = [];
+            let nextStartMins = Infinity;
+
+            blockList.forEach(block => {
+                const startMins = timeToMinutes(block.start);
+                if (startMins > currentMinsFloat) {
+                    if (startMins < nextStartMins) {
+                        nextStartMins = startMins;
+                        upcomingBlocks = [block];
+                    } else if (startMins === nextStartMins) {
+                        upcomingBlocks.push(block);
+                    }
+                }
+            });
+
+            // Update live view with active blocks
+            const liveExamsGrid = document.getElementById("liveExamsGrid");
+            const statusPing = document.getElementById("statusIndicatorPing");
+            const statusText = document.getElementById("statusIndicatorText");
+
+            if (activeBlocks.length > 0) {
+                // Determine grid split layout depending on the number of concurrent active exams
+                const gridColsClass = activeBlocks.length > 1 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1";
+                liveExamsGrid.className = `grid ${gridColsClass} gap-6 mb-4`;
+
+                let liveExamsHtml = "";
+
+                activeBlocks.forEach(block => {
+                    const blockKey = block.id || `${curDateStr}-${block.start}-${block.end}`;
+                    
+                    // Audio transition bell triggers per unique block identifier
+                    if (!appState.bellRungForBlock[blockKey]) {
+                        playChime('start');
+                        appState.bellRungForBlock[blockKey] = true;
+                    }
+
+                    const duration = getBlockDuration(block);
+                    const endSecs = timeToMinutes(block.end) * 60;
+                    const startSecs = timeToMinutes(block.start) * 60;
+                    const remainingSecs = Math.max(0, endSecs - currentSecondsOfDay);
+
+                    // Calculations for progress meters
+                    const progressPercent = ((currentSecondsOfDay - startSecs) / (endSecs - startSecs)) * 100;
+                    const isBreak = block.subject.toLowerCase().includes("break");
+
+                    // Warning visual state configuration (under 5 mins remaining)
+                    let warningActive = false;
+                    let countdownColorClass = "text-emerald-400";
+                    let progressBarGradient = isBreak ? "from-amber-400 to-amber-500" : "from-indigo-500 to-emerald-500";
+
+                    if (remainingSecs <= 300 && remainingSecs > 0) {
+                        warningActive = true;
+                        countdownColorClass = "text-rose-500 pulse-urgent";
+                        progressBarGradient = "from-rose-500 to-amber-500 animate-pulse";
+                        
+                        if (!appState.warningRungForBlock[blockKey]) {
+                            playChime('warning');
+                            appState.warningRungForBlock[blockKey] = true;
+                        }
+                    }
+
+                    liveExamsHtml += `
+                        <div class="bg-slate-900/60 rounded-xl p-5 border ${warningActive ? 'border-rose-500/40' : 'border-slate-800'} flex flex-col justify-between transition-all duration-300 relative overflow-hidden">
+                            <div>
+                                <h3 class="text-xl md:text-2xl font-black tracking-tight text-white mb-2 leading-tight">
+                                    ${block.subject}
+                                </h3>
+                                <div class="flex items-center gap-3 text-slate-400 text-xs mb-4">
+                                    <span class="flex items-center gap-1">
+                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        ${block.start} - ${block.end}
+                                    </span>
+                                    <span>•</span>
+                                    <span>${duration} Min</span>
+                                </div>
+                                
+                                <!-- Progress Bar -->
+                                <div class="w-full bg-slate-950 rounded-full h-3 mb-6 overflow-hidden border border-slate-800 p-[1px]">
+                                    <div class="bg-gradient-to-r ${progressBarGradient} h-full rounded-full transition-all duration-1000" style="width: ${Math.min(100, Math.max(0, progressPercent))}%"></div>
+                                </div>
+                            </div>
+
+                            <div class="bg-slate-950/80 rounded-lg p-4 border border-slate-800 text-center relative overflow-hidden">
+                                <span class="absolute top-1 left-2 text-slate-500 text-[9px] font-bold tracking-widest uppercase">Time Remaining</span>
+                                <span class="digital-font text-4xl md:text-5xl font-extrabold tracking-normal leading-none block ${countdownColorClass} py-2 select-all">
+                                    ${formatCountdown(remainingSecs)}
+                                </span>
+                                <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1.5 font-semibold px-1">
+                                    <span>START: ${block.start}</span>
+                                    ${warningActive ? '<span class="text-rose-400 font-extrabold tracking-wider animate-pulse">⚠️ 5 MIN REMAINING</span>' : ''}
+                                    <span>END: ${block.end}</span>
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                });
+
+                liveExamsGrid.innerHTML = liveExamsHtml;
+
+                // Sync global status badges based on whether any block is a break
+                const firstActiveIsBreak = activeBlocks[0].subject.toLowerCase().includes("break");
+                statusPing.className = "w-3.5 h-3.5 bg-red-500 rounded-full animate-ping";
+                statusText.className = "text-xs font-semibold uppercase tracking-wider text-red-500";
+                statusText.textContent = firstActiveIsBreak ? "Break Period" : "Live Examination";
+            } else {
+                // If there's no ongoing activities
+                liveExamsGrid.className = "grid grid-cols-1 gap-6 mb-4";
+                liveExamsGrid.innerHTML = `
+                    <div class="text-center py-12 bg-slate-900/30 rounded-xl border border-dashed border-slate-800">
+                        <svg class="w-12 h-12 text-slate-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p class="text-slate-400 text-sm font-semibold">No Exams or Activities scheduled at this hour.</p>
+                        <p class="text-slate-600 text-xs mt-1">Check the comprehensive daily schedule below.</p>
+                    </div>
+                `;
+                statusPing.className = "w-3.5 h-3.5 bg-slate-600 rounded-full";
+                statusText.className = "text-xs font-semibold uppercase tracking-wider text-slate-400";
+                statusText.textContent = "Clock Idle";
+            }
+
+            // Up Next Block Rendering
+            const upNextContainer = document.getElementById("upNextContainer");
+            if (upcomingBlocks.length > 0) {
+                let upNextHtml = "";
+                upcomingBlocks.forEach(b => {
+                    const nextStartSecs = timeToMinutes(b.start) * 60;
+                    const diffSecs = nextStartSecs - currentSecondsOfDay;
+                    let countdownText = "";
+                    
+                    if (diffSecs > 0) {
+                        const diffHrs = Math.floor(diffSecs / 3600);
+                        const diffMins = Math.floor((diffSecs % 3600) / 60);
+                        countdownText = diffHrs > 0 ? `in ${diffHrs}h ${diffMins}m` : `in ${diffMins}m`;
+                    } else {
+                        countdownText = "Starting shortly";
+                    }
+
+                    upNextHtml += `
+                        <div class="flex items-start gap-3 bg-slate-900/40 p-3 rounded-xl border border-slate-800/80">
+                            <div class="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg shrink-0">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
+                            </div>
+                            <div>
+                                <h4 class="font-bold text-slate-100 text-xs line-clamp-2">${b.subject}</h4>
+                                <p class="text-[11px] text-slate-400 mt-0.5">
+                                    Starts at: <strong class="text-indigo-400">${b.start}</strong> (${countdownText})
+                                </p>
+                            </div>
+                        </div>
+                    `;
+                });
+                upNextContainer.innerHTML = upNextHtml;
+            } else {
+                upNextContainer.innerHTML = `
+                    <div class="text-center py-4 text-slate-500 text-xs italic">
+                        End of examination schedule for today.
+                    </div>
+                `;
+            }
+
+            // Update highlighted schedule table row
+            renderScheduleTable(curDateStr, activeIndicesMap);
+        }
+
+        // Build the current schedule overview table
+        function renderScheduleTable(activeDate, activeIndicesMap) {
+            const list = appState.schedule[activeDate] || [];
+            const tbody = document.getElementById("scheduleTableBody");
+            
+            let html = "";
+            
+            if (list.length === 0) {
+                html = `
+                    <tr>
+                        <td colspan="4" class="py-8 text-center text-slate-500 text-sm italic">
+                            No schedules defined for this day.
+                        </td>
+                    </tr>
+                `;
+            } else {
+                list.forEach((block, idx) => {
+                    const isActive = activeIndicesMap[idx] === true;
+                    const isBreak = block.subject.toLowerCase().includes("break");
+                    
+                    let rowBgClass = "hover:bg-slate-900/30 transition-colors";
+                    let textClass = "text-slate-300";
+                    let pillHtml = `<span class="px-2.5 py-0.5 text-[10px] font-semibold bg-slate-800 text-slate-500 rounded-full border border-slate-700/60 uppercase">Idle</span>`;
+
+                    if (isActive) {
+                        if (isBreak) {
+                            rowBgClass = "bg-amber-500/10 hover:bg-amber-500/15 border-l-4 border-amber-500 transition-colors";
+                            textClass = "text-amber-200 font-semibold";
+                            pillHtml = `<span class="px-2.5 py-1 text-[10px] font-extrabold bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/40 uppercase tracking-wide flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>Active</span>`;
+                        } else {
+                            rowBgClass = "bg-indigo-600/15 hover:bg-indigo-600/20 border-l-4 border-indigo-500 transition-colors";
+                            textClass = "text-white font-bold";
+                            pillHtml = `<span class="px-2.5 py-1 text-[10px] font-extrabold bg-red-500/20 text-red-300 rounded-full border border-red-500/40 uppercase tracking-wide flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span>Testing</span>`;
+                        }
+                    } else if (isBreak) {
+                        textClass = "text-slate-400 italic";
+                    }
+
+                    html += `
+                        <tr class="${rowBgClass} border-b border-slate-800/60 text-xs md:text-sm">
+                            <td class="py-3 px-6 font-mono font-medium ${isActive ? 'text-indigo-400' : 'text-slate-400'}">${block.start} - ${block.end}</td>
+                            <td class="py-3 px-6 text-slate-400">${getBlockDuration(block)} Min</td>
+                            <td class="py-3 px-6 ${textClass}">${block.subject}</td>
+                            <td class="py-3 px-6 text-center">${pillHtml}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            tbody.innerHTML = html;
+        }
+
+        // Render customization schedule form inside admin modal
+        function renderModalRows() {
+            const editDay = document.getElementById("editorDaySelect").value;
+            const container = document.getElementById("editorRowsContainer");
+            const blocks = appState.schedule[editDay] || [];
+
+            let html = "";
+            blocks.forEach((b, index) => {
+                html += `
+                    <div class="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 bg-slate-950 border border-slate-800 rounded-xl relative group" data-index="${index}">
+                        <!-- Top-Right deletion indicator -->
+                        <button onclick="removeEditorRow(${index})" class="absolute -top-2 -right-2 bg-rose-950/80 border border-rose-800 hover:bg-rose-900 text-rose-300 p-1 rounded-full transition shadow-lg" title="Remove Entry">
+                            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
+                        </button>
+                        
+                        <!-- Order indicator -->
+                        <div class="md:col-span-1 flex items-center justify-center font-bold text-slate-500 text-sm">
+                            #${index+1}
+                        </div>
+
+                        <!-- Time frame bounds -->
+                        <div class="md:col-span-4 grid grid-cols-2 gap-2">
+                            <div>
+                                <label class="block text-[9px] uppercase font-bold tracking-widest text-slate-500 mb-1">Start (HH:MM)</label>
+                                <input type="time" class="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 text-xs rounded-lg px-2.5 py-1.5 text-white edit-start" value="${b.start}" required>
+                            </div>
+                            <div>
+                                <label class="block text-[9px] uppercase font-bold tracking-widest text-slate-500 mb-1">End (HH:MM)</label>
+                                <input type="time" class="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 text-xs rounded-lg px-2.5 py-1.5 text-white edit-end" value="${b.end}" required>
+                            </div>
+                        </div>
+
+                        <!-- Subject String -->
+                        <div class="md:col-span-7">
+                            <label class="block text-[9px] uppercase font-bold tracking-widest text-slate-500 mb-1">Subject Title / Activity</label>
+                            <input type="text" class="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 text-xs rounded-lg px-2.5 py-1.5 text-white edit-subject" value="${escapeHtml(b.subject)}" placeholder="e.g. Physics Exam" required>
+                        </div>
+                    </div>
+                `;
+            });
+
+            container.innerHTML = html;
+        }
+
+        // Remove block row
+        window.removeEditorRow = function(index) {
+            const editDay = document.getElementById("editorDaySelect").value;
+            appState.schedule[editDay].splice(index, 1);
+            renderModalRows();
+        };
+
+        // Escaping HTML characters safely
+        function escapeHtml(text) {
+            return text
+                .replace(/&/g, "&amp;")
+                .replace(/</g, "&lt;")
+                .replace(/>/g, "&gt;")
+                .replace(/"/g, "&quot;")
+                .replace(/'/g, "&#039;");
+        }
+
+        // Initialize interactive dashboard components
+        function initEventHandlers() {
+            // Monday tab selection trigger
+            document.getElementById("tabMonday").addEventListener("click", () => {
+                appState.activeDate = "2026-07-20";
+                document.getElementById("tabMonday").className = "flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition whitespace-nowrap bg-indigo-600 text-white";
+                document.getElementById("tabWednesday").className = "flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition text-slate-400 hover:text-slate-200";
+            });
+
+            // Wednesday tab selection trigger
+            document.getElementById("tabWednesday").addEventListener("click", () => {
+                appState.activeDate = "2026-07-22";
+                document.getElementById("tabWednesday").className = "flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition whitespace-nowrap bg-indigo-600 text-white";
+                document.getElementById("tabMonday").className = "flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition text-slate-400 hover:text-slate-200";
+            });
+
+            // Classroom Projector high-contrast optimization toggle
+            let highContrastState = false;
+            document.getElementById("btnToggleTheme").addEventListener("click", () => {
+                highContrastState = !highContrastState;
+                const body = document.body;
+                const toggleBtn = document.getElementById("btnToggleTheme");
+                
+                if (highContrastState) {
+                    // Inject bright, super visible styles for sunlight-washed projections
+                    body.classList.remove("bg-slate-900", "text-white");
+                    body.classList.add("bg-white", "text-slate-900");
+                    toggleBtn.className = "bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition";
+                    toggleBtn.innerHTML = `
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.364l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
+                        <span>Classic Mode</span>
+                    `;
+                } else {
+                    body.classList.remove("bg-white", "text-slate-900");
+                    body.classList.add("bg-slate-900", "text-white");
+                    toggleBtn.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 border border-slate-700 transition";
+                    toggleBtn.innerHTML = `
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
+                        <span>High Contrast Mode</span>
+                    `;
+                }
+            });
+
+            // Bell chime sandbox audition
+            document.getElementById("btnBellTest").addEventListener("click", () => {
+                playChime('start');
+                triggerToast("Playing school bell sound effect!", "success");
+            });
+
+            // Simulator activation checkbox handling
+            const chkSimulate = document.getElementById("chkSimulateTime");
+            const simulationPanel = document.getElementById("simulationInputs");
+            const simTimeInput = document.getElementById("simTimeInput");
+            const simDateSelect = document.getElementById("simDateSelect");
+            const rngSpeed = document.getElementById("rngSpeedMult");
+            const lblSpeed = document.getElementById("lblSpeedMult");
+
+            chkSimulate.addEventListener("change", (e) => {
+                appState.simulatedMode = e.target.checked;
+                if (appState.simulatedMode) {
+                    simulationPanel.classList.remove("opacity-40", "pointer-events-none");
+                    // Sync initial simulator time values
+                    const parts = simTimeInput.value.split(":");
+                    appState.simulatedTimeSeconds = parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60;
+                    appState.simulatedDate = simDateSelect.value;
+                } else {
+                    simulationPanel.classList.add("opacity-40", "pointer-events-none");
+                }
+                appState.bellRungForBlock = {};
+                appState.warningRungForBlock = {};
+            });
+
+            simTimeInput.addEventListener("input", (e) => {
+                const parts = e.target.value.split(":");
+                appState.simulatedTimeSeconds = parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60;
+                appState.bellRungForBlock = {};
+                appState.warningRungForBlock = {};
+            });
+
+            simDateSelect.addEventListener("change", (e) => {
+                appState.simulatedDate = e.target.value;
+                appState.bellRungForBlock = {};
+                appState.warningRungForBlock = {};
+            });
+
+            rngSpeed.addEventListener("input", (e) => {
+                const val = parseInt(e.target.value, 10);
+                appState.speedMultiplier = val;
+                lblSpeed.textContent = val === 1 ? "1x (Realtime)" : `${val}x speed`;
+            });
+
+            document.getElementById("btnSetToNow").addEventListener("click", () => {
+                const now = new Date();
+                simTimeInput.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+                appState.simulatedTimeSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
+                triggerToast("Simulation clock synced to your real-time", "success");
+            });
+
+            // MODAL EDIT CONTROLS
+            const modal = document.getElementById("modalEditor");
+            
+            document.getElementById("btnEditSchedule").addEventListener("click", () => {
+                document.getElementById("editorDaySelect").value = appState.activeDate;
+                renderModalRows();
+                modal.classList.remove("hidden");
+            });
+
+            document.getElementById("btnDismissModal").addEventListener("click", () => {
+                modal.classList.add("hidden");
+            });
+
+            document.getElementById("btnCancelChanges").addEventListener("click", () => {
+                // Re-initialize schedules back from local storage to discard uncommitted items
+                initStorage();
+                modal.classList.add("hidden");
+            });
+
+            document.getElementById("editorDaySelect").addEventListener("change", () => {
+                renderModalRows();
+            });
+
+            // Add schedule item block inside editor view
+            document.getElementById("btnAddNewRow").addEventListener("click", () => {
+                const editDay = document.getElementById("editorDaySelect").value;
+                const blocks = appState.schedule[editDay] || [];
+                
+                let nextStart = "08:00";
+                let nextEnd = "09:00";
+                
+                if (blocks.length > 0) {
+                    const lastBlock = blocks[blocks.length - 1];
+                    nextStart = lastBlock.end;
+                    const mins = timeToMinutes(nextStart) + 60;
+                    nextEnd = minutesToTimeStr(mins);
+                }
+
+                // Push new item with structured values
+                const randomId = Math.random().toString(36).substr(2, 9);
+                blocks.push({
+                    id: randomId,
+                    start: nextStart,
+                    end: nextEnd,
+                    subject: "New Examination Block"
+                });
+
+                renderModalRows();
+            });
+
+            // Save customizable schedules state commit
+            document.getElementById("btnSaveChanges").addEventListener("click", () => {
+                const editDay = document.getElementById("editorDaySelect").value;
+                const container = document.getElementById("editorRowsContainer");
+                const htmlRows = container.querySelectorAll("[data-index]");
+
+                const updatedBlocks = [];
+                let hasValidationError = false;
+
+                htmlRows.forEach(row => {
+                    const startVal = row.querySelector(".edit-start").value;
+                    const endVal = row.querySelector(".edit-end").value;
+                    const subjectVal = row.querySelector(".edit-subject").value.trim();
+
+                    if (!startVal || !endVal || !subjectVal) {
+                        hasValidationError = true;
+                        return;
+                    }
+
+                    // Check time logic bounds
+                    if (timeToMinutes(startVal) >= timeToMinutes(endVal)) {
+                        hasValidationError = true;
+                        row.classList.add("border-red-500");
+                        return;
+                    } else {
+                        row.classList.remove("border-red-500");
+                    }
+
+                    const originalIndex = row.getAttribute("data-index");
+                    const originalBlocks = appState.schedule[editDay] || [];
+                    const originalId = originalBlocks[originalIndex] ? originalBlocks[originalIndex].id : Math.random().toString(36).substr(2, 9);
+
+                    updatedBlocks.push({
+                        id: originalId,
+                        start: startVal,
+                        end: endVal,
+                        subject: subjectVal
+                    });
+                });
+
+                if (hasValidationError) {
+                    triggerToast("Invalid schedule bounds! Start time must precede End time", "warning");
+                    return;
+                }
+
+                // Sort updated schedule elements by chronological starting time
+                updatedBlocks.sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
+
+                appState.schedule[editDay] = updatedBlocks;
+                saveToStorage();
+                
+                // Reset triggered transitions markers to ensure chimes execute gracefully
+                appState.bellRungForBlock = {};
+                appState.warningRungForBlock = {};
+
+                modal.classList.add("hidden");
+                triggerToast("Schedule changes applied successfully!", "success");
+            });
+
+            // Custom Double-Click Reset mechanism to strictly avoid alert() / confirm()
+            const btnReset = document.getElementById("btnResetToDefault");
+            const resetLabel = document.getElementById("resetLabel");
+            
+            btnReset.addEventListener("click", () => {
+                if (btnReset.classList.contains("confirm-pending")) {
+                    // Second click: perform reset
+                    appState.schedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
+                    saveToStorage();
+                    appState.bellRungForBlock = {};
+                    appState.warningRungForBlock = {};
+                    
+                    // Reset button appearance
+                    btnReset.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition relative overflow-hidden group";
+                    btnReset.classList.remove("confirm-pending");
+                    resetLabel.textContent = "Reset Default";
+                    
+                    if (appState.resetConfirmationTimeout) {
+                        clearTimeout(appState.resetConfirmationTimeout);
+                    }
+                    
+                    triggerToast("Restored original Grade 11 midterm schedule!", "success");
+                } else {
+                    // First click: arm confirmation state
+                    btnReset.className = "bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition relative overflow-hidden group confirm-pending";
+                    resetLabel.textContent = "Click again to confirm Reset";
+                    
+                    // Disarm confirmation state after 3 seconds if not clicked again
+                    appState.resetConfirmationTimeout = setTimeout(() => {
+                        btnReset.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition relative overflow-hidden group";
+                        btnReset.classList.remove("confirm-pending");
+                        resetLabel.textContent = "Reset Default";
+                    }, 3000);
+                }
+            });
+        }
+
+        // Window load initialisation hooks
+        window.onload = function() {
+            initStorage();
+            initEventHandlers();
+            
+            // Trigger loop execution immediately
+            appState.lastClockTick = Date.now();
+            tickEngine();
+            
+            // Loop interval set to tick accurately at 100ms internally
+            setInterval(tickEngine, 100);
+        };
+    </script>
+</body>
+</html>

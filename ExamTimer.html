@@ -64,13 +64,12 @@
         <!-- Main Dashboard Section -->
         <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-8">
             
-            <!-- Left 2 Columns: Large Active Test Counter & Information -->
             <div id="activeTestContainer" class="lg:col-span-2 bg-slate-950 rounded-2xl border border-slate-800 p-6 md:p-8 flex flex-col justify-between shadow-xl relative overflow-hidden transition-all duration-300">
                 <!-- Decorative background elements -->
                 <div class="absolute -top-10 -right-10 w-40 h-40 bg-indigo-500/10 rounded-full blur-2xl"></div>
                 <div class="absolute -bottom-10 -left-10 w-40 h-40 bg-emerald-500/10 rounded-full blur-2xl"></div>
 
-                <div>
+                <div class="z-10 relative">
                     <!-- Active State Tag -->
                     <div class="flex items-center justify-between mb-6">
                         <div class="flex items-center gap-2">
@@ -83,14 +82,37 @@
                         </div>
                     </div>
 
-                    <!-- Subjects Container (supports single or multi-column layout for overlapping exams) -->
+                    <!-- Subjects Container (supports side-by-side display for concurrent tracks with massive countdown fonts) -->
                     <div id="liveExamsGrid" class="grid grid-cols-1 gap-6 mb-4">
                         <!-- Dynamic exam cards injected here -->
                     </div>
                 </div>
+
+                <div id="announcementBoxContainer" class="mt-8 bg-slate-900/60 border border-indigo-500/20 rounded-xl p-5 relative z-10 shadow-inner transition-colors duration-300">
+                    <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-3">
+                        <span class="text-xs font-bold uppercase tracking-wider text-indigo-400 flex items-center gap-2">
+                            <svg class="w-4 h-4 text-indigo-400 animate-bounce" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5.882V19.24a1.76 1.76 0 01-3.417.592l-2.147-6.15M18 13a3 3 0 100-6M5.436 13.683A4.001 4.001 0 017 6h1.832c4.1 0 7.625-1.234 9.168-3v14c-1.543-1.766-5.067-3-9.168-3H7a3.988 3.988 0 01-1.564-.317z"></path>
+                            </svg>
+                            <span>Teacher's Live Board & Announcements</span>
+                        </span>
+                        <span id="announcementHelpLabel" class="text-[10px] text-slate-500 font-medium">Type below to sync notes instantly with classroom screen</span>
+                    </div>
+                    
+                    <!-- Textarea for custom notes -->
+                    <textarea id="teacherNotes" rows="3" class="w-full bg-slate-950 text-slate-100 text-sm p-4 rounded-lg border border-slate-800 focus:border-indigo-500 focus:outline-none placeholder-slate-600 transition resize-none font-medium leading-relaxed" placeholder="e.g. Write guidelines, Corrections on Exam Paper, or Remaining tasks..."></textarea>
+                    
+                    <!-- Fast Presets buttons -->
+                    <div class="flex flex-wrap gap-2 mt-3">
+                        <button onclick="insertPreset('📝 Correction in Question ')" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition border border-slate-700 font-semibold">+ Correction Alert</button>
+                        <button onclick="insertPreset('✍️ Please write your Full Name and Seat ID clearly.')" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition border border-slate-700 font-semibold">+ Name & Seat ID</button>
+                        <button onclick="insertPreset('🚫 No mobile devices, calculators, or smartwatches allowed.')" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition border border-slate-700 font-semibold">+ Allowed Equipment Rule</button>
+                        <button onclick="insertPreset('🕒 10-Minute warning: Double check your answer sequence.')" class="text-[10px] bg-slate-800 hover:bg-slate-700 text-slate-300 px-3 py-1.5 rounded-lg transition border border-slate-700 font-semibold">+ 10 Min Warning</button>
+                        <button onclick="clearNotes()" class="text-[10px] bg-rose-950/50 hover:bg-rose-900/60 text-rose-300 px-3 py-1.5 rounded-lg transition border border-rose-900/40 font-semibold ml-auto">Clear All</button>
+                    </div>
+                </div>
             </div>
 
-            <!-- Right 1 Column: Real-time clock & sandbox controllers -->
             <div class="space-y-6">
                 <!-- Clock Card -->
                 <div class="bg-slate-950 rounded-2xl border border-slate-800 p-6 shadow-xl relative overflow-hidden">
@@ -162,7 +184,6 @@
             </div>
         </div>
 
-        <!-- Schedule Display & Customization Section -->
         <section class="bg-slate-950 rounded-2xl border border-slate-800 overflow-hidden shadow-xl mb-12">
             <!-- Tabs & Configuration Header -->
             <div class="flex flex-col md:flex-row justify-between items-stretch md:items-center border-b border-slate-800 p-4 bg-slate-900/40 gap-4">
@@ -183,7 +204,7 @@
                     </button>
                     
                     <!-- Custom Safe Double Click Reset Button -->
-                    <button id="btnResetToDefault" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition relative overflow-hidden group" title="Restore back to Screenshot default">
+                    <button id="btnResetToDefault" class="bg-slate-800 hover:bg-slate-700 text-slate-300 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition relative overflow-hidden group" title="Restore back to default">
                         <span id="resetLabel">Reset Default</span>
                     </button>
                 </div>
@@ -208,7 +229,6 @@
         </section>
     </div>
 
-    <!-- Schedule Editor Modal Backdrop -->
     <div id="modalEditor" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
         <!-- Modal Window -->
         <div class="bg-slate-900 border border-slate-800 rounded-2xl w-full max-w-4xl max-h-[85vh] flex flex-col shadow-2xl">
@@ -262,13 +282,12 @@
     </div>
 
     <script>
-        // Default schedules compiled directly from Screenshot 2569-07-20 at 8.26.26 AM.jpg
         const DEFAULT_SCHEDULE = {
             "2026-07-20": [ // Monday, 20 July 2026
                 { id: "m1", start: "07:50", end: "08:15", subject: "Homeroom" },
                 { id: "m2", start: "08:15", end: "09:45", subject: "English Mathematics / คณิตศาสตร์ (ภาคภาษาอังกฤษ)" },
                 { id: "m3", start: "09:45", end: "10:00", subject: "Morning Break" },
-                // Grade 11 Overlapping Exam slots:
+                // Overlapping Grade 11 exams:
                 { id: "m4", start: "10:00", end: "11:00", subject: "Thai Mathematics / คณิตศาสตร์ (ทักษะความเข้าใจ - ภาคภาษาไทย)" },
                 { id: "m5", start: "10:00", end: "11:30", subject: "Geography / ภูมิศาสตร์" },
                 { id: "m6", start: "11:30", end: "12:30", subject: "Lunch Break" },
@@ -307,10 +326,10 @@
             audioContext: null,
             bellRungForBlock: {}, // Keeps track of transition bell trigger per block ID
             warningRungForBlock: {}, // Keeps track of 5-minute warning bell trigger per block ID
-            resetConfirmationTimeout: null // For double-click button
+            resetConfirmationTimeout: null, // For double-click button
+            highContrast: false
         };
 
-        // Load custom settings or fallback to default
         function initStorage() {
             const saved = localStorage.getItem("grade11_midterm_schedule_v2");
             if (saved) {
@@ -322,6 +341,13 @@
             } else {
                 appState.schedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
             }
+
+            // Load saved teacher notes from localstorage
+            const savedNotes = localStorage.getItem("grade11_teacher_notes");
+            const textarea = document.getElementById("teacherNotes");
+            if (textarea) {
+                textarea.value = savedNotes !== null ? savedNotes : "🚨 REMINDER: Keep your eyes on your own exam papers.\n✏️ Make sure to use an 2B pencil for multiple-choice questions.";
+            }
         }
 
         // Synchronize local storage saving
@@ -329,7 +355,6 @@
             localStorage.setItem("grade11_midterm_schedule_v2", JSON.stringify(appState.schedule));
         }
 
-        // Web Audio Synthesizer: School bell chime
         function playChime(chimeType = 'start') {
             try {
                 if (!appState.audioContext) {
@@ -341,30 +366,30 @@
                 }
 
                 if (chimeType === 'warning') {
-                    // Short rhythmic warning beep for 5-minute alert
+                    // Urgent double pulse chime
                     playTone(587.33, 0.15, 0.1); // D5
-                    setTimeout(() => playTone(587.33, 0.3, 0.1), 200);
+                    setTimeout(() => playTone(587.33, 0.35, 0.1), 200);
                 } else {
-                    // Standard exam school bell sound (rhythmic dual tones)
+                    // Authentic dual-tone school bell rhythmic pattern
                     let delay = 0;
                     for (let i = 0; i < 3; i++) {
                         setTimeout(() => {
                             playTone(440, 0.3, 0.3); // A4
                             playTone(554.37, 0.3, 0.3); // C#5
                         }, delay);
-                        delay += 550;
+                        delay += 500;
                     }
                     setTimeout(() => {
-                        playTone(330, 0.8, 0.5); // E4
-                        playTone(440, 0.8, 0.5); // A4
+                        playTone(330, 0.9, 0.5); // E4
+                        playTone(440, 0.9, 0.5); // A4
                     }, delay);
                 }
             } catch (e) {
-                console.warn("Audio Context error: ", e);
+                console.warn("Audio Context blocked or failed: ", e);
             }
         }
 
-        // Single Frequency Tone Creator
+        // Tone synthesizer helper
         function playTone(frequency, duration, decay) {
             const ctx = appState.audioContext;
             const osc = ctx.createOscillator();
@@ -384,26 +409,24 @@
             osc.stop(ctx.currentTime + duration);
         }
 
-        // Convert Time String ("08:30") to minutes from midnight
+        // Time calculations convert string "HH:MM" to minutes of day
         function timeToMinutes(timeStr) {
             if (!timeStr) return 0;
             const parts = timeStr.replace('.', ':').split(':');
             return parseInt(parts[0], 10) * 60 + parseInt(parts[1], 10);
         }
 
-        // Convert Minutes from midnight back to time string HH:MM
         function minutesToTimeStr(minutes) {
             const hrs = Math.floor(minutes / 60);
             const mins = minutes % 60;
             return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}`;
         }
 
-        // Return elapsed minutes of dynamic block
         function getBlockDuration(block) {
             return timeToMinutes(block.end) - timeToMinutes(block.start);
         }
 
-        // Format Seconds integer into human-readable HH:MM:SS or MM:SS
+        // Return countdown format with minutes visible first
         function formatCountdown(totalSeconds) {
             if (totalSeconds < 0) return "00:00:00";
             const hrs = Math.floor(totalSeconds / 3600);
@@ -413,7 +436,6 @@
             return `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
         }
 
-        // Show Toast Dialog
         function triggerToast(text, type = "success") {
             const toast = document.getElementById("toastMessage");
             const toastText = document.getElementById("toastText");
@@ -428,24 +450,42 @@
             }
 
             toast.classList.remove("opacity-0", "translate-y-20", "pointer-events-none");
-            
             setTimeout(() => {
                 toast.classList.add("opacity-0", "translate-y-20", "pointer-events-none");
             }, 3000);
         }
 
-        // Fullscreen Toggle action
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
                 document.documentElement.requestFullscreen().catch(err => {
-                    console.error("Fullscreen error:", err);
+                    console.error("Fullscreen request failed:", err);
                 });
             } else {
                 document.exitFullscreen();
             }
         }
 
-        // Main evaluation block: updates countdowns, next subjects, highlighted grids, and alarms
+        window.insertPreset = function(text) {
+            const textarea = document.getElementById("teacherNotes");
+            if (textarea) {
+                const currentVal = textarea.value;
+                const spacing = currentVal.trim().length > 0 ? "\n" : "";
+                textarea.value = currentVal + spacing + text;
+                // trigger text change save
+                localStorage.setItem("grade11_teacher_notes", textarea.value);
+                triggerToast("Preset note added!", "success");
+            }
+        };
+
+        window.clearNotes = function() {
+            const textarea = document.getElementById("teacherNotes");
+            if (textarea) {
+                textarea.value = "";
+                localStorage.setItem("grade11_teacher_notes", "");
+                triggerToast("Notes cleared", "warning");
+            }
+        };
+
         function tickEngine() {
             const nowReal = Date.now();
             const deltaMs = nowReal - appState.lastClockTick;
@@ -455,68 +495,54 @@
             let currentSecondsOfDay = 0;
 
             if (appState.simulatedMode) {
-                // Advance the simulator state
                 appState.simulatedTimeSeconds += (deltaMs / 1000) * appState.speedMultiplier;
-                // Loop simulation around midnight
                 if (appState.simulatedTimeSeconds >= 86400) {
-                    appState.simulatedTimeSeconds = 0;
+                    appState.simulatedTimeSeconds = 0; // wrap day
                 }
                 currentSecondsOfDay = appState.simulatedTimeSeconds;
                 curDateStr = appState.simulatedDate;
             } else {
-                // Real system clock integration
                 const d = new Date();
-                
-                // Synchronize active date selection to real calendar on matching days
                 const calendarDateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                 
-                // If real day matches Monday or Wednesday schedule exactly, auto track it
+                // If today is actually Mon 20 July or Wed 22 July 2026, auto select date
                 if (appState.schedule[calendarDateStr]) {
                     curDateStr = calendarDateStr;
                     appState.activeDate = calendarDateStr;
                 }
-
                 currentSecondsOfDay = d.getHours() * 3600 + d.getMinutes() * 60 + d.getSeconds();
             }
 
-            // Sync visual active date display
+            // Sync calendar date header label
             const activeDateDisplay = document.getElementById("activeDateDisplay");
             activeDateDisplay.textContent = DATE_LABELS[curDateStr] || curDateStr;
 
-            // Render live clock display
+            // Sync digital clock header
             const clockDisplay = document.getElementById("clockDisplay");
             const hrs = Math.floor(currentSecondsOfDay / 3600);
             const mins = Math.floor((currentSecondsOfDay % 3600) / 60);
             const secs = Math.floor(currentSecondsOfDay % 60);
-            
             clockDisplay.textContent = `${String(hrs).padStart(2, '0')}:${String(mins).padStart(2, '0')}:${String(secs).padStart(2, '0')}`;
             
-            const clockDateDisplay = document.getElementById("clockDateDisplay");
-            clockDateDisplay.textContent = DATE_LABELS[curDateStr] || curDateStr;
+            document.getElementById("clockDateDisplay").textContent = DATE_LABELS[curDateStr] || curDateStr;
 
-            // Parse schedule list
             const blockList = appState.schedule[curDateStr] || [];
-            
             let activeBlocks = [];
-            let activeIndicesMap = {}; // tracks which index is active
-
+            let activeIndicesMap = {};
             const currentMinsFloat = currentSecondsOfDay / 60;
 
-            // Find all active blocks (there can be multiple active concurrently for Grade 11!)
             blockList.forEach((block, idx) => {
                 const startMins = timeToMinutes(block.start);
                 const endMins = timeToMinutes(block.end);
-
                 if (currentMinsFloat >= startMins && currentMinsFloat < endMins) {
                     activeBlocks.push(block);
                     activeIndicesMap[idx] = true;
                 }
             });
 
-            // Find next block(s) starting after current time
+            // Locate next upcoming block
             let upcomingBlocks = [];
             let nextStartMins = Infinity;
-
             blockList.forEach(block => {
                 const startMins = timeToMinutes(block.start);
                 if (startMins > currentMinsFloat) {
@@ -529,13 +555,12 @@
                 }
             });
 
-            // Update live view with active blocks
             const liveExamsGrid = document.getElementById("liveExamsGrid");
             const statusPing = document.getElementById("statusIndicatorPing");
             const statusText = document.getElementById("statusIndicatorText");
 
             if (activeBlocks.length > 0) {
-                // Determine grid split layout depending on the number of concurrent active exams
+                // If overlapping concurrent tracks (Grade 11 feature), make side-by-side split
                 const gridColsClass = activeBlocks.length > 1 ? "grid-cols-1 md:grid-cols-2" : "grid-cols-1";
                 liveExamsGrid.className = `grid ${gridColsClass} gap-6 mb-4`;
 
@@ -544,7 +569,7 @@
                 activeBlocks.forEach(block => {
                     const blockKey = block.id || `${curDateStr}-${block.start}-${block.end}`;
                     
-                    // Audio transition bell triggers per unique block identifier
+                    // Period change sound trigger
                     if (!appState.bellRungForBlock[blockKey]) {
                         playChime('start');
                         appState.bellRungForBlock[blockKey] = true;
@@ -554,20 +579,23 @@
                     const endSecs = timeToMinutes(block.end) * 60;
                     const startSecs = timeToMinutes(block.start) * 60;
                     const remainingSecs = Math.max(0, endSecs - currentSecondsOfDay);
-
-                    // Calculations for progress meters
                     const progressPercent = ((currentSecondsOfDay - startSecs) / (endSecs - startSecs)) * 100;
                     const isBreak = block.subject.toLowerCase().includes("break");
 
-                    // Warning visual state configuration (under 5 mins remaining)
                     let warningActive = false;
-                    let countdownColorClass = "text-emerald-400";
+                    let countdownColorClass = appState.highContrast ? "text-indigo-900" : "text-emerald-400";
+                    let cardBorderClass = appState.highContrast ? "border-slate-300 bg-slate-100" : "border-slate-800 bg-slate-900/60";
                     let progressBarGradient = isBreak ? "from-amber-400 to-amber-500" : "from-indigo-500 to-emerald-500";
 
+                    // 5-minute warning alert
                     if (remainingSecs <= 300 && remainingSecs > 0) {
                         warningActive = true;
-                        countdownColorClass = "text-rose-500 pulse-urgent";
+                        countdownColorClass = "text-rose-600 pulse-urgent";
                         progressBarGradient = "from-rose-500 to-amber-500 animate-pulse";
+                        cardBorderClass = "border-rose-500 shadow-xl shadow-rose-950/20";
+                        if (appState.highContrast) {
+                            cardBorderClass = "border-rose-600 bg-rose-50";
+                        }
                         
                         if (!appState.warningRungForBlock[blockKey]) {
                             playChime('warning');
@@ -575,35 +603,40 @@
                         }
                     }
 
+                    // Dynamically adjusts timer size if split-screen is active
+                    const counterFontSize = activeBlocks.length > 1 
+                        ? "text-5xl sm:text-6xl md:text-5xl lg:text-7xl xl:text-8xl" 
+                        : "text-6xl sm:text-7xl md:text-8xl lg:text-9xl";
+
                     liveExamsHtml += `
-                        <div class="bg-slate-900/60 rounded-xl p-5 border ${warningActive ? 'border-rose-500/40' : 'border-slate-800'} flex flex-col justify-between transition-all duration-300 relative overflow-hidden">
+                        <div class="rounded-xl p-6 border ${cardBorderClass} flex flex-col justify-between transition-all duration-300 relative overflow-hidden">
                             <div>
-                                <h3 class="text-xl md:text-2xl font-black tracking-tight text-white mb-2 leading-tight">
+                                <h3 class="text-xl md:text-3xl font-black tracking-tight mb-2 leading-snug">
                                     ${block.subject}
                                 </h3>
-                                <div class="flex items-center gap-3 text-slate-400 text-xs mb-4">
-                                    <span class="flex items-center gap-1">
-                                        <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                                        ${block.start} - ${block.end}
+                                <div class="flex items-center gap-3 text-slate-400 text-sm mb-4">
+                                    <span class="flex items-center gap-1.5 font-semibold">
+                                        <svg class="w-4 h-4 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                                        Time Frame: ${block.start} - ${block.end}
                                     </span>
                                     <span>•</span>
-                                    <span>${duration} Min</span>
+                                    <span class="font-semibold">${duration} Minutes Duration</span>
                                 </div>
                                 
-                                <!-- Progress Bar -->
-                                <div class="w-full bg-slate-950 rounded-full h-3 mb-6 overflow-hidden border border-slate-800 p-[1px]">
+                                <!-- Progress Bar Indicator -->
+                                <div class="w-full bg-slate-950/50 rounded-full h-4 mb-6 overflow-hidden border border-slate-800/40 p-[1px]">
                                     <div class="bg-gradient-to-r ${progressBarGradient} h-full rounded-full transition-all duration-1000" style="width: ${Math.min(100, Math.max(0, progressPercent))}%"></div>
                                 </div>
                             </div>
 
-                            <div class="bg-slate-950/80 rounded-lg p-4 border border-slate-800 text-center relative overflow-hidden">
-                                <span class="absolute top-1 left-2 text-slate-500 text-[9px] font-bold tracking-widest uppercase">Time Remaining</span>
-                                <span class="digital-font text-4xl md:text-5xl font-extrabold tracking-normal leading-none block ${countdownColorClass} py-2 select-all">
+                            <div class="bg-slate-950/80 rounded-xl p-5 border border-slate-800/50 text-center relative overflow-hidden shadow-inner">
+                                <span class="absolute top-2 left-3 text-slate-500 text-[10px] font-extrabold tracking-widest uppercase">Time Remaining</span>
+                                <span class="digital-font ${counterFontSize} font-black tracking-widest leading-none block ${countdownColorClass} py-4 select-all">
                                     ${formatCountdown(remainingSecs)}
                                 </span>
-                                <div class="flex justify-between items-center text-[10px] text-slate-400 mt-1.5 font-semibold px-1">
+                                <div class="flex justify-between items-center text-[11px] text-slate-400 mt-2 font-bold px-1 uppercase tracking-wider">
                                     <span>START: ${block.start}</span>
-                                    ${warningActive ? '<span class="text-rose-400 font-extrabold tracking-wider animate-pulse">⚠️ 5 MIN REMAINING</span>' : ''}
+                                    ${warningActive ? '<span class="text-rose-500 font-extrabold tracking-widest animate-pulse">⚠️ WARNING: UNDER 5 MIN REMAINING</span>' : '<span class="text-indigo-400">Exam Live</span>'}
                                     <span>END: ${block.end}</span>
                                 </div>
                             </div>
@@ -613,19 +646,18 @@
 
                 liveExamsGrid.innerHTML = liveExamsHtml;
 
-                // Sync global status badges based on whether any block is a break
                 const firstActiveIsBreak = activeBlocks[0].subject.toLowerCase().includes("break");
                 statusPing.className = "w-3.5 h-3.5 bg-red-500 rounded-full animate-ping";
                 statusText.className = "text-xs font-semibold uppercase tracking-wider text-red-500";
                 statusText.textContent = firstActiveIsBreak ? "Break Period" : "Live Examination";
             } else {
-                // If there's no ongoing activities
+                // Idle State when no schedule blocks align
                 liveExamsGrid.className = "grid grid-cols-1 gap-6 mb-4";
                 liveExamsGrid.innerHTML = `
-                    <div class="text-center py-12 bg-slate-900/30 rounded-xl border border-dashed border-slate-800">
-                        <svg class="w-12 h-12 text-slate-600 mx-auto mb-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
-                        <p class="text-slate-400 text-sm font-semibold">No Exams or Activities scheduled at this hour.</p>
-                        <p class="text-slate-600 text-xs mt-1">Check the comprehensive daily schedule below.</p>
+                    <div class="text-center py-16 bg-slate-900/30 rounded-xl border-2 border-dashed border-slate-800/80">
+                        <svg class="w-16 h-16 text-slate-600 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path></svg>
+                        <p class="text-slate-400 text-lg font-bold">No live test or break scheduled at this time.</p>
+                        <p class="text-slate-600 text-sm mt-2">Activate Simulated Mode in the controls on the right to demo different hours.</p>
                     </div>
                 `;
                 statusPing.className = "w-3.5 h-3.5 bg-slate-600 rounded-full";
@@ -655,8 +687,8 @@
                             <div class="p-2 bg-indigo-500/10 text-indigo-400 rounded-lg shrink-0">
                                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 5l7 7-7 7M5 5l7 7-7 7"></path></svg>
                             </div>
-                            <div>
-                                <h4 class="font-bold text-slate-100 text-xs line-clamp-2">${b.subject}</h4>
+                            <div class="overflow-hidden">
+                                <h4 class="font-bold text-slate-100 text-xs truncate">${b.subject}</h4>
                                 <p class="text-[11px] text-slate-400 mt-0.5">
                                     Starts at: <strong class="text-indigo-400">${b.start}</strong> (${countdownText})
                                 </p>
@@ -673,15 +705,12 @@
                 `;
             }
 
-            // Update highlighted schedule table row
             renderScheduleTable(curDateStr, activeIndicesMap);
         }
 
-        // Build the current schedule overview table
         function renderScheduleTable(activeDate, activeIndicesMap) {
             const list = appState.schedule[activeDate] || [];
             const tbody = document.getElementById("scheduleTableBody");
-            
             let html = "";
             
             if (list.length === 0) {
@@ -698,17 +727,17 @@
                     const isBreak = block.subject.toLowerCase().includes("break");
                     
                     let rowBgClass = "hover:bg-slate-900/30 transition-colors";
-                    let textClass = "text-slate-300";
+                    let textClass = appState.highContrast ? "text-slate-800" : "text-slate-300";
                     let pillHtml = `<span class="px-2.5 py-0.5 text-[10px] font-semibold bg-slate-800 text-slate-500 rounded-full border border-slate-700/60 uppercase">Idle</span>`;
 
                     if (isActive) {
                         if (isBreak) {
                             rowBgClass = "bg-amber-500/10 hover:bg-amber-500/15 border-l-4 border-amber-500 transition-colors";
-                            textClass = "text-amber-200 font-semibold";
+                            textClass = appState.highContrast ? "text-amber-800 font-bold" : "text-amber-200 font-semibold";
                             pillHtml = `<span class="px-2.5 py-1 text-[10px] font-extrabold bg-amber-500/20 text-amber-300 rounded-full border border-amber-500/40 uppercase tracking-wide flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-amber-400 animate-pulse"></span>Active</span>`;
                         } else {
                             rowBgClass = "bg-indigo-600/15 hover:bg-indigo-600/20 border-l-4 border-indigo-500 transition-colors";
-                            textClass = "text-white font-bold";
+                            textClass = appState.highContrast ? "text-indigo-900 font-black" : "text-white font-bold";
                             pillHtml = `<span class="px-2.5 py-1 text-[10px] font-extrabold bg-red-500/20 text-red-300 rounded-full border border-red-500/40 uppercase tracking-wide flex items-center justify-center gap-1"><span class="w-1.5 h-1.5 rounded-full bg-red-400 animate-pulse"></span>Testing</span>`;
                         }
                     } else if (isBreak) {
@@ -734,22 +763,19 @@
             const editDay = document.getElementById("editorDaySelect").value;
             const container = document.getElementById("editorRowsContainer");
             const blocks = appState.schedule[editDay] || [];
-
             let html = "";
+
             blocks.forEach((b, index) => {
                 html += `
                     <div class="grid grid-cols-1 md:grid-cols-12 gap-3 p-4 bg-slate-950 border border-slate-800 rounded-xl relative group" data-index="${index}">
-                        <!-- Top-Right deletion indicator -->
                         <button onclick="removeEditorRow(${index})" class="absolute -top-2 -right-2 bg-rose-950/80 border border-rose-800 hover:bg-rose-900 text-rose-300 p-1 rounded-full transition shadow-lg" title="Remove Entry">
                             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"></path></svg>
                         </button>
                         
-                        <!-- Order indicator -->
                         <div class="md:col-span-1 flex items-center justify-center font-bold text-slate-500 text-sm">
                             #${index+1}
                         </div>
 
-                        <!-- Time frame bounds -->
                         <div class="md:col-span-4 grid grid-cols-2 gap-2">
                             <div>
                                 <label class="block text-[9px] uppercase font-bold tracking-widest text-slate-500 mb-1">Start (HH:MM)</label>
@@ -761,7 +787,6 @@
                             </div>
                         </div>
 
-                        <!-- Subject String -->
                         <div class="md:col-span-7">
                             <label class="block text-[9px] uppercase font-bold tracking-widest text-slate-500 mb-1">Subject Title / Activity</label>
                             <input type="text" class="w-full bg-slate-900 border border-slate-800 focus:border-indigo-500 text-xs rounded-lg px-2.5 py-1.5 text-white edit-subject" value="${escapeHtml(b.subject)}" placeholder="e.g. Physics Exam" required>
@@ -773,14 +798,12 @@
             container.innerHTML = html;
         }
 
-        // Remove block row
         window.removeEditorRow = function(index) {
             const editDay = document.getElementById("editorDaySelect").value;
             appState.schedule[editDay].splice(index, 1);
             renderModalRows();
         };
 
-        // Escaping HTML characters safely
         function escapeHtml(text) {
             return text
                 .replace(/&/g, "&amp;")
@@ -790,31 +813,39 @@
                 .replace(/'/g, "&#039;");
         }
 
-        // Initialize interactive dashboard components
         function initEventHandlers() {
-            // Monday tab selection trigger
+            // Monday tab
             document.getElementById("tabMonday").addEventListener("click", () => {
                 appState.activeDate = "2026-07-20";
                 document.getElementById("tabMonday").className = "flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition whitespace-nowrap bg-indigo-600 text-white";
                 document.getElementById("tabWednesday").className = "flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition text-slate-400 hover:text-slate-200";
             });
 
-            // Wednesday tab selection trigger
+            // Wednesday tab
             document.getElementById("tabWednesday").addEventListener("click", () => {
                 appState.activeDate = "2026-07-22";
                 document.getElementById("tabWednesday").className = "flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition whitespace-nowrap bg-indigo-600 text-white";
                 document.getElementById("tabMonday").className = "flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition text-slate-400 hover:text-slate-200";
             });
 
-            // Classroom Projector high-contrast optimization toggle
-            let highContrastState = false;
+            // Auto-save teacher notes as teacher types
+            const textarea = document.getElementById("teacherNotes");
+            if (textarea) {
+                textarea.addEventListener("input", (e) => {
+                    localStorage.setItem("grade11_teacher_notes", e.target.value);
+                });
+            }
+
+            // High-contrast toggle handler
             document.getElementById("btnToggleTheme").addEventListener("click", () => {
-                highContrastState = !highContrastState;
+                appState.highContrast = !appState.highContrast;
                 const body = document.body;
                 const toggleBtn = document.getElementById("btnToggleTheme");
-                
-                if (highContrastState) {
-                    // Inject bright, super visible styles for sunlight-washed projections
+                const announceContainer = document.getElementById("announcementBoxContainer");
+                const notesArea = document.getElementById("teacherNotes");
+                const helpLabel = document.getElementById("announcementHelpLabel");
+
+                if (appState.highContrast) {
                     body.classList.remove("bg-slate-900", "text-white");
                     body.classList.add("bg-white", "text-slate-900");
                     toggleBtn.className = "bg-indigo-600 hover:bg-indigo-700 text-white px-3 py-2 rounded-lg text-sm font-medium flex items-center gap-2 transition";
@@ -822,6 +853,14 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364-6.364l-.707.707M6.343 17.657l-.707.707m12.728 0l-.707-.707M6.343 6.364l-.707-.707M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path></svg>
                         <span>Classic Mode</span>
                     `;
+                    // Bright theme classroom announcement box overrides
+                    if (announceContainer && notesArea) {
+                        announceContainer.classList.remove("bg-slate-900/60", "border-indigo-500/20");
+                        announceContainer.classList.add("bg-slate-100", "border-indigo-600/40");
+                        notesArea.classList.remove("bg-slate-950", "text-slate-100");
+                        notesArea.classList.add("bg-white", "text-slate-900", "border-slate-300");
+                        if (helpLabel) helpLabel.classList.replace("text-slate-500", "text-slate-600");
+                    }
                 } else {
                     body.classList.remove("bg-white", "text-slate-900");
                     body.classList.add("bg-slate-900", "text-white");
@@ -830,16 +869,22 @@
                         <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"></path></svg>
                         <span>High Contrast Mode</span>
                     `;
+                    if (announceContainer && notesArea) {
+                        announceContainer.classList.add("bg-slate-900/60", "border-indigo-500/20");
+                        announceContainer.classList.remove("bg-slate-100", "border-indigo-600/40");
+                        notesArea.classList.add("bg-slate-950", "text-slate-100");
+                        notesArea.classList.remove("bg-white", "text-slate-900", "border-slate-300");
+                        if (helpLabel) helpLabel.classList.replace("text-slate-600", "text-slate-500");
+                    }
                 }
             });
 
-            // Bell chime sandbox audition
             document.getElementById("btnBellTest").addEventListener("click", () => {
                 playChime('start');
-                triggerToast("Playing school bell sound effect!", "success");
+                triggerToast("Playing exam transition bell", "success");
             });
 
-            // Simulator activation checkbox handling
+            // Simulator settings
             const chkSimulate = document.getElementById("chkSimulateTime");
             const simulationPanel = document.getElementById("simulationInputs");
             const simTimeInput = document.getElementById("simTimeInput");
@@ -851,7 +896,6 @@
                 appState.simulatedMode = e.target.checked;
                 if (appState.simulatedMode) {
                     simulationPanel.classList.remove("opacity-40", "pointer-events-none");
-                    // Sync initial simulator time values
                     const parts = simTimeInput.value.split(":");
                     appState.simulatedTimeSeconds = parseInt(parts[0], 10) * 3600 + parseInt(parts[1], 10) * 60;
                     appState.simulatedDate = simDateSelect.value;
@@ -885,7 +929,7 @@
                 const now = new Date();
                 simTimeInput.value = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
                 appState.simulatedTimeSeconds = now.getHours() * 3600 + now.getMinutes() * 60 + now.getSeconds();
-                triggerToast("Simulation clock synced to your real-time", "success");
+                triggerToast("Simulator clock matched with local real-time", "success");
             });
 
             // MODAL EDIT CONTROLS
@@ -902,7 +946,6 @@
             });
 
             document.getElementById("btnCancelChanges").addEventListener("click", () => {
-                // Re-initialize schedules back from local storage to discard uncommitted items
                 initStorage();
                 modal.classList.add("hidden");
             });
@@ -911,7 +954,6 @@
                 renderModalRows();
             });
 
-            // Add schedule item block inside editor view
             document.getElementById("btnAddNewRow").addEventListener("click", () => {
                 const editDay = document.getElementById("editorDaySelect").value;
                 const blocks = appState.schedule[editDay] || [];
@@ -926,7 +968,6 @@
                     nextEnd = minutesToTimeStr(mins);
                 }
 
-                // Push new item with structured values
                 const randomId = Math.random().toString(36).substr(2, 9);
                 blocks.push({
                     id: randomId,
@@ -938,7 +979,6 @@
                 renderModalRows();
             });
 
-            // Save customizable schedules state commit
             document.getElementById("btnSaveChanges").addEventListener("click", () => {
                 const editDay = document.getElementById("editorDaySelect").value;
                 const container = document.getElementById("editorRowsContainer");
@@ -957,7 +997,6 @@
                         return;
                     }
 
-                    // Check time logic bounds
                     if (timeToMinutes(startVal) >= timeToMinutes(endVal)) {
                         hasValidationError = true;
                         row.classList.add("border-red-500");
@@ -979,37 +1018,32 @@
                 });
 
                 if (hasValidationError) {
-                    triggerToast("Invalid schedule bounds! Start time must precede End time", "warning");
+                    triggerToast("Invalid bounds! Start time must occur before End time.", "warning");
                     return;
                 }
 
-                // Sort updated schedule elements by chronological starting time
                 updatedBlocks.sort((a, b) => timeToMinutes(a.start) - timeToMinutes(b.start));
-
                 appState.schedule[editDay] = updatedBlocks;
                 saveToStorage();
                 
-                // Reset triggered transitions markers to ensure chimes execute gracefully
                 appState.bellRungForBlock = {};
                 appState.warningRungForBlock = {};
 
                 modal.classList.add("hidden");
-                triggerToast("Schedule changes applied successfully!", "success");
+                triggerToast("Customized schedule applied!", "success");
             });
 
-            // Custom Double-Click Reset mechanism to strictly avoid alert() / confirm()
+            // Double click safety verification for Reset
             const btnReset = document.getElementById("btnResetToDefault");
             const resetLabel = document.getElementById("resetLabel");
             
             btnReset.addEventListener("click", () => {
                 if (btnReset.classList.contains("confirm-pending")) {
-                    // Second click: perform reset
                     appState.schedule = JSON.parse(JSON.stringify(DEFAULT_SCHEDULE));
                     saveToStorage();
                     appState.bellRungForBlock = {};
                     appState.warningRungForBlock = {};
                     
-                    // Reset button appearance
                     btnReset.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition relative overflow-hidden group";
                     btnReset.classList.remove("confirm-pending");
                     resetLabel.textContent = "Reset Default";
@@ -1017,14 +1051,11 @@
                     if (appState.resetConfirmationTimeout) {
                         clearTimeout(appState.resetConfirmationTimeout);
                     }
-                    
-                    triggerToast("Restored original Grade 11 midterm schedule!", "success");
+                    triggerToast("Schedule reset to Grade 11 specs", "success");
                 } else {
-                    // First click: arm confirmation state
                     btnReset.className = "bg-rose-600 hover:bg-rose-700 text-white px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition relative overflow-hidden group confirm-pending";
                     resetLabel.textContent = "Click again to confirm Reset";
                     
-                    // Disarm confirmation state after 3 seconds if not clicked again
                     appState.resetConfirmationTimeout = setTimeout(() => {
                         btnReset.className = "bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 px-4 py-2 rounded-xl text-xs font-bold tracking-wide uppercase transition relative overflow-hidden group";
                         btnReset.classList.remove("confirm-pending");
@@ -1038,12 +1069,8 @@
         window.onload = function() {
             initStorage();
             initEventHandlers();
-            
-            // Trigger loop execution immediately
             appState.lastClockTick = Date.now();
             tickEngine();
-            
-            // Loop interval set to tick accurately at 100ms internally
             setInterval(tickEngine, 100);
         };
     </script>

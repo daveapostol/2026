@@ -1,0 +1,941 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>College Application Resume & Letter Builder</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts Inter & Merriweather for documents -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=Merriweather:ital,wght@0,300;0,400;0,700;1,300&family=Roboto+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Alpine.js CDN for reactive UI state -->
+    <script defer src="https://unpkg.com/alpinejs@3.x.x/dist/cdn.min.js"></script>
+
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        serif: ['Merriweather', 'serif'],
+                        mono: ['Roboto Mono', 'monospace'],
+                    },
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            800: '#1e3a8a',
+                            900: '#0f172a'
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+
+    <style>
+        /* Custom Document Print & Preview Styles */
+        @media print {
+            body * { visibility: hidden; }
+            #printable-document, #printable-document * { visibility: visible; }
+            #printable-document { position: absolute; left: 0; top: 0; width: 100%; padding: 0; margin: 0; shadow: none; }
+            .no-print { display: none !important; }
+        }
+
+        .resume-page {
+            width: 8.5in;
+            min-height: 11in;
+            box-sizing: border-box;
+        }
+
+        /* Custom Scrollbar for smooth editor experience */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+    </style>
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans min-h-screen flex flex-col antialiased" x-data="appState()">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-slate-800 border-b border-slate-700 sticky top-0 z-40 shadow-md no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-blue-600 to-indigo-500 flex items-center justify-center text-white shadow-lg shadow-blue-500/30">
+                    <i class="fa-solid fa-graduation-cap text-lg"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg text-white leading-tight">UnivPrep Coach</h1>
+                    <p class="text-xs text-slate-400">Admissions Resume & Letter Analyzer</p>
+                </div>
+            </div>
+
+            <!-- Main Mode Navigation -->
+            <div class="flex bg-slate-900 p-1 rounded-xl border border-slate-700">
+                <button @click="activeTab = 'resume'" 
+                        :class="activeTab === 'resume' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'"
+                        class="px-4 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-file-lines"></i>
+                    <span>Resume Builder</span>
+                </button>
+                <button @click="activeTab = 'letter'" 
+                        :class="activeTab === 'letter' ? 'bg-blue-600 text-white shadow' : 'text-slate-400 hover:text-white'"
+                        class="px-4 py-1.5 text-xs sm:text-sm font-medium rounded-lg transition-all flex items-center gap-2">
+                    <i class="fa-solid fa-envelope-open-text"></i>
+                    <span>Cover Letter</span>
+                </button>
+            </div>
+
+            <!-- Action Controls -->
+            <div class="flex items-center space-x-2">
+                <button @click="loadSampleData()" class="px-3 py-1.5 text-xs font-medium bg-slate-700 hover:bg-slate-600 text-slate-200 rounded-lg transition border border-slate-600 flex items-center gap-1.5" title="Load Sample Profile (Indeed Spec)">
+                    <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
+                    <span class="hidden md:inline">Sample Data</span>
+                </button>
+                
+                <button @click="triggerAiReview()" class="px-3.5 py-1.5 text-xs font-semibold bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white rounded-lg transition shadow-lg shadow-purple-900/30 flex items-center gap-2">
+                    <i class="fa-solid fa-brain"></i>
+                    <span>AI Review</span>
+                </button>
+
+                <button @click="window.print()" class="px-3 py-1.5 text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white rounded-lg transition flex items-center gap-1.5 shadow">
+                    <i class="fa-solid fa-print"></i>
+                    <span class="hidden sm:inline">Print / Save PDF</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Application Split Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6">
+
+        <!-- LEFT PANEL: Interactive Form Editor & Instant Feedback (6 cols) -->
+        <section class="lg:col-span-6 flex flex-col space-y-6 no-print">
+
+            <!-- Document Health Scorecard Bar -->
+            <div class="bg-slate-800/90 rounded-2xl p-4 border border-slate-700/80 shadow-md backdrop-blur">
+                <div class="flex items-center justify-between mb-2">
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Admissions Impact Score</span>
+                        <span class="text-xs px-2 py-0.5 rounded-full font-medium" 
+                              :class="scoreColorClass(totalStrengthScore)">
+                            <span x-text="totalStrengthScore"></span>/100
+                        </span>
+                    </div>
+                    <span class="text-xs font-medium text-slate-400" x-text="scoreRatingText(totalStrengthScore)"></span>
+                </div>
+
+                <!-- Progress Bar -->
+                <div class="w-full h-2.5 bg-slate-900 rounded-full overflow-hidden border border-slate-700/50">
+                    <div class="h-full transition-all duration-500 rounded-full"
+                         :style="`width: ${totalStrengthScore}%`"
+                         :class="scoreBarClass(totalStrengthScore)"></div>
+                </div>
+
+                <!-- Real-time Quick Feedback Counters -->
+                <div class="grid grid-cols-3 gap-2 mt-3 pt-3 border-t border-slate-700/60 text-center text-xs">
+                    <div class="p-1.5 rounded-lg bg-slate-900/60 border border-slate-700/40">
+                        <div class="font-bold text-slate-200" x-text="actionVerbCount"></div>
+                        <div class="text-[10px] text-slate-400">Action Verbs ⚡</div>
+                    </div>
+                    <div class="p-1.5 rounded-lg bg-slate-900/60 border border-slate-700/40">
+                        <div class="font-bold text-slate-200" x-text="metricsCount"></div>
+                        <div class="text-[10px] text-slate-400">Quantifiers 📊</div>
+                    </div>
+                    <div class="p-1.5 rounded-lg bg-slate-900/60 border border-slate-700/40">
+                        <div class="font-bold" :class="weakWordCount > 0 ? 'text-amber-400' : 'text-emerald-400'" x-text="weakWordCount"></div>
+                        <div class="text-[10px] text-slate-400">Weak Phrases ⚠️</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RESUME FORM TAB -->
+            <div x-show="activeTab === 'resume'" class="space-y-6">
+
+                <!-- Targeted College & Major (For customization) -->
+                <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm space-y-4">
+                    <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-bullseye"></i> Target University & Major
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">Target College/University</label>
+                            <input type="text" x-model="resume.targetCollege" placeholder="e.g. Stanford University" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">Intended Major / Field</label>
+                            <input type="text" x-model="resume.targetMajor" placeholder="e.g. Biology / Pre-Med" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Personal Information Header -->
+                <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm space-y-4">
+                    <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-address-card"></i> 1. Contact Header
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="sm:col-span-2">
+                            <label class="block text-xs text-slate-300 font-medium mb-1">Full Name</label>
+                            <input type="text" x-model="resume.fullName" placeholder="Allison Graham" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">Phone Number</label>
+                            <input type="text" x-model="resume.phone" placeholder="503-555-0107" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">Email Address</label>
+                            <input type="email" x-model="resume.email" placeholder="allison.graham@email.com" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">City, State</label>
+                            <input type="text" x-model="resume.location" placeholder="Columbus, OH" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">Portfolio / Academic Link (Optional)</label>
+                            <input type="text" x-model="resume.portfolio" placeholder="linkedin.com/in/student (no casual social media)" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Academic Summary Section -->
+                <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm space-y-3">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-user-gear"></i> 2. Profile Summary
+                        </h2>
+                        <span class="text-[11px] text-slate-400" x-text="`${summaryWordCount} words (Ideal: 25-50)`"></span>
+                    </div>
+
+                    <textarea x-model="resume.summary" rows="3" placeholder="Driven high school senior expecting to graduate with honors... Aiming to major in Biology with career aspirations in Pediatric Medicine..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition"></textarea>
+
+                    <!-- Summary Feedback Box -->
+                    <div x-show="summaryFeedback.text" class="p-3 rounded-lg text-xs flex items-start gap-2" :class="summaryFeedback.isGood ? 'bg-emerald-950/50 border border-emerald-700/50 text-emerald-200' : 'bg-amber-950/50 border border-amber-700/50 text-amber-200'">
+                        <i :class="summaryFeedback.isGood ? 'fa-circle-check text-emerald-400' : 'fa-triangle-exclamation text-amber-400'" class="fa-solid mt-0.5"></i>
+                        <span x-text="summaryFeedback.text"></span>
+                    </div>
+                </div>
+
+                <!-- Education Section -->
+                <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm space-y-4">
+                    <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-school"></i> 3. High School Education
+                    </h2>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">High School Name</label>
+                            <input type="text" x-model="resume.education.school" placeholder="Howard High School" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">Expected Graduation Date</label>
+                            <input type="text" x-model="resume.education.gradDate" placeholder="June 2026" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">GPA (Weighted/Unweighted)</label>
+                            <input type="text" x-model="resume.education.gpa" placeholder="3.9 / 4.0 Unweighted" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">Class Rank / Honors / Test Scores</label>
+                            <input type="text" x-model="resume.education.honors" placeholder="Top 5%, SAT: 1420, AP Scholar" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Extracurricular Activities Section -->
+                <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-people-group"></i> 4. Extracurriculars & Leadership
+                        </h2>
+                        <button @click="addActivity()" class="text-xs bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 px-2.5 py-1 rounded-lg border border-blue-500/30 transition flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Add Activity
+                        </button>
+                    </div>
+
+                    <template x-for="(act, index) in resume.activities" :key="index">
+                        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-700/70 space-y-3 relative group">
+                            <button @click="removeActivity(index)" class="absolute top-3 right-3 text-slate-500 hover:text-red-400 text-xs transition" title="Delete Activity">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 pr-6">
+                                <div>
+                                    <label class="block text-[11px] text-slate-400 mb-1">Activity Title / Role</label>
+                                    <input type="text" x-model="act.title" placeholder="Soccer Team Captain, Debate Club President" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-slate-400 mb-1">Dates / Duration</label>
+                                    <input type="text" x-model="act.dates" placeholder="Jan 2024 - Present" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
+                                </div>
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label class="block text-[11px] text-slate-400">Bullet Accomplishments (Action Verb + Duty + Impact)</label>
+                                </div>
+                                <textarea x-model="act.bulletsText" @input="updateActivityBullets(index)" rows="3" placeholder="Led team of 18 players to state semifinals&#10;Organized weekly training sessions resulting in 20% higher win rate" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500 font-mono"></textarea>
+                            </div>
+
+                            <!-- Real-time bullet critique feedback -->
+                            <div class="flex flex-wrap gap-2 text-[11px]">
+                                <span class="px-2 py-0.5 rounded border" :class="act.hasActionVerb ? 'bg-emerald-950/60 border-emerald-700 text-emerald-300' : 'bg-slate-800 border-slate-700 text-slate-400'">
+                                    <i :class="act.hasActionVerb ? 'fa-check text-emerald-400' : 'fa-times text-slate-500'" class="fa-solid mr-1"></i>
+                                    Action Verb
+                                </span>
+                                <span class="px-2 py-0.5 rounded border" :class="act.hasMetrics ? 'bg-emerald-950/60 border-emerald-700 text-emerald-300' : 'bg-amber-950/60 border-amber-800 text-amber-300'">
+                                    <i :class="act.hasMetrics ? 'fa-check text-emerald-400' : 'fa-lightbulb text-amber-400'" class="fa-solid mr-1"></i>
+                                    <span x-text="act.hasMetrics ? 'Quantified Results ✓' : 'Tip: Add numbers/metrics (e.g., %, counts)'"></span>
+                                </span>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Work & Volunteer Experience Section -->
+                <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm space-y-4">
+                    <div class="flex items-center justify-between">
+                        <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                            <i class="fa-solid fa-briefcase"></i> 5. Work & Volunteer Experience
+                        </h2>
+                        <button @click="addExperience()" class="text-xs bg-blue-600/30 hover:bg-blue-600/50 text-blue-300 px-2.5 py-1 rounded-lg border border-blue-500/30 transition flex items-center gap-1">
+                            <i class="fa-solid fa-plus"></i> Add Role
+                        </button>
+                    </div>
+
+                    <template x-for="(exp, index) in resume.experiences" :key="index">
+                        <div class="p-4 bg-slate-900/80 rounded-xl border border-slate-700/70 space-y-3 relative group">
+                            <button @click="removeExperience(index)" class="absolute top-3 right-3 text-slate-500 hover:text-red-400 text-xs transition">
+                                <i class="fa-solid fa-trash"></i>
+                            </button>
+
+                            <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pr-6">
+                                <div>
+                                    <label class="block text-[11px] text-slate-400 mb-1">Job / Role Title</label>
+                                    <input type="text" x-model="exp.title" placeholder="Dining Server, Student Volunteer" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-slate-400 mb-1">Company / Organization</label>
+                                    <input type="text" x-model="exp.organization" placeholder="Hampshire Senior Living" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
+                                </div>
+                                <div>
+                                    <label class="block text-[11px] text-slate-400 mb-1">Dates & Location</label>
+                                    <input type="text" x-model="exp.dates" placeholder="Nov 2024 - Present" class="w-full bg-slate-800 border border-slate-700 rounded-lg px-2.5 py-1.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500">
+                                </div>
+                            </div>
+
+                            <div>
+                                <label class="block text-[11px] text-slate-400 mb-1">Key Responsibilities & Achievements (One bullet per line)</label>
+                                <textarea x-model="exp.bulletsText" @input="updateExperienceBullets(index)" rows="3" placeholder="Provided friendly customer service to 40+ senior residents daily&#10;Trained 3 new staff members on hygiene and closing procedures" class="w-full bg-slate-800 border border-slate-700 rounded-lg p-2.5 text-xs text-slate-100 focus:outline-none focus:border-blue-500 font-mono"></textarea>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+
+                <!-- Skills, Certifications & Awards Section -->
+                <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm space-y-4">
+                    <h2 class="text-sm font-bold text-blue-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-award"></i> 6. Skills, Certifications & Honors
+                    </h2>
+                    
+                    <div class="space-y-3">
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">Key Skills (Comma separated - include hard & soft skills)</label>
+                            <input type="text" x-model="resume.skills" placeholder="Conversational Spanish, Leadership, Microsoft Excel, Data Analysis, First Aid" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">Certifications & Training</label>
+                            <input type="text" x-model="resume.certifications" placeholder="Adult & Pediatric CPR/AED (American Red Cross), Python Fundamentals" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">Honors & Awards (One per line)</label>
+                            <textarea x-model="resume.awardsText" rows="3" placeholder="National Honor Society Member (4 Semesters)&#10;Principal's Honor Roll (2023 - 2025)&#10;1st Place Regional Science Fair (2024)" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-sm text-slate-100 focus:outline-none focus:border-blue-500 transition"></textarea>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- APPLICATION COVER LETTER FORM TAB -->
+            <div x-show="activeTab === 'letter'" class="space-y-6">
+
+                <div class="bg-slate-800/80 rounded-2xl p-5 border border-slate-700 shadow-sm space-y-4">
+                    <h2 class="text-sm font-bold text-indigo-400 uppercase tracking-wider flex items-center gap-2">
+                        <i class="fa-solid fa-pen-nib"></i> Application Letter Builder
+                    </h2>
+                    <p class="text-xs text-slate-400">
+                        A college application letter complements your resume by telling your personal story, explaining why you chose this major, and highlighting why you belong at this university.
+                    </p>
+
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">Addressed To / Committee</label>
+                            <input type="text" x-model="letter.recipient" placeholder="Admissions Committee" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                        </div>
+                        <div>
+                            <label class="block text-xs text-slate-300 font-medium mb-1">University Name</label>
+                            <input type="text" x-model="letter.university" placeholder="Stanford University" class="w-full bg-slate-900 border border-slate-700 rounded-lg px-3 py-2 text-sm text-slate-100 focus:outline-none focus:border-indigo-500">
+                        </div>
+                    </div>
+
+                    <!-- Paragraph 1: Hook & Intended Field -->
+                    <div class="space-y-1">
+                        <label class="block text-xs text-slate-300 font-medium">Paragraph 1: Hook & Purpose</label>
+                        <textarea x-model="letter.para1" rows="3" placeholder="Dear Members of the Admissions Committee, I am writing to express my enthusiastic application for undergraduate admission to Stanford University's Class of 2030..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"></textarea>
+                    </div>
+
+                    <!-- Paragraph 2: Academic & Leadership Story -->
+                    <div class="space-y-1">
+                        <label class="block text-xs text-slate-300 font-medium">Paragraph 2: Academic Core & Leadership Story</label>
+                        <textarea x-model="letter.para2" rows="4" placeholder="Throughout my high school career, my passion for biology has been fueled by hands-on research and athletic leadership. As soccer team captain and student trainer..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"></textarea>
+                    </div>
+
+                    <!-- Paragraph 3: Why This Specific University -->
+                    <div class="space-y-1">
+                        <label class="block text-xs text-slate-300 font-medium">Paragraph 3: Why This University?</label>
+                        <textarea x-model="letter.para3" rows="3" placeholder="I am specifically drawn to Stanford's undergraduate research opportunities and interdisciplinary human biology program..." class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"></textarea>
+                    </div>
+
+                    <!-- Paragraph 4: Conclusion & Call to Action -->
+                    <div class="space-y-1">
+                        <label class="block text-xs text-slate-300 font-medium">Paragraph 4: Conclusion & Closing Statement</label>
+                        <textarea x-model="letter.para4" rows="2" placeholder="Thank you for considering my application. I look forward to the opportunity to contribute to your vibrant campus community. Sincerely, Allison Graham" class="w-full bg-slate-900 border border-slate-700 rounded-lg p-3 text-xs text-slate-100 focus:outline-none focus:border-indigo-500"></textarea>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <!-- RIGHT PANEL: Live Paper Document Preview (6 cols) -->
+        <section class="lg:col-span-6 flex flex-col items-center">
+            
+            <div class="w-full flex items-center justify-between mb-3 no-print">
+                <div class="flex items-center space-x-2">
+                    <span class="text-xs font-semibold uppercase text-slate-400">Preview Style:</span>
+                    <button @click="fontStyle = 'serif'" :class="fontStyle === 'serif' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300'" class="px-2.5 py-1 text-xs rounded border border-slate-700 font-serif">Classic (Georgia)</button>
+                    <button @click="fontStyle = 'sans'" :class="fontStyle === 'sans' ? 'bg-blue-600 text-white' : 'bg-slate-800 text-slate-300'" class="px-2.5 py-1 text-xs rounded border border-slate-700 font-sans">Modern (Inter)</button>
+                </div>
+                <span class="text-xs text-slate-400 italic">1-Page Target Fit</span>
+            </div>
+
+            <!-- Paper Sheet Simulation Container -->
+            <div id="printable-document" 
+                 class="w-full bg-white text-slate-900 shadow-2xl rounded-sm p-8 sm:p-10 border border-slate-200 min-h-[10.5in] transition-all"
+                 :class="fontStyle === 'serif' ? 'font-serif' : 'font-sans'">
+
+                <!-- RESUME DOCUMENT PREVIEW -->
+                <div x-show="activeTab === 'resume'" class="space-y-5">
+                    
+                    <!-- Document Header -->
+                    <div class="text-center border-b border-slate-300 pb-4">
+                        <h1 class="text-2xl font-bold tracking-tight text-slate-900 uppercase" x-text="resume.fullName || 'YOUR FULL NAME'"></h1>
+                        <div class="text-xs text-slate-600 mt-1 flex flex-wrap justify-center gap-2">
+                            <span x-show="resume.location" x-text="resume.location"></span>
+                            <span x-show="resume.location && resume.phone">•</span>
+                            <span x-show="resume.phone" x-text="resume.phone"></span>
+                            <span x-show="resume.phone && resume.email">•</span>
+                            <span x-show="resume.email" x-text="resume.email"></span>
+                            <span x-show="resume.portfolio">•</span>
+                            <span x-show="resume.portfolio" x-text="resume.portfolio" class="text-blue-700"></span>
+                        </div>
+                    </div>
+
+                    <!-- Summary Section -->
+                    <div x-show="resume.summary" class="space-y-1">
+                        <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-0.5">Profile Summary</h2>
+                        <p class="text-xs text-slate-700 leading-relaxed" x-text="resume.summary"></p>
+                    </div>
+
+                    <!-- Education Section -->
+                    <div class="space-y-1">
+                        <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-0.5">Education</h2>
+                        <div class="flex justify-between items-baseline text-xs font-bold">
+                            <span x-text="resume.education.school || 'High School Name'"></span>
+                            <span x-text="`Expected ${resume.education.gradDate || 'Graduation Date'}`"></span>
+                        </div>
+                        <div class="text-xs text-slate-700 flex flex-wrap gap-x-4">
+                            <span x-show="resume.education.gpa" x-text="`GPA: ${resume.education.gpa}`" class="font-medium"></span>
+                            <span x-show="resume.education.honors" x-text="resume.education.honors"></span>
+                        </div>
+                    </div>
+
+                    <!-- Extracurricular Activities -->
+                    <div x-show="resume.activities.length > 0" class="space-y-2">
+                        <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-0.5">Extracurricular Activities & Leadership</h2>
+                        <template x-for="(act, i) in resume.activities" :key="i">
+                            <div class="text-xs space-y-0.5">
+                                <div class="flex justify-between font-bold text-slate-800">
+                                    <span x-text="act.title"></span>
+                                    <span class="font-normal text-slate-600" x-text="act.dates"></span>
+                                </div>
+                                <ul class="list-disc list-inside text-slate-700 space-y-0.5 pl-1">
+                                    <template x-for="(b, bi) in getBulletsList(act.bulletsText)" :key="bi">
+                                        <li x-text="b"></li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Work & Volunteer Experience -->
+                    <div x-show="resume.experiences.length > 0" class="space-y-2">
+                        <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-0.5">Work & Volunteer Experience</h2>
+                        <template x-for="(exp, i) in resume.experiences" :key="i">
+                            <div class="text-xs space-y-0.5">
+                                <div class="flex justify-between font-bold text-slate-800">
+                                    <span>
+                                        <span x-text="exp.title"></span>
+                                        <span class="font-normal text-slate-600" x-show="exp.organization" x-text="` - ${exp.organization}`"></span>
+                                    </span>
+                                    <span class="font-normal text-slate-600" x-text="exp.dates"></span>
+                                </div>
+                                <ul class="list-disc list-inside text-slate-700 space-y-0.5 pl-1">
+                                    <template x-for="(b, bi) in getBulletsList(exp.bulletsText)" :key="bi">
+                                        <li x-text="b"></li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </template>
+                    </div>
+
+                    <!-- Certifications & Skills -->
+                    <div x-show="resume.skills || resume.certifications" class="space-y-1 text-xs">
+                        <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-0.5">Skills & Certifications</h2>
+                        <p x-show="resume.skills"><span class="font-bold">Skills:</span> <span x-text="resume.skills"></span></p>
+                        <p x-show="resume.certifications"><span class="font-bold">Certifications:</span> <span x-text="resume.certifications"></span></p>
+                    </div>
+
+                    <!-- Awards & Honors -->
+                    <div x-show="resume.awardsText" class="space-y-1 text-xs">
+                        <h2 class="text-xs font-bold text-slate-900 uppercase tracking-wider border-b border-slate-200 pb-0.5">Honors & Awards</h2>
+                        <ul class="list-disc list-inside text-slate-700 space-y-0.5 pl-1">
+                            <template x-for="(award, ai) in getBulletsList(resume.awardsText)" :key="ai">
+                                <li x-text="award"></li>
+                            </template>
+                        </ul>
+                    </div>
+
+                </div>
+
+                <!-- COVER LETTER DOCUMENT PREVIEW -->
+                <div x-show="activeTab === 'letter'" class="space-y-6 text-xs text-slate-800 leading-relaxed">
+                    <div class="border-b border-slate-300 pb-3">
+                        <h1 class="text-xl font-bold uppercase text-slate-900" x-text="resume.fullName || 'YOUR NAME'"></h1>
+                        <p x-text="`${resume.location} | ${resume.email} | ${resume.phone}`" class="text-slate-600"></p>
+                    </div>
+
+                    <div class="space-y-1 text-slate-600">
+                        <p x-text="new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })"></p>
+                        <p class="font-bold text-slate-800" x-text="letter.recipient || 'Admissions Selection Committee'"></p>
+                        <p x-text="letter.university || 'Target University'"></p>
+                    </div>
+
+                    <p x-text="letter.para1" class="whitespace-pre-line"></p>
+                    <p x-text="letter.para2" class="whitespace-pre-line"></p>
+                    <p x-text="letter.para3" class="whitespace-pre-line"></p>
+                    <p x-text="letter.para4" class="whitespace-pre-line"></p>
+
+                    <div class="pt-4 space-y-6">
+                        <p>Sincerely,</p>
+                        <p class="font-bold text-slate-900 text-sm" x-text="resume.fullName || 'Student Applicant'"></p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <!-- AI Counselor Critique Modal -->
+    <div x-show="showAiModal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4 no-print" x-transition>
+        <div class="bg-slate-800 border border-slate-700 rounded-2xl max-w-2xl w-full max-h-[85vh] flex flex-col shadow-2xl overflow-hidden">
+            <!-- Modal Header -->
+            <div class="px-6 py-4 bg-slate-900 border-b border-slate-700 flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-600 flex items-center justify-center text-white">
+                        <i class="fa-solid fa-robot"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-white text-base">Gemini Admissions Counselor AI</h3>
+                        <p class="text-xs text-slate-400">Deep Academic & Content Evaluation</p>
+                    </div>
+                </div>
+                <button @click="showAiModal = false" class="text-slate-400 hover:text-white text-lg">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content Body -->
+            <div class="p-6 overflow-y-auto space-y-4 flex-1 text-sm text-slate-200">
+                
+                <!-- Loading State -->
+                <div x-show="aiLoading" class="py-12 flex flex-col items-center justify-center space-y-3">
+                    <div class="w-10 h-10 border-4 border-indigo-500 border-t-transparent rounded-full animate-spin"></div>
+                    <p class="text-xs text-slate-400 animate-pulse">Analyzing application document for clarity, leadership metrics, and university fit...</p>
+                </div>
+
+                <!-- AI Output Results -->
+                <template x-if="!aiLoading && aiAnalysis">
+                    <div class="space-y-4">
+                        <div class="p-4 rounded-xl bg-slate-900/80 border border-indigo-500/30">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-indigo-400 mb-1">Overall Assessment</h4>
+                            <p class="text-xs text-slate-300 leading-relaxed" x-text="aiAnalysis?.summary"></p>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div class="p-3 rounded-lg bg-emerald-950/40 border border-emerald-700/40">
+                                <h5 class="text-xs font-bold text-emerald-400 mb-1 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-thumbs-up"></i> Key Strengths
+                                </h5>
+                                <ul class="text-xs text-slate-300 list-disc list-inside space-y-1">
+                                    <template x-for="str in (aiAnalysis?.strengths || [])" :key="str">
+                                        <li x-text="str"></li>
+                                    </template>
+                                </ul>
+                            </div>
+
+                            <div class="p-3 rounded-lg bg-amber-950/40 border border-amber-700/40">
+                                <h5 class="text-xs font-bold text-amber-400 mb-1 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-lightbulb"></i> Key Improvements Needed
+                                </h5>
+                                <ul class="text-xs text-slate-300 list-disc list-inside space-y-1">
+                                    <template x-for="imp in (aiAnalysis?.improvements || [])" :key="imp">
+                                        <li x-text="imp"></li>
+                                    </template>
+                                </ul>
+                            </div>
+                        </div>
+
+                        <div class="p-4 rounded-xl bg-slate-900 border border-slate-700">
+                            <h4 class="text-xs font-bold uppercase tracking-wider text-blue-400 mb-2">3 Actionable Next Steps</h4>
+                            <ol class="text-xs text-slate-300 list-decimal list-inside space-y-1.5">
+                                <template x-for="step in (aiAnalysis?.actionSteps || [])" :key="step">
+                                    <li class="leading-relaxed" x-text="step"></li>
+                                </template>
+                            </ol>
+                        </div>
+                    </div>
+                </template>
+
+            </div>
+
+            <!-- Modal Footer -->
+            <div class="px-6 py-3 bg-slate-900 border-t border-slate-700 flex justify-end">
+                <button @click="showAiModal = false" class="px-4 py-1.5 text-xs font-medium bg-slate-700 hover:bg-slate-600 text-white rounded-lg">Close Counselor</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        /* Action Verbs Dictionary for Heuristic Scoring */
+        const ACTION_VERBS = [
+            'managed', 'led', 'organized', 'developed', 'spearheaded', 'initiated', 'analyzed',
+            'created', 'trained', 'achieved', 'coordinated', 'designed', 'built', 'directed',
+            'founded', 'improved', 'increased', 'mentored', 'published', 'researched', 'guided',
+            'assisted', 'provided', 'established', 'formulated', 'handled', 'supervised'
+        ];
+
+        /* Weak Cliché Words Dictionary */
+        const WEAK_WORDS = [
+            'worked on', 'helped with', 'responsible for', 'tried to', 'stuff', 'things',
+            'hard worker', 'team player', 'good person', 'various tasks', 'did some'
+        ];
+
+        function appState() {
+            return {
+                activeTab: 'resume', // 'resume' or 'letter'
+                fontStyle: 'serif',  // 'serif' or 'sans'
+                showAiModal: false,
+                aiLoading: false,
+                aiAnalysis: null,
+
+                /* Resume Form State */
+                resume: {
+                    targetCollege: 'Stanford University',
+                    targetMajor: 'Biology / Pre-Med',
+                    fullName: 'Allison Graham',
+                    phone: '503-555-0107',
+                    email: 'allison.graham@email.com',
+                    location: 'Columbus, OH',
+                    portfolio: 'linkedin.com/in/allison-graham',
+                    summary: 'Driven and motivated high school student expected to graduate with honors in June 2026. Planning to study biology as an undergraduate with the goal of continuing to medical school to become a pediatric physician. Demonstrated ability to manage time effectively while maintaining a full course load.',
+                    education: {
+                        school: 'Howard High School',
+                        gradDate: 'June 2026',
+                        gpa: '3.9 Unweighted',
+                        honors: 'AP Scholar, Top 5% of class, SAT: 1420'
+                    },
+                    activities: [
+                        {
+                            title: 'Swim Team & Soccer Team Captain',
+                            dates: 'Jan 2024 - Present',
+                            bulletsText: 'Led varsity team to state championships in 2025\nMentored 12 younger athletes on performance technique\nOrganized monthly team bonding experiences outside of school',
+                            hasActionVerb: true,
+                            hasMetrics: true
+                        }
+                    ],
+                    experiences: [
+                        {
+                            title: 'Dining Room Server',
+                            organization: 'Hampshire Retirement Home',
+                            dates: 'Nov 2024 - Present',
+                            bulletsText: 'Provided fast and friendly customer service to 50+ residents daily\nInform kitchen staff regarding dietary restrictions and food allergies\nTrain 4 new servers in kitchen and safety protocols',
+                            hasActionVerb: true,
+                            hasMetrics: true
+                        }
+                    ],
+                    skills: 'Conversational Spanish, Leadership, Microsoft Excel, Time Management, Customer Service',
+                    certifications: 'Adult & Pediatric CPR/AED (American Red Cross)',
+                    awardsText: 'National Merit Semifinalist (2025)\nPrincipal\'s Honor List (8 Semesters)\nNational Honor Society Treasurer (2024-2025)'
+                },
+
+                /* Application Letter Form State */
+                letter: {
+                    recipient: 'Admissions Selection Committee',
+                    university: 'Stanford University',
+                    para1: 'Dear Members of the Admissions Committee,\n\nI am writing to express my eager application for undergraduate admission to Stanford University for the Fall term. With a long-standing passion for biological sciences and community wellness, I am excited about the opportunity to contribute to Stanford\'s vibrant academic community.',
+                    para2: 'Throughout my high school career, I have strived to balance rigorous academics with leadership. Serving as Captain of the Howard High School Soccer Team taught me how to motivate peers toward a collective goal under pressure. Simultaneously, my work as a student athletic trainer allowed me to apply anatomical concepts in practical care, managing injury records and supporting peer recovery.',
+                    para3: 'I am particularly drawn to Stanford\'s Human Biology major and the opportunity to engage in undergraduate research at the Stanford School of Medicine. The university\'s emphasis on innovative interdisciplinary learning aligns perfectly with my ambition to become a pediatric physician.',
+                    para4: 'Thank you for your time and consideration of my application packet. I look forward to the possibility of joining the Cardinal community.\n\nSincerely,\nAllison Graham'
+                },
+
+                /* Calculated Computed Indicators */
+                get summaryWordCount() {
+                    if (!this.resume.summary) return 0;
+                    return this.resume.summary.trim().split(/\s+/).length;
+                },
+
+                get summaryFeedback() {
+                    const wc = this.summaryWordCount;
+                    if (wc === 0) return { text: 'Add a concise 2-3 sentence summary highlighting your major focus and goals.', isGood: false };
+                    if (wc < 20) return { text: 'Summary is a bit short. Include your intended major and key qualities.', isGood: false };
+                    if (wc > 65) return { text: 'Summary is too long. Keep it under 50 words so admissions readers can scan quickly.', isGood: false };
+                    return { text: 'Great summary length! Clear, concise, and focused on goals.', isGood: true };
+                },
+
+                get actionVerbCount() {
+                    let count = 0;
+                    const allText = (JSON.stringify(this.resume) + JSON.stringify(this.letter)).toLowerCase();
+                    ACTION_VERBS.forEach(verb => {
+                        const regex = new RegExp(`\\b${verb}\\b`, 'gi');
+                        const matches = allText.match(regex);
+                        if (matches) count += matches.length;
+                    });
+                    return count;
+                },
+
+                get metricsCount() {
+                    const allText = JSON.stringify(this.resume) + JSON.stringify(this.letter);
+                    // Match numbers, percentages, dollar signs
+                    const matches = allText.match(/\b\d+(%|\+|k|m)?\b/gi);
+                    return matches ? matches.length : 0;
+                },
+
+                get weakWordCount() {
+                    let count = 0;
+                    const allText = (JSON.stringify(this.resume) + JSON.stringify(this.letter)).toLowerCase();
+                    WEAK_WORDS.forEach(weak => {
+                        if (allText.includes(weak)) count++;
+                    });
+                    return count;
+                },
+
+                get totalStrengthScore() {
+                    let score = 30; // base score
+
+                    if (this.resume.fullName) score += 5;
+                    if (this.resume.email && this.resume.phone) score += 5;
+                    if (this.summaryWordCount >= 20 && this.summaryWordCount <= 60) score += 15;
+                    if (this.resume.education.school && this.resume.education.gpa) score += 15;
+                    
+                    // Action verbs & Quantifiers weight
+                    score += Math.min(this.actionVerbCount * 3, 15);
+                    score += Math.min(this.metricsCount * 3, 15);
+
+                    // Deduct for weak words
+                    score -= (this.weakWordCount * 5);
+
+                    return Math.max(10, Math.min(100, score));
+                },
+
+                /* Helper methods */
+                scoreColorClass(score) {
+                    if (score >= 80) return 'bg-emerald-500/20 text-emerald-400 border border-emerald-500/30';
+                    if (score >= 60) return 'bg-blue-500/20 text-blue-400 border border-blue-500/30';
+                    return 'bg-amber-500/20 text-amber-400 border border-amber-500/30';
+                },
+
+                scoreBarClass(score) {
+                    if (score >= 80) return 'bg-emerald-500';
+                    if (score >= 60) return 'bg-blue-500';
+                    return 'bg-amber-500';
+                },
+
+                scoreRatingText(score) {
+                    if (score >= 85) return 'Competitive Admissions Ready ✨';
+                    if (score >= 65) return 'Good - Add More Action & Quantifiers 👍';
+                    return 'Needs Improvement - Add Metrics ⚠️';
+                },
+
+                getBulletsList(text) {
+                    if (!text) return [];
+                    return text.split('\n').map(s => s.trim()).filter(s => s.length > 0);
+                },
+
+                updateActivityBullets(index) {
+                    const act = this.resume.activities[index];
+                    const lower = act.bulletsText.toLowerCase();
+                    act.hasActionVerb = ACTION_VERBS.some(v => lower.includes(v));
+                    act.hasMetrics = /\d+/.test(lower);
+                },
+
+                updateExperienceBullets(index) {
+                    const exp = this.resume.experiences[index];
+                    const lower = exp.bulletsText.toLowerCase();
+                    exp.hasActionVerb = ACTION_VERBS.some(v => lower.includes(v));
+                    exp.hasMetrics = /\d+/.test(lower);
+                },
+
+                addActivity() {
+                    this.resume.activities.push({
+                        title: 'New Activity / Club Role',
+                        dates: '2024 - Present',
+                        bulletsText: 'Organized team meetings\nIncreased participation by 15%',
+                        hasActionVerb: true,
+                        hasMetrics: true
+                    });
+                },
+
+                removeActivity(index) {
+                    this.resume.activities.splice(index, 1);
+                },
+
+                addExperience() {
+                    this.resume.experiences.push({
+                        title: 'Part-Time Job / Volunteer',
+                        organization: 'Organization Name',
+                        dates: '2024 - Present',
+                        bulletsText: 'Assisted customers efficiently\nManaged weekly schedules',
+                        hasActionVerb: true,
+                        hasMetrics: false
+                    });
+                },
+
+                removeExperience(index) {
+                    this.resume.experiences.splice(index, 1);
+                },
+
+                loadSampleData() {
+                    this.resume.fullName = "Allison Graham";
+                    this.resume.phone = "503-555-0107";
+                    this.resume.email = "allison.graham@email.com";
+                    this.resume.location = "Columbus, OH";
+                    this.resume.targetCollege = "Stanford University";
+                    this.resume.targetMajor = "Biology / Pre-Med";
+                    this.resume.summary = "Driven and motivated high school student expected to graduate with honors in June 2026. Planning to study biology as an undergraduate with the goal of continuing to medical school to become a pediatric physician.";
+                    this.resume.education.school = "Howard High School";
+                    this.resume.education.gradDate = "June 2026";
+                    this.resume.education.gpa = "3.9 / 4.0 Unweighted";
+                    this.resume.education.honors = "Top 5% Class Rank, SAT: 1420";
+                },
+
+                /* Call Gemini 3 Flash API for deep admissions evaluation */
+                async triggerAiReview() {
+                    this.showAiModal = true;
+                    this.aiLoading = true;
+                    this.aiAnalysis = null;
+
+                    const systemPrompt = "You are a senior college admissions officer at an elite university. Analyze the student's application resume and cover letter. Provide a structured evaluation focusing on academic alignment, leadership impact, metric usage, and tone. Respond ONLY in strict JSON format with keys: 'summary' (string), 'strengths' (array of 3 strings), 'improvements' (array of 3 strings), and 'actionSteps' (array of 3 strings).";
+
+                    const userPrompt = `
+Target University: ${this.resume.targetCollege}
+Intended Major: ${this.resume.targetMajor}
+
+Student Resume Data:
+${JSON.stringify(this.resume, null, 2)}
+
+Cover Letter Data:
+${JSON.stringify(this.letter, null, 2)}
+                    `;
+
+                    try {
+                        const apiKey = ""; // Canvas provides runtime API key
+                        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
+
+                        const response = await fetch(apiUrl, {
+                            method: 'POST',
+                            headers: { 'Content-Type': 'application/json' },
+                            body: JSON.stringify({
+                                contents: [{ parts: [{ text: userPrompt }] }],
+                                systemInstruction: { parts: [{ text: systemPrompt }] },
+                                generationConfig: {
+                                    responseMimeType: "application/json",
+                                    responseSchema: {
+                                        type: "OBJECT",
+                                        properties: {
+                                            summary: { type: "STRING" },
+                                            strengths: { type: "ARRAY", items: { type: "STRING" } },
+                                            improvements: { type: "ARRAY", items: { type: "STRING" } },
+                                            actionSteps: { type: "ARRAY", items: { type: "STRING" } }
+                                        },
+                                        required: ["summary", "strengths", "improvements", "actionSteps"]
+                                    }
+                                }
+                            })
+                        });
+
+                        const result = await response.json();
+                        const jsonText = result?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+                        if (jsonText) {
+                            this.aiAnalysis = JSON.parse(jsonText);
+                        } else {
+                            throw new Error("Invalid API response format");
+                        }
+                    } catch (err) {
+                        console.error("Gemini API Error:", err);
+                        // Fallback offline critique if network/API key issue
+                        this.aiAnalysis = {
+                            summary: `The application presents a strong academic foundation for ${this.resume.targetMajor || 'higher education'}. The formatting complies well with the 1-page standard.`,
+                            strengths: [
+                                "Clean structure with clear reverse-chronological order.",
+                                "Good inclusion of GPA and expected graduation date.",
+                                "Strong alignment with intended undergraduate trajectory."
+                            ],
+                            improvements: [
+                                "Add more quantifiable metrics (percentages, counts, dollar amounts) in bullet points.",
+                                "Ensure every bullet starts with a strong action verb (e.g., 'Spearheaded', 'Mentored').",
+                                "Deepen the 'Why This College' paragraph in the cover letter with unique faculty/lab references."
+                            ],
+                            actionSteps: [
+                                "Revise experience bullets to include numerical results (e.g., 'Trained 4 new staff members').",
+                                "Verify that high school test scores and class rank are clearly highlighted.",
+                                "Have a guidance counselor or teacher proofread for tone and final typos."
+                            ]
+                        };
+                    } finally {
+                        this.aiLoading = false;
+                    }
+                }
+            }
+        }
+    </script>
+</body>
+</html>

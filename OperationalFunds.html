@@ -1,0 +1,907 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Operation Funds - Monthly Rollover Budget</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8fafc;
+        }
+        /* Custom Table Styling matching Apple Numbers / Google Sheets sample */
+        .sheet-table {
+            border-collapse: separate;
+            border-spacing: 0;
+            width: 100%;
+        }
+        .sheet-table th, .sheet-table td {
+            border: 1px solid #e2e8f0;
+            padding: 8px 12px;
+            font-size: 14px;
+        }
+        .sheet-table tr:first-child th:first-child { border-top-left-radius: 6px; }
+        .sheet-table tr:first-child th:last-child { border-top-right-radius: 6px; }
+        
+        .header-green {
+            background-color: #4cd964;
+            color: white;
+            font-weight: 700;
+        }
+        .header-red {
+            background-color: #ff3b30;
+            color: white;
+            font-weight: 700;
+        }
+        .header-blue {
+            background-color: #007aff;
+            color: white;
+            font-weight: 700;
+        }
+        .bg-summary {
+            background-color: #f1f5f9;
+            font-weight: 700;
+        }
+        /* Hide scrollbars for clean tab navigation */
+        .no-scrollbar::-webkit-scrollbar {
+            display: none;
+        }
+        .no-scrollbar {
+            -ms-overflow-style: none;
+            scrollbar-width: none;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 min-h-screen pb-12">
+
+    <!-- Top Header Navigation -->
+    <header class="bg-white border-b border-slate-200 sticky top-0 z-30 shadow-sm">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex flex-col md:flex-row md:items-center md:justify-between gap-4">
+            <div>
+                <h1 class="text-2xl font-bold text-slate-900 flex items-center gap-2">
+                    <i class="fa-solid fa-file-invoice-dollar text-emerald-500"></i> Operation Funds
+                </h1>
+                <p class="text-xs text-slate-500 mt-1">Multi-Month Rollover Ledger & Expense Dashboard</p>
+            </div>
+            
+            <div class="flex items-center gap-2 flex-wrap">
+                <button onclick="copyTableToClipboard()" class="px-3 py-2 bg-slate-800 hover:bg-slate-900 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                    <i class="fa-regular fa-copy"></i> Copy Sheet Data
+                </button>
+                <button onclick="exportCurrentMonthCSV()" class="px-3 py-2 bg-emerald-600 hover:bg-emerald-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-file-csv"></i> Download Month CSV
+                </button>
+                <button onclick="exportAllMonthsCSV()" class="px-3 py-2 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-semibold flex items-center gap-1.5 transition">
+                    <i class="fa-solid fa-file-export"></i> Download All Months
+                </button>
+            </div>
+        </div>
+
+        <!-- Month Tabs Horizontal Scroll -->
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center gap-1 overflow-x-auto no-scrollbar border-t border-slate-100 py-2" id="monthTabs">
+                <!-- Tabs rendered dynamically -->
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+
+        <!-- Notification Banner -->
+        <div id="toastMessage" class="hidden fixed bottom-6 right-6 bg-slate-900 text-white px-4 py-3 rounded-lg shadow-lg z-50 text-sm flex items-center gap-2">
+            <i class="fa-solid fa-circle-check text-emerald-400"></i>
+            <span id="toastText">Data copied to clipboard!</span>
+        </div>
+
+        <!-- Summary & Overview Stat Bar -->
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Active Sheet</span>
+                <div class="text-xl font-bold text-slate-800 mt-1" id="statActiveMonth">-</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-semibold text-emerald-500 uppercase tracking-wider">Total Income</span>
+                <div class="text-xl font-bold text-emerald-600 mt-1" id="statTotalIncome">THB 0.00</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-semibold text-rose-500 uppercase tracking-wider">Total Expenses</span>
+                <div class="text-xl font-bold text-rose-600 mt-1" id="statTotalExpenses">THB 0.00</div>
+            </div>
+            <div class="bg-white p-4 rounded-xl border border-slate-200 shadow-sm">
+                <span class="text-xs font-semibold text-blue-500 uppercase tracking-wider">Rollover Balance</span>
+                <div class="text-xl font-bold text-blue-600 mt-1" id="statRolloverBalance">THB 0.00</div>
+            </div>
+        </div>
+
+        <!-- Spreadsheet Layout Grid -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
+            
+            <!-- Left Column: Google Sheets / Numbers Tables (8 Cols) -->
+            <div class="lg:col-span-8 space-y-6">
+                
+                <!-- Section 1: Money In -->
+                <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-emerald-500 inline-block"></span> Money In
+                        </h2>
+                        <span class="text-xs text-slate-400 font-medium">Income & Opening Balance</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="sheet-table" id="tableMoneyIn">
+                            <thead>
+                                <tr class="header-green">
+                                    <th class="text-left w-2/5">Money In</th>
+                                    <th class="text-left w-1/5">Date</th>
+                                    <th class="text-right w-1/4">Amount</th>
+                                    <th class="text-left w-1/4">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyMoneyIn">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-summary">
+                                    <td class="font-bold">Total income</td>
+                                    <td></td>
+                                    <td class="text-right font-bold" id="totalIncomeCell">THB 0.00</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Section 2: Money Out -->
+                <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-rose-500 inline-block"></span> Money Out
+                        </h2>
+                        <span class="text-xs text-slate-400 font-medium">Expenses & Disbursements</span>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="sheet-table" id="tableMoneyOut">
+                            <thead>
+                                <tr class="header-red">
+                                    <th class="text-left w-2/5">Money Out</th>
+                                    <th class="text-left w-1/5">Date</th>
+                                    <th class="text-right w-1/4">Amount</th>
+                                    <th class="text-left w-1/4">Remarks</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tbodyMoneyOut">
+                                <!-- Dynamic Rows -->
+                            </tbody>
+                            <tfoot>
+                                <tr class="bg-summary">
+                                    <td class="font-bold">Total expenses</td>
+                                    <td></td>
+                                    <td class="text-right font-bold" id="totalExpensesCell">THB 0.00</td>
+                                    <td></td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Section 3: Remaining Balance -->
+                <div class="bg-white p-4 sm:p-6 rounded-2xl shadow-sm border border-slate-200">
+                    <div class="flex justify-between items-center mb-3">
+                        <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
+                            <span class="w-3 h-3 rounded-full bg-blue-500 inline-block"></span> Remaining Balance
+                        </h2>
+                    </div>
+
+                    <div class="overflow-x-auto">
+                        <table class="sheet-table">
+                            <thead>
+                                <tr class="header-blue">
+                                    <th class="text-left w-3/4">Remaining Balance</th>
+                                    <th class="text-right w-1/4">Amount</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <tr>
+                                    <td class="font-semibold text-slate-700">Income minus expenses (Rollover to Next Month)</td>
+                                    <td class="text-right font-bold text-lg" id="netBalanceCell">THB 0.00</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Right Column: Chart & OF Notes Widget (4 Cols) -->
+            <div class="lg:col-span-4 space-y-6">
+                
+                <!-- Chart Card -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col items-center">
+                    <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-4 w-full text-left flex items-center gap-2">
+                        <i class="fa-solid fa-chart-pie text-blue-500"></i> Cash Flow Split
+                    </h3>
+                    <div class="w-full relative flex justify-center items-center" style="min-height: 250px;">
+                        <canvas id="monthDoughnutChart"></canvas>
+                    </div>
+                    <div class="mt-4 text-center text-xs text-slate-400">
+                        Visualizing Income vs Expenses for selected month
+                    </div>
+                </div>
+
+                <!-- Operations Fund (OF) Internal Breakdown Card -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200" id="ofLedgerWidget">
+                    <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider mb-3 flex items-center justify-between">
+                        <span><i class="fa-solid fa-wallet text-amber-500"></i> OF Internal Ledger</span>
+                        <span class="text-xs font-normal text-amber-600 bg-amber-50 px-2 py-0.5 rounded-md border border-amber-200">Internal Audit</span>
+                    </h3>
+                    <div id="ofLedgerContent" class="text-xs text-slate-600 space-y-2">
+                        <!-- Populated dynamically if notes exist -->
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        // Database of all financial data by month (Nov 2024 -> Aug 2026)
+        const budgetData = [
+            {
+                id: "nov-2024",
+                name: "Nov 2024",
+                openingBalance: 176.29,
+                inflow: [],
+                outflow: [],
+                ofNotes: null
+            },
+            {
+                id: "dec-2024",
+                name: "Dec 2024",
+                openingBalance: 176.29,
+                inflow: [
+                    { desc: "OF (3k from Tithes)", date: "Dec 1", amount: 13000.00, remarks: "Transfer Deposit" }
+                ],
+                outflow: [],
+                ofNotes: null
+            },
+            {
+                id: "jan-2025",
+                name: "Jan 2025",
+                openingBalance: 13176.29,
+                inflow: [
+                    { desc: "OF (3k from Tithes)", date: "Jan 1", amount: 13000.00, remarks: "Transfer Deposit" }
+                ],
+                outflow: [
+                    { desc: "House Rental", date: "Jan 2", amount: 13000.00, remarks: "K PLUS" },
+                    { desc: "Rental", date: "Jan 12", amount: 13000.00, remarks: "K PLUS" }
+                ],
+                ofNotes: null
+            },
+            {
+                id: "feb-2025",
+                name: "Feb 2025",
+                openingBalance: 176.29,
+                inflow: [
+                    { desc: "OF", date: "Feb 8", amount: 9500.00, remarks: "Transfer Deposit" }
+                ],
+                outflow: [
+                    { desc: "Payment to Jireh", date: "Feb 8", amount: 3354.42, remarks: "Borrowed Love Gift & Misc" },
+                    { desc: "Work Permit", date: "Feb 8", amount: 3127.90, remarks: "" },
+                    { desc: "Love Gift", date: "Feb 8", amount: 1347.04, remarks: "Cambodia MYX" }
+                ],
+                ofNotes: null
+            },
+            {
+                id: "mar-2025",
+                name: "Mar 2025",
+                openingBalance: 1846.93,
+                inflow: [
+                    { desc: "OF", date: "Mar 13", amount: 9640.00, remarks: "Transfer Deposit" }
+                ],
+                outflow: [
+                    { desc: "Payment to Jireh", date: "Mar 16", amount: 3183.02, remarks: "" },
+                    { desc: "Medical Help", date: "Mar 16", amount: 500.00, remarks: "Gerard" },
+                    { desc: "Moving Expenses", date: "Mar 20", amount: 3036.65, remarks: "Car, Fixtures, Misc" },
+                    { desc: "House Rental", date: "Mar 31", amount: 2813.00, remarks: "Promsiri" },
+                    { desc: "Re-entry Permit", date: "Mar 31", amount: 1000.00, remarks: "Jireh" }
+                ],
+                ofNotes: null
+            },
+            {
+                id: "apr-2025",
+                name: "Apr 2025",
+                openingBalance: 954.26,
+                inflow: [],
+                outflow: [
+                    { desc: "Plane Ticket", date: "Apr 2", amount: 1049.00, remarks: "Jireh CNX" },
+                    { desc: "House Rental", date: "Apr 5", amount: 3473.00, remarks: "" },
+                    { desc: "Misc", date: "Apr 7", amount: 73.00, remarks: "Center Use" },
+                    { desc: "Pasalubong", date: "Apr 8", amount: 796.00, remarks: "MYX Vietnam" },
+                    { desc: "MYX Vietnam", date: "Apr 14", amount: 674.00, remarks: "Fare" },
+                    { desc: "MYX Evaluation", date: "Apr 28", amount: 428.00, remarks: "" },
+                    { desc: "Wifi", date: "Apr 30", amount: 150.00, remarks: "" },
+                    { desc: "House Rental", date: "Apr 30", amount: 5743.00, remarks: "" }
+                ],
+                ofNotes: null
+            },
+            {
+                id: "may-2025",
+                name: "May 2025",
+                openingBalance: -11431.74,
+                inflow: [
+                    { desc: "OF", date: "May 13", amount: 9470.00, remarks: "Late Deposit" },
+                    { desc: "OF", date: "May 13", amount: 9640.00, remarks: "Late Deposit" }
+                ],
+                outflow: [
+                    { desc: "CNX Plane Ticket & Accomodation", date: "May 11", amount: 3492.28, remarks: "Jireh" },
+                    { desc: "Re-Entry Permit", date: "May 17", amount: 1000.00, remarks: "" },
+                    { desc: "Emergency Trip", date: "May 20", amount: 1810.00, remarks: "Jireh - Eulogia" },
+                    { desc: "Center Equipments", date: "May 24", amount: 430.02, remarks: "" },
+                    { desc: "Internet", date: "May 25", amount: 150.00, remarks: "Dave" },
+                    { desc: "House Rental", date: "May 30", amount: 6770.00, remarks: "" }
+                ],
+                ofNotes: null
+            },
+            {
+                id: "jun-2025",
+                name: "Jun 2025",
+                openingBalance: -5974.04,
+                inflow: [
+                    { desc: "OF", date: "Jun 18", amount: 9640.00, remarks: "Late Deposit" }
+                ],
+                outflow: [
+                    { desc: "Travel Expense", date: "Jun 3", amount: 145.00, remarks: "Jireh - Philippines" },
+                    { desc: "Debit Card Fee", date: "Jun 3", amount: 250.00, remarks: "ATM Fee" }
+                ],
+                ofNotes: null
+            },
+            {
+                id: "sep-2025",
+                name: "Sep 2025",
+                openingBalance: 57366.72,
+                inflow: [
+                    { desc: "Deposit from Jireh", date: "Sep 15", amount: 9000.00, remarks: "X8092" },
+                    { desc: "Deposit from Dave", date: "Sep 21", amount: 100.00, remarks: "BBL X5364" },
+                    { desc: "Deposit from Dave", date: "Sep 28", amount: 100.00, remarks: "BBL X5364" },
+                    { desc: "Deposit from Dave", date: "Sep 28", amount: 10.00, remarks: "BBL X5364" },
+                    { desc: "Deposit from Dave", date: "Sep 30", amount: 12892.22, remarks: "BBL X2208" },
+                    { desc: "Deposit from Dave", date: "Sep 30", amount: 267.00, remarks: "BBL X2208" }
+                ],
+                outflow: [
+                    { desc: "Transfer to Dave", date: "Sep 2", amount: 150.00, remarks: "BBL X2208" },
+                    { desc: "Transfer to Jireh", date: "Sep 15", amount: 4027.00, remarks: "X8092" },
+                    { desc: "Cash Withdrawal", date: "Sep 21", amount: 100.00, remarks: "ATM" },
+                    { desc: "ATM Fee", date: "Sep 21", amount: 10.00, remarks: "" },
+                    { desc: "Cash Withdrawal", date: "Sep 28", amount: 100.00, remarks: "ATM" },
+                    { desc: "ATM Fee", date: "Sep 28", amount: 10.00, remarks: "" },
+                    { desc: "Paid KBank Card", date: "Sep 30", amount: 12892.22, remarks: "Ref X5026" },
+                    { desc: "Paid KBank Card", date: "Sep 30", amount: 267.00, remarks: "Ref X5026" }
+                ],
+                ofNotes: null
+            },
+            {
+                id: "oct-2025",
+                name: "Oct 2025",
+                openingBalance: 62179.72,
+                inflow: [
+                    { desc: "Deposit from Jireh", date: "Oct 5", amount: 1515.00, remarks: "SCB X0370" },
+                    { desc: "Deposit from Dave", date: "Oct 5", amount: 1515.00, remarks: "BBL X2208" },
+                    { desc: "Deposit from Jireh", date: "Oct 10", amount: 9060.00, remarks: "X8092" },
+                    { desc: "Deposit from Dave", date: "Oct 13", amount: 210.00, remarks: "BBL X2208" },
+                    { desc: "Deposit from Dave", date: "Oct 22", amount: 510.00, remarks: "BBL X2208" },
+                    { desc: "Deposit from Dave", date: "Oct 31", amount: 13834.71, remarks: "BBL X2208" }
+                ],
+                outflow: [
+                    { desc: "Transfer to Dave", date: "Oct 2", amount: 500.00, remarks: "PromptPay" },
+                    { desc: "Payment Ratana", date: "Oct 6", amount: 6664.00, remarks: "BBL X2927" },
+                    { desc: "Payment Sang Cheol", date: "Oct 6", amount: 920.00, remarks: "X2683" },
+                    { desc: "Parking Central Pattana", date: "Oct 8", amount: 40.00, remarks: "EDC" },
+                    { desc: "Transfer to Jireh", date: "Oct 10", amount: 8286.95, remarks: "X8092" },
+                    { desc: "Transfer to Jireh", date: "Oct 10", amount: 4027.00, remarks: "X8092" },
+                    { desc: "Cash Withdrawal & Fee", date: "Oct 13", amount: 210.00, remarks: "ATM" },
+                    { desc: "Transfer Chompunuch", date: "Oct 17", amount: 1935.00, remarks: "PromptPay" },
+                    { desc: "MR. D.I.Y.", date: "Oct 17", amount: 32.00, remarks: "Store" },
+                    { desc: "Car Care Service", date: "Oct 19", amount: 120.00, remarks: "Krungsri Shop" },
+                    { desc: "KFC Makro Mengjai", date: "Oct 19", amount: 426.00, remarks: "Meal" },
+                    { desc: "Cash Withdrawal & Fee", date: "Oct 22", amount: 510.00, remarks: "ATM" },
+                    { desc: "Paid KBank Card", date: "Oct 31", amount: 13834.71, remarks: "Ref X5026" }
+                ],
+                ofNotes: null
+            },
+            {
+                id: "jan-2026",
+                name: "Jan 2026",
+                openingBalance: 50762.35,
+                inflow: [
+                    { desc: "Deposit from Dave", date: "Jan 6", amount: 1185.00, remarks: "BBL X5364" },
+                    { desc: "Deposit from Dave", date: "Jan 6", amount: 3824.00, remarks: "BBL X5364" },
+                    { desc: "Deposit from Dave", date: "Jan 6", amount: 1185.00, remarks: "BBL X2208" },
+                    { desc: "Deposit from Jireh", date: "Jan 18", amount: 26000.00, remarks: "BBL X8437" },
+                    { desc: "OF Deposit from Jireh", date: "Jan 19", amount: 8840.00, remarks: "X8092" },
+                    { desc: "Deposit from Dave", date: "Jan 30", amount: 21820.91, remarks: "BBL X2208" }
+                ],
+                outflow: [
+                    { desc: "Transfer to Dave", date: "Jan 5", amount: 150.00, remarks: "BBL X2208" },
+                    { desc: "Payment Kemsaed Co Ltd", date: "Jan 6", amount: 6194.00, remarks: "BBL X3151" },
+                    { desc: "Transfer to Jireh", date: "Jan 18", amount: 26000.00, remarks: "X8092" },
+                    { desc: "Transfer to Jireh", date: "Jan 19", amount: 3824.00, remarks: "X8092" },
+                    { desc: "Transfer to Jireh", date: "Jan 19", amount: 4027.00, remarks: "X8092" },
+                    { desc: "TrueMoney Wallet", date: "Jan 20", amount: 200.00, remarks: "Ref X4608" },
+                    { desc: "Paid KBank Card", date: "Jan 30", amount: 21820.91, remarks: "Ref X5026" }
+                ],
+                ofNotes: {
+                    title: "Initial Borrow Log Incurred",
+                    items: [
+                        "Jan 7: B Quick - 2,280 THB",
+                        "Jan 19: Lodging CNX - 2,606 THB",
+                        "Jan 21: Lodging CNX - 403 THB",
+                        "Total Borrow Balance (Choc RB): 5,289 THB"
+                    ]
+                }
+            },
+            {
+                id: "feb-2026",
+                name: "Feb 2026",
+                openingBalance: 51401.35,
+                inflow: [
+                    { desc: "Deposit from Dave", date: "Feb 5", amount: 1419.00, remarks: "BBL X2208" },
+                    { desc: "Deposit from Jireh", date: "Feb 7", amount: 1419.00, remarks: "SCB X0370" },
+                    { desc: "Deposit Center Rental (Jireh)", date: "Feb 7", amount: 3570.00, remarks: "X8092" },
+                    { desc: "Deposit from Jireh", date: "Feb 7", amount: 100.00, remarks: "SCB X0370" },
+                    { desc: "Deposit from Dave", date: "Feb 27", amount: 20573.49, remarks: "BBL X2208" },
+                    { desc: "Deposit from Dave", date: "Feb 27", amount: 1.53, remarks: "BBL X2208" }
+                ],
+                outflow: [
+                    { desc: "Payment Ratana", date: "Feb 7", amount: 6508.00, remarks: "BBL X2927" },
+                    { desc: "Borrow Payback to Choc", date: "Feb 10", amount: 1400.00, remarks: "Direct Transfer" },
+                    { desc: "Paid KBank Card", date: "Feb 27", amount: 20573.49, remarks: "Ref X5026" }
+                ],
+                ofNotes: {
+                    title: "OF Feb Received: 8,840 THB",
+                    items: [
+                        "3,570 THB - Center rentals",
+                        "4,027 THB - Car payment",
+                        "1,243 THB - Borrow payback to Choc",
+                        "Remaining Borrow Balance as of 16-03-26: 2,646 THB"
+                    ]
+                }
+            },
+            {
+                id: "mar-2026",
+                name: "Mar 2026",
+                openingBalance: 50002.88,
+                inflow: [
+                    { desc: "Deposit Center Rental (Jireh)", date: "Mar 7", amount: 3616.00, remarks: "X8092" },
+                    { desc: "Deposit from Dave", date: "Mar 7", amount: 1080.00, remarks: "BBL X2208" },
+                    { desc: "Deposit from Jireh", date: "Mar 7", amount: 1080.00, remarks: "SCB X0370" },
+                    { desc: "Deposit from Dave", date: "Mar 17", amount: 2000.00, remarks: "BBL X2208" },
+                    { desc: "Deposit from Dave", date: "Mar 31", amount: 15001.53, remarks: "BBL X2208" }
+                ],
+                outflow: [
+                    { desc: "Payment Ratana", date: "Mar 7", amount: 5776.00, remarks: "BBL X2927" },
+                    { desc: "Paid KBank Card", date: "Mar 17", amount: 2000.00, remarks: "Ref X5026" },
+                    { desc: "Paid KBank Card", date: "Mar 31", amount: 15000.00, remarks: "Ref X5026" }
+                ],
+                ofNotes: {
+                    title: "OF March Received: 8,840 THB",
+                    items: [
+                        "3,616 THB - Center rentals",
+                        "4,027 THB - Car payment",
+                        "1,197 THB - Borrow payback to Choc",
+                        "Remaining Borrow Balance as of 21-04-26: 1,449 THB"
+                    ]
+                }
+            },
+            {
+                id: "apr-2026",
+                name: "Apr 2026",
+                openingBalance: 50004.41,
+                inflow: [
+                    { desc: "Deposit from Jireh", date: "Apr 2", amount: 500.00, remarks: "SCB X0370" },
+                    { desc: "Deposit from Jireh", date: "Apr 6", amount: 1203.00, remarks: "SCB X0370" },
+                    { desc: "Deposit from Dave", date: "Apr 6", amount: 1203.00, remarks: "BBL X2208" },
+                    { desc: "Deposit Center Rental (Jireh)", date: "Apr 6", amount: 3686.00, remarks: "X8092" },
+                    { desc: "Deposit from Dave", date: "Apr 30", amount: 21623.84, remarks: "BBL X2208" },
+                    { desc: "Deposit from Dave", date: "Apr 30", amount: 1.53, remarks: "BBL X2208" },
+                    { desc: "Deposit from Dave", date: "Apr 30", amount: 1218.00, remarks: "BBL X2208" }
+                ],
+                outflow: [
+                    { desc: "Transfer to Dave", date: "Apr 2", amount: 500.00, remarks: "PromptPay" },
+                    { desc: "Payment Ratana", date: "Apr 6", amount: 6092.00, remarks: "BBL X2927" },
+                    { desc: "Paid KBank Card", date: "Apr 30", amount: 21623.84, remarks: "Ref X5026" }
+                ],
+                ofNotes: {
+                    title: "OF April Received: 8,840 THB",
+                    items: [
+                        "3,686 THB - Center rentals",
+                        "4,027 THB - Car payment",
+                        "1,127 THB - Borrow payback to Choc",
+                        "Remaining Borrow Balance as of 01-05-26: 322 THB"
+                    ]
+                }
+            },
+            {
+                id: "may-2026",
+                name: "May 2026",
+                openingBalance: 51223.94,
+                inflow: [
+                    { desc: "Deposit from Jireh", date: "May 6", amount: 1218.00, remarks: "SCB X0370" },
+                    { desc: "Deposit Center Rental (Jireh)", date: "May 6", amount: 3668.00, remarks: "X8092" },
+                    { desc: "Deposit from Dave", date: "May 29", amount: 17389.94, remarks: "BBL X2208" },
+                    { desc: "Deposit from Dave", date: "May 29", amount: 1990.00, remarks: "BBL X2208" },
+                    { desc: "Deposit from Dave", date: "May 29", amount: 1.53, remarks: "BBL X2208" },
+                    { desc: "Deposit from Dave", date: "May 29", amount: 1713.00, remarks: "BBL X2208" }
+                ],
+                outflow: [
+                    { desc: "Payment Ratana", date: "May 6", amount: 6104.00, remarks: "BBL X2927" },
+                    { desc: "Paid KBank Card", date: "May 29", amount: 17389.94, remarks: "Ref X5026" },
+                    { desc: "Paid KBank Card", date: "May 29", amount: 1990.00, remarks: "Ref X5026" }
+                ],
+                ofNotes: {
+                    title: "OF Batch Pool Received in June: 17,430 THB",
+                    items: [
+                        "8,670 + 8,760 = 17,430 THB Pool (Apr-May OF)",
+                        "May 2026 Car Pay: 4,027 THB",
+                        "May 2026 Center Rent: 3,686 THB"
+                    ]
+                }
+            },
+            {
+                id: "jun-2026",
+                name: "Jun 2026",
+                openingBalance: 51720.47,
+                inflow: [
+                    { desc: "Deposit Center Rental (Jireh)", date: "Jun 5", amount: 3580.00, remarks: "X8092" },
+                    { desc: "Deposit from Jireh", date: "Jun 5", amount: 1713.00, remarks: "SCB X0370" },
+                    { desc: "Deposit Fee Adjustment", date: "Jun 5", amount: 229.00, remarks: "SCB X0370" },
+                    { desc: "OF Forwarded Deposit to Dave", date: "Jun 10", amount: 1610.00, remarks: "From X8092" },
+                    { desc: "Interest Deposit", date: "Jun 19", amount: 62.88, remarks: "Automatic" },
+                    { desc: "Deposit from Dave", date: "Jun 30", amount: 7000.00, remarks: "BBL X2208" }
+                ],
+                outflow: [
+                    { desc: "Annual Debit Card Fee", date: "Jun 3", amount: 229.00, remarks: "ATM" },
+                    { desc: "Payment Ratana", date: "Jun 5", amount: 7006.00, remarks: "BBL X2927" },
+                    { desc: "Withholding Tax Payable", date: "Jun 19", amount: 9.43, remarks: "" },
+                    { desc: "Paid KBank Card", date: "Jun 30", amount: 6641.30, remarks: "Ref X5026" }
+                ],
+                ofNotes: {
+                    title: "OF Batch Settled June 10",
+                    items: [
+                        "Received Pool: 17,430 THB",
+                        "322 THB - Final Payback to Choc (RB Settled)",
+                        "4,027 THB - Car Pay (May)",
+                        "3,686 THB - Center Rent (May)",
+                        "4,027 THB - Car Pay (Jun)",
+                        "3,668 THB - Center Rent (Jun)",
+                        "Total Paid: 15,730 THB",
+                        "Forwarded Balance to Dave: 1,610 THB"
+                    ]
+                }
+            },
+            {
+                id: "jul-2026",
+                name: "Jul 2026",
+                openingBalance: 52029.62,
+                inflow: [
+                    { desc: "Deposit from Dave", date: "Jul 1", amount: 1920.00, remarks: "BBL X2208" },
+                    { desc: "Deposit Center Rental", date: "Jul 6", amount: 3252.00, remarks: "X8092" },
+                    { desc: "Deposit from Jireh", date: "Jul 6", amount: 1920.00, remarks: "SCB X0370" },
+                    { desc: "Deposit Center Rental", date: "Jul 6", amount: 400.00, remarks: "X8092" },
+                    { desc: "OF Forwarded Deposit to Dave", date: "Jul 17", amount: 1161.00, remarks: "BBL X8437" },
+                    { desc: "Deposit from Dave", date: "Jul 31", amount: 19312.73, remarks: "BBL X2208" },
+                    { desc: "Deposit from Dave", date: "Jul 31", amount: 1990.00, remarks: "BBL X2208" }
+                ],
+                outflow: [
+                    { desc: "Payment Ratana", date: "Jul 6", amount: 7092.00, remarks: "BBL X2927" },
+                    { desc: "Payment Ratana", date: "Jul 7", amount: 400.00, remarks: "BBL X2927" },
+                    { desc: "Paid KBank Card", date: "Jul 31", amount: 19312.73, remarks: "Ref X5026" },
+                    { desc: "Paid KBank Card", date: "Jul 31", amount: 1990.00, remarks: "Ref X5026" }
+                ],
+                ofNotes: {
+                    title: "OF Received (June OF): 8,840 THB",
+                    items: [
+                        "3,252 THB - Center rentals (July)",
+                        "400 THB - Center rentals (July)",
+                        "4,027 THB - Car pay (July)",
+                        "Total Expenses: 7,679 THB",
+                        "Forwarded Balance to Dave (17-07-26): 1,161 THB"
+                    ]
+                }
+            },
+            {
+                id: "aug-2026",
+                name: "Aug 2026",
+                openingBalance: 53190.62,
+                inflow: [
+                    { desc: "Transfer Deposit", date: "Aug 1", amount: 1848.00, remarks: "K PLUS" },
+                    { desc: "Transfer Deposit", date: "Aug 6", amount: 3634.00, remarks: "K PLUS" },
+                    { desc: "Transfer Deposit", date: "Aug 6", amount: 1848.00, remarks: "K PLUS" },
+                    { desc: "OF Forwarded Deposit", date: "Aug 27", amount: 1009.00, remarks: "K PLUS (July OF Net)" }
+                ],
+                outflow: [
+                    { desc: "Transfer Withdrawal", date: "Aug 7", amount: 7330.00, remarks: "K PLUS" },
+                    { desc: "Transfer Withdrawal", date: "Aug 11", amount: 1316.99, remarks: "K PLUS" },
+                    { desc: "Credit Card Payment", date: "Aug 25", amount: 1518.42, remarks: "K PLUS" }
+                ],
+                ofNotes: {
+                    title: "OF Received (July OF): 8,670 THB",
+                    items: [
+                        "3,634 THB - Center Rentals (Aug 2026)",
+                        "4,027 THB - Car Pay (August 2026)",
+                        "Total Expenses: 7,661 THB",
+                        "Forwarded Balance to Dave (27-08-26): 1,009 THB"
+                    ]
+                }
+            }
+        ];
+
+        let activeIndex = budgetData.length - 1; // Default to latest month (Aug 2026)
+        let doughnutChartInstance = null;
+
+        function initApp() {
+            renderMonthTabs();
+            renderActiveMonth();
+        }
+
+        function renderMonthTabs() {
+            const container = document.getElementById('monthTabs');
+            container.innerHTML = '';
+            
+            budgetData.forEach((item, index) => {
+                const btn = document.createElement('button');
+                btn.className = `px-3.5 py-1.5 rounded-lg text-xs font-semibold whitespace-nowrap transition-all ${
+                    index === activeIndex 
+                    ? 'bg-slate-900 text-white shadow-sm' 
+                    : 'bg-white text-slate-600 hover:bg-slate-200 border border-slate-200'
+                }`;
+                btn.innerText = item.name;
+                btn.onclick = () => {
+                    activeIndex = index;
+                    renderMonthTabs();
+                    renderActiveMonth();
+                };
+                container.appendChild(btn);
+            });
+        }
+
+        function formatMoney(num) {
+            return 'THB ' + num.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+        }
+
+        function renderActiveMonth() {
+            const data = budgetData[activeIndex];
+
+            // Update stats
+            document.getElementById('statActiveMonth').innerText = data.name;
+
+            // Money In Table Rendering
+            const tbodyIn = document.getElementById('tbodyMoneyIn');
+            tbodyIn.innerHTML = '';
+            
+            let totalIncomeSum = data.openingBalance;
+
+            // Row 1: Remaining Balance (Last Month)
+            const rowOpening = document.createElement('tr');
+            rowOpening.innerHTML = `
+                <td class="font-bold text-slate-800">Remaining Balance (Last Month)</td>
+                <td></td>
+                <td class="text-right font-bold text-slate-900">${formatMoney(data.openingBalance)}</td>
+                <td class="text-slate-500">Rollover Balance</td>
+            `;
+            tbodyIn.appendChild(rowOpening);
+
+            // Item Inflows
+            data.inflow.forEach(item => {
+                totalIncomeSum += item.amount;
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td class="text-slate-700 font-medium">${item.desc}</td>
+                    <td class="text-slate-500">${item.date}</td>
+                    <td class="text-right font-semibold text-slate-800">${formatMoney(item.amount)}</td>
+                    <td class="text-slate-500">${item.remarks}</td>
+                `;
+                tbodyIn.appendChild(tr);
+            });
+
+            document.getElementById('totalIncomeCell').innerText = formatMoney(totalIncomeSum);
+            document.getElementById('statTotalIncome').innerText = formatMoney(totalIncomeSum);
+
+            // Money Out Table Rendering
+            const tbodyOut = document.getElementById('tbodyMoneyOut');
+            tbodyOut.innerHTML = '';
+            
+            let totalExpensesSum = 0;
+
+            if (data.outflow.length === 0) {
+                const trEmpty = document.createElement('tr');
+                trEmpty.innerHTML = `<td colspan="4" class="text-center text-slate-400 py-4 italic">No expenses recorded for this month.</td>`;
+                tbodyOut.appendChild(trEmpty);
+            } else {
+                data.outflow.forEach(item => {
+                    totalExpensesSum += item.amount;
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td class="text-slate-700 font-medium">${item.desc}</td>
+                        <td class="text-slate-500">${item.date}</td>
+                        <td class="text-right font-semibold text-slate-800">${formatMoney(item.amount)}</td>
+                        <td class="text-slate-500">${item.remarks}</td>
+                    `;
+                    tbodyOut.appendChild(tr);
+                });
+            }
+
+            document.getElementById('totalExpensesCell').innerText = formatMoney(totalExpensesSum);
+            document.getElementById('statTotalExpenses').innerText = formatMoney(totalExpensesSum);
+
+            // Remaining Balance Calculation
+            const remainingBalance = totalIncomeSum - totalExpensesSum;
+            document.getElementById('netBalanceCell').innerText = formatMoney(remainingBalance);
+            document.getElementById('statRolloverBalance').innerText = formatMoney(remainingBalance);
+            
+            if(remainingBalance < 0) {
+                document.getElementById('netBalanceCell').className = "text-right font-bold text-lg text-rose-600";
+            } else {
+                document.getElementById('netBalanceCell').className = "text-right font-bold text-lg text-emerald-600";
+            }
+
+            // Render OF Notes Widget
+            const ofWidget = document.getElementById('ofLedgerContent');
+            if (data.ofNotes) {
+                let html = `<p class="font-bold text-slate-800 mb-2">${data.ofNotes.title}</p><ul class="list-disc pl-4 space-y-1">`;
+                data.ofNotes.items.forEach(it => {
+                    html += `<li>${it}</li>`;
+                });
+                html += `</ul>`;
+                ofWidget.innerHTML = html;
+            } else {
+                ofWidget.innerHTML = `<span class="text-slate-400 italic">No specific internal OF ledger notes for this month.</span>`;
+            }
+
+            // Render Doughnut Chart
+            renderChart(totalIncomeSum, totalExpensesSum);
+        }
+
+        function renderChart(income, expenses) {
+            const ctx = document.getElementById('monthDoughnutChart').getContext('2d');
+            
+            if (doughnutChartInstance) {
+                doughnutChartInstance.destroy();
+            }
+
+            doughnutChartInstance = new Chart(ctx, {
+                type: 'doughnut',
+                data: {
+                    labels: ['Total Income', 'Total Expenses'],
+                    datasets: [{
+                        data: [income, expenses],
+                        backgroundColor: ['#007aff', '#ff3b30'],
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            position: 'bottom',
+                            labels: {
+                                font: { family: 'Inter', size: 12 },
+                                usePointStyle: true
+                            }
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return ' ' + context.label + ': THB ' + context.raw.toLocaleString();
+                                }
+                            }
+                        }
+                    },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        function exportCurrentMonthCSV() {
+            const data = budgetData[activeIndex];
+            let csv = `Operation Funds - ${data.name}\n\n`;
+            csv += `Money In,Date,Amount,Remarks\n`;
+            csv += `"Remaining Balance (Last Month)",,"${data.openingBalance}","Rollover Balance"\n`;
+            
+            data.inflow.forEach(item => {
+                csv += `"${item.desc}","${item.date}","${item.amount}","${item.remarks}"\n`;
+            });
+            
+            let totalIncome = data.openingBalance + data.inflow.reduce((sum, i) => sum + i.amount, 0);
+            csv += `Total income,,"${totalIncome}",\n\n`;
+
+            csv += `Money Out,Date,Amount,Remarks\n`;
+            data.outflow.forEach(item => {
+                csv += `"${item.desc}","${item.date}","${item.amount}","${item.remarks}"\n`;
+            });
+
+            let totalExpenses = data.outflow.reduce((sum, i) => sum + i.amount, 0);
+            csv += `Total expenses,,"${totalExpenses}",\n\n`;
+
+            csv += `Remaining Balance,Amount\n`;
+            csv += `"Income minus expenses","${totalIncome - totalExpenses}"\n`;
+
+            downloadCSVFile(csv, `Operation_Funds_${data.name.replace(' ', '_')}.csv`);
+            showToast("Downloaded CSV for " + data.name);
+        }
+
+        function exportAllMonthsCSV() {
+            let csv = `Year-Month,Opening Balance (THB),Total Inflow (THB),Total Outflow (THB),Net Rollover Balance (THB)\n`;
+            
+            budgetData.forEach(data => {
+                let totalIn = data.openingBalance + data.inflow.reduce((sum, i) => sum + i.amount, 0);
+                let totalOut = data.outflow.reduce((sum, i) => sum + i.amount, 0);
+                let net = totalIn - totalOut;
+                csv += `"${data.name}","${data.openingBalance}","${totalIn}","${totalOut}","${net}"\n`;
+            });
+
+            downloadCSVFile(csv, `Operation_Funds_All_Months_Summary.csv`);
+            showToast("Downloaded Master Monthly Ledger CSV!");
+        }
+
+        function downloadCSVFile(csvContent, filename) {
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            const url = URL.createObjectURL(blob);
+            link.setAttribute("href", url);
+            link.setAttribute("download", filename);
+            link.style.visibility = 'hidden';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
+
+        function copyTableToClipboard() {
+            const data = budgetData[activeIndex];
+            let text = `Operation Funds - ${data.name}\n\n`;
+            text += `MONEY IN\tDATE\tAMOUNT\tREMARKS\n`;
+            text += `Remaining Balance (Last Month)\t\t${data.openingBalance}\tRollover Balance\n`;
+            data.inflow.forEach(i => {
+                text += `${i.desc}\t${i.date}\t${i.amount}\t${i.remarks}\n`;
+            });
+            text += `\nMONEY OUT\tDATE\tAMOUNT\tREMARKS\n`;
+            data.outflow.forEach(i => {
+                text += `${i.desc}\t${i.date}\t${i.amount}\t${i.remarks}\n`;
+            });
+            
+            const dummy = document.createElement("textarea");
+            document.body.appendChild(dummy);
+            dummy.value = text;
+            dummy.select();
+            document.execCommand("copy");
+            document.body.removeChild(dummy);
+
+            showToast("Copied table formatted for Google Sheets paste!");
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toastMessage');
+            document.getElementById('toastText').innerText = msg;
+            toast.classList.remove('hidden');
+            setTimeout(() => {
+                toast.classList.add('hidden');
+            }, 3000);
+        }
+
+        // Initialize App on Window Load
+        window.onload = function() {
+            initApp();
+        };
+    </script>
+</body>
+</html>

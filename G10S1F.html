@@ -1,0 +1,1102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Geography & Population Reviewer</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        brand: {
+                            50: '#f0f7ff',
+                            100: '#e0effe',
+                            500: '#2563eb',
+                            600: '#1d4ed8',
+                            700: '#1e40af',
+                            900: '#1e3a8a',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Chart.js CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome Icons CDN -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        .tab-active {
+            border-bottom: 3px solid #2563eb;
+            color: #2563eb;
+            font-weight: 600;
+        }
+        .dark .tab-active {
+            border-bottom: 3px solid #60a5fa;
+            color: #60a5fa;
+        }
+        .perspective {
+            perspective: 1000px;
+        }
+        .flashcard-inner {
+            transition: transform 0.6s;
+            transform-style: preserve-3d;
+        }
+        .flashcard.flipped .flashcard-inner {
+            transform: rotateY(180deg);
+        }
+        .flashcard-front, .flashcard-back {
+            backface-visibility: hidden;
+        }
+        .flashcard-back {
+            transform: rotateY(180deg);
+        }
+        @media print {
+            .no-print { display: none !important; }
+            body { background: white; color: black; }
+            .print-break { page-break-before: always; }
+            .shadow-lg, .shadow-md, .shadow-sm { box-shadow: none !important; }
+        }
+    </style>
+</head>
+<body class="bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-100 min-h-screen transition-colors duration-200">
+
+    <!-- Top Navigation Header -->
+    <header class="bg-white dark:bg-slate-800 border-b border-slate-200 dark:border-slate-700 sticky top-0 z-50 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <div class="flex items-center gap-3">
+                    <div class="p-2 bg-brand-500 text-white rounded-lg">
+                        <i class="fa-solid fa-earth-americas text-xl"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-bold text-lg leading-tight text-slate-900 dark:text-white">Geography & Population Reviewer</h1>
+                        <p class="text-xs text-slate-500 dark:text-slate-400">Master Notes, Interactive Charts & Study Guide</p>
+                    </div>
+                </div>
+
+                <!-- Controls -->
+                <div class="flex items-center gap-3">
+                    <button id="themeToggle" class="p-2 text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-white rounded-lg hover:bg-slate-100 dark:hover:bg-slate-700">
+                        <i class="fa-solid fa-moon dark:hidden"></i>
+                        <i class="fa-solid fa-sun hidden dark:inline"></i>
+                    </button>
+                    <button onclick="window.print()" class="hidden sm:flex items-center gap-2 px-3 py-1.5 text-sm bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 rounded-md font-medium text-slate-700 dark:text-slate-200">
+                        <i class="fa-solid fa-print"></i> Print Notes
+                    </button>
+                </div>
+            </div>
+            
+            <!-- Navigation Tabs -->
+            <div class="flex space-x-6 border-t border-slate-100 dark:border-slate-700/50 overflow-x-auto no-scrollbar">
+                <button onclick="switchTab('notes')" id="tab-notes" class="tab-btn py-3 px-1 text-sm font-medium tab-active whitespace-nowrap">
+                    <i class="fa-solid fa-book-open mr-1.5"></i> Comprehensive Notes & Visuals
+                </button>
+                <button onclick="switchTab('flashcards')" id="tab-flashcards" class="tab-btn py-3 px-1 text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 whitespace-nowrap">
+                    <i class="fa-solid fa-clone mr-1.5"></i> Flashcards Mode
+                </button>
+                <button onclick="switchTab('quiz')" id="tab-quiz" class="tab-btn py-3 px-1 text-sm font-medium text-slate-500 hover:text-slate-700 dark:text-slate-400 dark:hover:text-slate-200 whitespace-nowrap">
+                    <i class="fa-solid fa-circle-question mr-1.5"></i> Practice Quiz
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+
+        <!-- ================= NOTES TAB ================= -->
+        <div id="view-notes" class="tab-view space-y-8">
+            
+            <!-- Search & Filter Bar -->
+            <div class="bg-white dark:bg-slate-800 p-4 rounded-xl shadow-sm border border-slate-200 dark:border-slate-700 flex flex-col sm:flex-row gap-4 items-center justify-between no-print">
+                <div class="relative w-full sm:w-96">
+                    <i class="fa-solid fa-magnifying-glass absolute left-3 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                    <input type="text" id="searchInput" onkeyup="filterNotes()" placeholder="Search terms, policies, stats..." class="w-full pl-9 pr-4 py-2 bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-brand-500">
+                </div>
+                <div class="flex items-center gap-2 text-xs text-slate-500 dark:text-slate-400 w-full sm:w-auto justify-end">
+                    <span>Jump to:</span>
+                    <select onchange="scrollToSection(this.value)" class="bg-slate-50 dark:bg-slate-900 border border-slate-300 dark:border-slate-600 rounded-lg py-1.5 px-2 text-xs focus:outline-none focus:ring-2 focus:ring-brand-500">
+                        <option value="section-1">1. Population Concepts & Growth Graph</option>
+                        <option value="section-2">2. DTM Chart & Ageing Model</option>
+                        <option value="section-3">3. Youthful Structure & Hungary TFR Chart</option>
+                        <option value="section-4">4. Push/Pull & Migration Management</option>
+                        <option value="section-5">5. Mexico to USA Remittances Graph</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- SECTION 1: POPULATION CONCEPTS & TRENDS -->
+            <section id="section-1" class="note-card bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <span class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-brand-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">1</span>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Key Population Concepts & Global Trends</h2>
+                </div>
+
+                <div class="grid md:grid-cols-2 gap-6">
+                    <div>
+                        <h3 class="text-base font-semibold text-brand-600 dark:text-blue-400 mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-book"></i> Demography Definitions
+                        </h3>
+                        <ul class="space-y-2 text-sm">
+                            <li class="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                <strong class="text-slate-900 dark:text-white">Demographers:</strong> Experts who study human populations and how they change over time.
+                            </li>
+                            <li class="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                <strong class="text-slate-900 dark:text-white">Crude Birth Rate (CBR):</strong> Number of live births per 1,000 people per year.
+                            </li>
+                            <li class="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                <strong class="text-slate-900 dark:text-white">Crude Death Rate (CDR):</strong> Number of deaths per 1,000 people per year.
+                            </li>
+                            <li class="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                <strong class="text-slate-900 dark:text-white">Total Fertility Rate (TFR):</strong> Average number of children a woman has during her lifetime.
+                            </li>
+                            <li class="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                <strong class="text-slate-900 dark:text-white">Natural Increase:</strong> Calculated by subtracting CDR from CBR (<code class="bg-slate-200 dark:bg-slate-700 px-1 py-0.5 rounded text-xs">CBR - CDR</code>).
+                            </li>
+                            <li class="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                <strong class="text-slate-900 dark:text-white">Net Migration:</strong> Difference between immigration (inflow) and emigration (outflow).
+                            </li>
+                            <li class="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                <strong class="text-slate-900 dark:text-white">Population Momentum:</strong> Continued growth despite falling birth rates due to a large percentage of youth entering child-bearing years.
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div class="space-y-6">
+                        <div>
+                            <h3 class="text-base font-semibold text-brand-600 dark:text-blue-400 mb-3 flex items-center gap-2">
+                                <i class="fa-solid fa-chart-line"></i> Global Trends & Drivers
+                            </h3>
+                            <div class="space-y-2 text-sm">
+                                <p class="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                    <strong class="text-slate-900 dark:text-white">Milestones:</strong> Reached 8 billion in Nov 2022 (up from 6 billion in 1999). Projected to reach 9.8 billion around 2050.
+                                </p>
+                                <p class="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                    <strong class="text-slate-900 dark:text-white">Disparities:</strong> Almost all future growth will occur in LICs / Less Developed Countries. High-Income Countries (HICs) face flat or declining populations.
+                                </p>
+                                <p class="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                    <strong class="text-slate-900 dark:text-white">Falling Birth Rates:</strong> Women's rights/education, lower infant mortality, widespread contraception access, high child-rearing costs in HICs.
+                                </p>
+                                <p class="bg-slate-50 dark:bg-slate-900/50 p-2.5 rounded-lg border border-slate-100 dark:border-slate-800">
+                                    <strong class="text-slate-900 dark:text-white">Falling Death Rates:</strong> Medical advancements, better healthcare access, disease treatments, improved sanitation and clean water.
+                                </p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- GRAPH 1: World Population Trajectory -->
+                <div class="mt-8 p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                    <div class="flex items-center justify-between mb-2">
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                            <i class="fa-solid fa-chart-area text-brand-500"></i> World Population Growth & Projections (1800 - 2050)
+                        </h3>
+                        <span class="text-xs bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 font-semibold px-2 py-0.5 rounded">Interactive Graph</span>
+                    </div>
+                    <div class="h-64 relative w-full">
+                        <canvas id="worldPopulationChart"></canvas>
+                    </div>
+                </div>
+
+                <!-- Case Studies Comparison Table -->
+                <div class="mt-8">
+                    <h3 class="text-base font-semibold text-slate-900 dark:text-white mb-3">Case Studies: National Population Policies</h3>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-sm text-left border-collapse border border-slate-200 dark:border-slate-700">
+                            <thead class="bg-slate-100 dark:bg-slate-700/50 text-slate-900 dark:text-white">
+                                <tr>
+                                    <th class="p-3 border border-slate-200 dark:border-slate-700">Policy Type</th>
+                                    <th class="p-3 border border-slate-200 dark:border-slate-700">Country</th>
+                                    <th class="p-3 border border-slate-200 dark:border-slate-700">Key Measures & Investments</th>
+                                    <th class="p-3 border border-slate-200 dark:border-slate-700">Outcome & Evaluation</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                                    <td class="p-3 font-semibold text-emerald-600 dark:text-emerald-400">Pro-Natalist<br><span class="text-xs font-normal text-slate-500">(Encourage Births)</span></td>
+                                    <td class="p-3 font-medium">South Korea</td>
+                                    <td class="p-3">• Subsidized housing & childcare allowances<br>• Compulsory paternity leave<br>• Corporate bonuses up to $75,000 per baby</td>
+                                    <td class="p-3"><span class="text-red-500 font-medium">Unsuccessful:</span> Spent over $270B (2006–2023), but TFR dropped from 1.1 to 0.72. Undermined by career pressures and extreme education/housing costs.</td>
+                                </tr>
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-900/30">
+                                    <td class="p-3 font-semibold text-amber-600 dark:text-amber-400">Anti-Natalist<br><span class="text-xs font-normal text-slate-500">(Slow Growth)</span></td>
+                                    <td class="p-3 font-medium">Nigeria</td>
+                                    <td class="p-3">• Voluntary policy introduced in 1988<br>• Minimum marriage age raised to 18<br>• Contraception & education expansion</td>
+                                    <td class="p-3"><span class="text-amber-600 font-medium">Limited Success:</span> TFR fell slightly from 6.23 (1988) to 5.24 (2021). Hindered by religious/cultural norms, rural access limits, and underfunding.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 2: DEMOGRAPHIC TRANSITION MODEL & AGEING -->
+            <section id="section-2" class="note-card bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <span class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-brand-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">2</span>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Demographic Transition Model (DTM) & Ageing Populations</h2>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- DTM Stages Grid -->
+                    <h3 class="text-base font-semibold text-brand-600 dark:text-blue-400">The 5 Stages of DTM</h3>
+                    <div class="grid sm:grid-cols-2 lg:grid-cols-5 gap-3 text-xs">
+                        <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <span class="font-bold text-slate-900 dark:text-white block text-sm">Stage 1</span>
+                            <span class="text-slate-500 dark:text-slate-400 block mb-2">High Stationary</span>
+                            <p>High birth & high death rates. Very low or zero population growth. Reliance on agricultural labor, high infant mortality.</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <span class="font-bold text-slate-900 dark:text-white block text-sm">Stage 2</span>
+                            <span class="text-brand-600 dark:text-blue-400 block mb-2">Early Expanding</span>
+                            <p>High birth rate continues; death rate drops rapidly due to healthcare & sanitation. Rapid population growth.</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <span class="font-bold text-slate-900 dark:text-white block text-sm">Stage 3</span>
+                            <span class="text-brand-600 dark:text-blue-400 block mb-2">Late Expanding</span>
+                            <p>Birth rate drops rapidly (female education/contraception); death rate remains low. Population growth slows.</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <span class="font-bold text-slate-900 dark:text-white block text-sm">Stage 4</span>
+                            <span class="text-slate-500 dark:text-slate-400 block mb-2">Low Stationary</span>
+                            <p>Low birth & low death rates. Stable, post-industrial population supported by high female employment.</p>
+                        </div>
+                        <div class="p-3 bg-slate-50 dark:bg-slate-900/60 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <span class="font-bold text-slate-900 dark:text-white block text-sm">Stage 5</span>
+                            <span class="text-red-500 block mb-2">Declining</span>
+                            <p>TFR drops below replacement rate (&lt;2.1). Population ages and slowly contracts (e.g., Japan, Germany).</p>
+                        </div>
+                    </div>
+
+                    <!-- GRAPH 2: Interactive DTM Curves -->
+                    <div class="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                <i class="fa-solid fa-chart-line text-brand-500"></i> DTM Interactive Model Curves (CBR, CDR & Total Population)
+                            </h3>
+                            <span class="text-xs bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 font-semibold px-2 py-0.5 rounded">Interactive Graph</span>
+                        </div>
+                        <div class="h-64 relative w-full">
+                            <canvas id="dtmChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Evaluation & Pyramids -->
+                    <div class="grid md:grid-cols-2 gap-6 text-sm">
+                        <div class="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <h4 class="font-bold text-slate-900 dark:text-white mb-2"><i class="fa-solid fa-scale-unbalanced text-brand-500"></i> DTM Strengths & Weaknesses</h4>
+                            <p class="mb-2"><strong>Strengths:</strong> Accurately models historical European demographic development and provides a global baseline.</p>
+                            <p><strong>Weaknesses:</strong> Eurocentric; ignores migration impacts (e.g., Germany's growth via immigration); ignores sudden global shocks (pandemics/war); doesn't fit rapid drops in developing nations.</p>
+                        </div>
+
+                        <div class="bg-slate-50 dark:bg-slate-900/40 p-4 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <h4 class="font-bold text-slate-900 dark:text-white mb-2"><i class="fa-solid fa-users-viewfinder text-brand-500"></i> Population Pyramids & Cohorts</h4>
+                            <ul class="space-y-1">
+                                <li>• <strong>Young Dependents:</strong> Ages 0–14</li>
+                                <li>• <strong>Economically Active:</strong> Ages 15–64</li>
+                                <li>• <strong>Elderly Dependents:</strong> Ages 65+</li>
+                                <li class="pt-1 text-xs text-slate-600 dark:text-slate-400">• <strong>Wide Base (LIC):</strong> High birth rate, high youth dependency ratio (e.g. Somalia).</li>
+                                <li class="text-xs text-slate-600 dark:text-slate-400">• <strong>Narrow Base / Column (HIC):</strong> Aging population, low birth rate (e.g. UK).</li>
+                                <li class="text-xs text-slate-600 dark:text-slate-400">• <strong>Bulges & Indentations:</strong> Inward indentations show wars/epidemics; outward bulges show migration inflows or baby booms.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- GRAPH 2B: Population Pyramids Comparison (Expanded vs Contracted) -->
+                    <div class="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <h3 class="text-sm font-bold text-slate-900 dark:text-white mb-3 flex items-center gap-2">
+                            <i class="fa-solid fa-chart-bar text-brand-500"></i> Visual Comparison: Developing (Stage 2) vs Ageing (Stage 5) Population Pyramid Profiles
+                        </h3>
+                        <div class="grid md:grid-cols-2 gap-4">
+                            <div>
+                                <h4 class="text-xs font-semibold text-center text-slate-600 dark:text-slate-300 mb-1">Expanding Population (LIC / Stage 2)</h4>
+                                <div class="h-48 relative">
+                                    <canvas id="pyramidExpandingChart"></canvas>
+                                </div>
+                            </div>
+                            <div>
+                                <h4 class="text-xs font-semibold text-center text-slate-600 dark:text-slate-300 mb-1">Contracting / Ageing Population (HIC / Stage 5)</h4>
+                                <div class="h-48 relative">
+                                    <canvas id="pyramidContractingChart"></canvas>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ageing Impacts Table -->
+                    <div>
+                        <h3 class="text-base font-semibold text-slate-900 dark:text-white mb-3">Impacts of an Ageing Population</h3>
+                        <div class="grid sm:grid-cols-2 gap-4 text-sm">
+                            <div class="p-4 bg-emerald-50/50 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 rounded-lg">
+                                <h4 class="font-bold text-emerald-700 dark:text-emerald-400 mb-2"><i class="fa-solid fa-thumbs-up"></i> Positive Impacts</h4>
+                                <ul class="space-y-1.5 text-slate-700 dark:text-slate-300">
+                                    <li>• Experienced older adults remain in workforce longer & volunteer.</li>
+                                    <li>• Provide vital informal childcare for working parents.</li>
+                                    <li>• Boost leisure, silver tourism, and accessible urban sectors.</li>
+                                    <li>• Lower overall resource consumption reduces environmental strain.</li>
+                                </ul>
+                            </div>
+
+                            <div class="p-4 bg-rose-50/50 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800/40 rounded-lg">
+                                <h4 class="font-bold text-rose-700 dark:text-rose-400 mb-2"><i class="fa-solid fa-thumbs-down"></i> Negative Impacts</h4>
+                                <ul class="space-y-1.5 text-slate-700 dark:text-slate-300">
+                                    <li>• Massive pension & healthcare costs (e.g., Japan spends 40% of public budget on elderly).</li>
+                                    <li>• Shrinking active labor force hampers economic output.</li>
+                                    <li>• Higher tax burden placed on a smaller working-age population.</li>
+                                    <li>• Extreme heatwaves/floods heavily impact vulnerable elderly populations.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 3: YOUTHFUL STRUCTURE & HUNGARY CASE STUDY -->
+            <section id="section-3" class="note-card bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <span class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-brand-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">3</span>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Youthful Population & Case Study: Hungary</h2>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Youthful Population Summary -->
+                    <div class="bg-slate-50 dark:bg-slate-900/50 p-4 rounded-lg border border-slate-200 dark:border-slate-700 text-sm">
+                        <h3 class="font-bold text-brand-600 dark:text-blue-400 mb-2 text-base">Youthful Population Structures</h3>
+                        <p class="mb-3">Prevalent in LICs with high birth rates and high youth populations (&lt;15 years old).</p>
+                        <div class="grid sm:grid-cols-2 gap-4">
+                            <div>
+                                <strong class="text-emerald-600 dark:text-emerald-400 block mb-1">Benefits:</strong>
+                                <p class="text-xs">Large cheap future labor pool attracting investments, expanding domestic consumer markets, and providing a long-term tax base.</p>
+                            </div>
+                            <div>
+                                <strong class="text-rose-600 dark:text-rose-400 block mb-1">Challenges:</strong>
+                                <p class="text-xs">High youth dependency ratio strains healthcare and schools. Risk of food/water shortages, deforestation for fuelwood, and desertification.</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Hungary Deep Dive -->
+                    <div>
+                        <h3 class="text-base font-semibold text-slate-900 dark:text-white mb-3">Deep Dive: Hungary's Pro-Natalist Strategy</h3>
+                        <div class="space-y-3 text-sm">
+                            <div class="p-3 bg-slate-50 dark:bg-slate-900/30 rounded-lg border border-slate-100 dark:border-slate-800">
+                                <strong class="text-brand-600 dark:text-blue-400">Drivers of Decline:</strong> Post-communist economic shift delayed marriage; female higher education reached 36% (2020); 2004 EU entry triggered outward migration to Western Europe. TFR hit a record low of <span class="font-bold text-red-500">1.23 in 2011</span>.
+                            </div>
+
+                            <div class="p-4 bg-blue-50/50 dark:bg-slate-900 rounded-lg border border-blue-100 dark:border-slate-700">
+                                <strong class="text-slate-900 dark:text-white block mb-2">Government Incentive Package (~5% of GDP):</strong>
+                                <ul class="grid sm:grid-cols-2 gap-2 text-xs">
+                                    <li class="bg-white dark:bg-slate-800 p-2 rounded shadow-xs">• <strong>CSOK Housing Subsidy:</strong> $50,000–$80,000 grant for couples with 3+ kids buying new homes (avg annual salary is $11k–$15k).</li>
+                                    <li class="bg-white dark:bg-slate-800 p-2 rounded shadow-xs">• <strong>Tax Exemptions:</strong> Lifetime income tax exemption for mothers raising 4 or more children.</li>
+                                    <li class="bg-white dark:bg-slate-800 p-2 rounded shadow-xs">• <strong>Loan Forgiveness:</strong> Subsidized loans fully written off upon having a 3rd child.</li>
+                                    <li class="bg-white dark:bg-slate-800 p-2 rounded shadow-xs">• <strong>Social Supports:</strong> Free textbooks (first 9 years), free/discounted transit, and 'Women 40' pension scheme for grandmothers.</li>
+                                </ul>
+                            </div>
+
+                            <!-- GRAPH 3: Hungary TFR Trajectory -->
+                            <div class="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700 my-4">
+                                <div class="flex items-center justify-between mb-2">
+                                    <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                        <i class="fa-solid fa-chart-line text-brand-500"></i> Hungary Total Fertility Rate (TFR) vs Replacement Benchmark (2000 - 2023)
+                                    </h3>
+                                    <span class="text-xs bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 font-semibold px-2 py-0.5 rounded">Interactive Graph</span>
+                                </div>
+                                <div class="h-56 relative w-full">
+                                    <canvas id="hungaryTfrChart"></canvas>
+                                </div>
+                            </div>
+
+                            <div class="p-3 bg-amber-50 dark:bg-amber-950/20 rounded-lg border border-amber-200 dark:border-amber-800/40 text-xs">
+                                <strong class="text-amber-800 dark:text-amber-300">Critique & Evaluation:</strong> Disproportionately favors higher earners who qualify for large loans. Divorcing couples must repay loans within 120 days, trapping women in abusive marriages. Bureaucracy can force loan repayments even after traumatic pregnancy losses. While TFR rose to 1.56 (2020), long-term replacement (2.1) remains unreached.
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Migration Terminology -->
+                    <div>
+                        <h3 class="text-base font-semibold text-slate-900 dark:text-white mb-3">Key Migration Terminology</h3>
+                        <div class="grid sm:grid-cols-3 gap-3 text-xs">
+                            <div class="p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <strong>International Migration:</strong> Movement across national borders to establish permanent residence.
+                            </div>
+                            <div class="p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <strong>Emigrant vs Immigrant:</strong> Emigrant = leaving home country; Immigrant = entering target country.
+                            </div>
+                            <div class="p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <strong>Voluntary Migration:</strong> Economic migrants moving by choice for jobs, better income, or sending remittances.
+                            </div>
+                            <div class="p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <strong>Forced Migration:</strong> Unwilling relocation due to war, persecution, or environmental disaster.
+                            </div>
+                            <div class="p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <strong>Refugee vs Asylum Seeker:</strong> Refugee has legal status under international law; Asylum seeker is awaiting legal decision.
+                            </div>
+                            <div class="p-2.5 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <strong>Push vs Pull Factors:</strong> Push = negative home conditions; Pull = attractive destination qualities.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 4: PUSH/PULL & MIGRATION CONTROL -->
+            <section id="section-4" class="note-card bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <span class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-brand-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">4</span>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Push/Pull Factors & Migration Management</h2>
+                </div>
+
+                <div class="space-y-6">
+                    <!-- Push vs Pull Matrix -->
+                    <div class="grid sm:grid-cols-2 gap-4 text-sm">
+                        <div class="p-4 bg-rose-50/40 dark:bg-rose-950/20 border border-rose-200 dark:border-rose-800/40 rounded-lg">
+                            <h3 class="font-bold text-rose-700 dark:text-rose-400 mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-right-from-bracket"></i> Push Factors (Origin)
+                            </h3>
+                            <ul class="space-y-1.5 text-slate-700 dark:text-slate-300 text-xs">
+                                <li>• High unemployment or low wages</li>
+                                <li>• Lack of healthcare, schools, or basic infrastructure</li>
+                                <li>• Civil war, political instability, or human rights abuses</li>
+                                <li>• Famines, droughts, or natural disaster risks</li>
+                            </ul>
+                        </div>
+
+                        <div class="p-4 bg-emerald-50/40 dark:bg-emerald-950/20 border border-emerald-200 dark:border-emerald-800/40 rounded-lg">
+                            <h3 class="font-bold text-emerald-700 dark:text-emerald-400 mb-2 flex items-center gap-2">
+                                <i class="fa-solid fa-arrow-right-to-bracket"></i> Pull Factors (Destination)
+                            </h3>
+                            <ul class="space-y-1.5 text-slate-700 dark:text-slate-300 text-xs">
+                                <li>• Abundant job opportunities & higher wages</li>
+                                <li>• Superior public healthcare and education systems</li>
+                                <li>• Political safety, rule of law, and personal freedom</li>
+                                <li>• Lower exposure to environmental hazards & climate risks</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                    <!-- Migration Impacts on Origin & Destination -->
+                    <div class="grid sm:grid-cols-2 gap-4 text-sm">
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <h4 class="font-bold text-slate-900 dark:text-white mb-2">Destination Country Impacts</h4>
+                            <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Positives:</p>
+                            <p class="text-xs mb-2">Fills labor gaps, rejuvenates aging demographics, increases tax receipts, enriches culture.</p>
+                            <p class="text-xs text-rose-600 dark:text-rose-400 font-semibold mb-1">Negatives:</p>
+                            <p class="text-xs">Strains schools, housing & healthcare; potential social tensions if integration fails.</p>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900/40 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <h4 class="font-bold text-slate-900 dark:text-white mb-2">Origin Country Impacts</h4>
+                            <p class="text-xs text-emerald-600 dark:text-emerald-400 font-semibold mb-1">Positives:</p>
+                            <p class="text-xs mb-2">Inflow of remittances boosts local economy; returning migrants bring new skills.</p>
+                            <p class="text-xs text-rose-600 dark:text-rose-400 font-semibold mb-1">Negatives:</p>
+                            <p class="text-xs"><strong>Brain Drain</strong> (loss of doctors/engineers/youth); leaves behind an aging, dependent population.</p>
+                        </div>
+                    </div>
+
+                    <!-- International Migration Policies -->
+                    <div>
+                        <h3 class="text-base font-semibold text-slate-900 dark:text-white mb-3">Global Migration Control Strategies</h3>
+                        <div class="grid sm:grid-cols-3 gap-3 text-xs">
+                            <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <strong class="text-slate-900 dark:text-white block mb-1"><i class="fa-solid fa-shield-halved text-brand-500"></i> Deterrence Measures</strong>
+                                <p class="mb-1">• <strong>US–Mexico Border:</strong> Physical fences + virtual towers (sensors/cameras). Desert terrain makes total coverage costly.</p>
+                                <p>• <strong>UK Illegal Migration Act 2023:</strong> Detained/deported small boat arrivals (Rwanda plan ruled illegal & scrapped in 2024).</p>
+                            </div>
+
+                            <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <strong class="text-slate-900 dark:text-white block mb-1"><i class="fa-solid fa-sliders text-brand-500"></i> Points-Based Systems</strong>
+                                <p>• <strong>Singapore (COMPASS):</strong> Evaluates foreign workers across 4 criteria: Salary, Qualifications, Diversity, and Local Employment Ratio. Requires 40 points to pass.</p>
+                            </div>
+
+                            <div class="p-3 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700">
+                                <strong class="text-slate-900 dark:text-white block mb-1"><i class="fa-solid fa-plane-departure text-brand-500"></i> Promoting Emigration</strong>
+                                <p>• <strong>Pakistan:</strong> Government actively supports outward labor migration to secure high remittance income and incoming foreign exchange.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- SECTION 5: MEXICO TO USA CASE STUDY -->
+            <section id="section-5" class="note-card bg-white dark:bg-slate-800 rounded-xl p-6 shadow-sm border border-slate-200 dark:border-slate-700">
+                <div class="flex items-center gap-3 mb-6 pb-3 border-b border-slate-200 dark:border-slate-700">
+                    <span class="w-8 h-8 rounded-full bg-blue-100 dark:bg-blue-900/50 text-brand-600 dark:text-blue-400 flex items-center justify-center font-bold text-sm">5</span>
+                    <h2 class="text-xl font-bold text-slate-900 dark:text-white">Bilateral Case Study: Mexico to USA Migration</h2>
+                </div>
+
+                <div class="space-y-6">
+                    <div class="p-3 bg-blue-50 dark:bg-blue-950/30 rounded-lg border border-blue-200 dark:border-blue-800 text-xs text-slate-700 dark:text-slate-300">
+                        World's largest bilateral migration corridor. ~11 million Mexican immigrants residing in the USA in 2024. Shares a 3,139 km physical border.
+                    </div>
+
+                    <!-- Side by Side Metrics -->
+                    <div class="grid sm:grid-cols-2 gap-4 text-xs">
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
+                            <h3 class="font-bold text-sm text-slate-900 dark:text-white border-b pb-1 border-slate-200 dark:border-slate-700">Mexico (Push Factors & Stats)</h3>
+                            <p>• <strong>GNI Per Capita:</strong> $10,820 (2022)</p>
+                            <p>• <strong>Doctor Ratio:</strong> 1,800 people per doctor</p>
+                            <p>• <strong>Adult Literacy Rate:</strong> 55%</p>
+                            <p>• <strong>Push Factors:</strong> Drug cartel violence/kidnappings, high rural poverty among small farm workers, limited job market.</p>
+                        </div>
+
+                        <div class="p-4 bg-slate-50 dark:bg-slate-900/50 rounded-lg border border-slate-200 dark:border-slate-700 space-y-2">
+                            <h3 class="font-bold text-sm text-slate-900 dark:text-white border-b pb-1 border-slate-200 dark:border-slate-700">USA (Pull Factors & Stats)</h3>
+                            <p>• <strong>GNI Per Capita:</strong> $76,370 (2022)</p>
+                            <p>• <strong>Doctor Ratio:</strong> 400 people per doctor</p>
+                            <p>• <strong>Adult Literacy Rate:</strong> 99%</p>
+                            <p>• <strong>Pull Factors:</strong> Higher wages in construction, agriculture & hospitality; safety, strong infrastructure & existing family networks.</p>
+                        </div>
+                    </div>
+
+                    <!-- GRAPH 4: US-Mexico Economic Divide & Remittances Growth -->
+                    <div class="p-4 bg-slate-50 dark:bg-slate-900/60 rounded-xl border border-slate-200 dark:border-slate-700">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-sm font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                                <i class="fa-solid fa-money-bill-trend-up text-brand-500"></i> Annual Remittances Sent from USA to Mexico ($ Billions)
+                            </h3>
+                            <span class="text-xs bg-brand-100 dark:bg-brand-900/50 text-brand-700 dark:text-brand-300 font-semibold px-2 py-0.5 rounded">Interactive Graph</span>
+                        </div>
+                        <div class="h-56 relative w-full">
+                            <canvas id="remittancesChart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Impact Comparison -->
+                    <div class="grid sm:grid-cols-2 gap-4 text-xs">
+                        <div class="p-3 bg-slate-50 dark:bg-slate-900/30 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <strong class="text-slate-900 dark:text-white block mb-1">Impacts on Mexico:</strong>
+                            <p class="text-emerald-600 dark:text-emerald-400 font-semibold">• Positive:</p>
+                            <p class="mb-1">Sends home <strong>$60 billion annually</strong> in remittances (Mexico's 2nd largest income source).</p>
+                            <p class="text-rose-600 dark:text-rose-400 font-semibold">• Negative:</p>
+                            <p>Depletes rural working males; leaves an aging population and dependent families.</p>
+                        </div>
+
+                        <div class="p-3 bg-slate-50 dark:bg-slate-900/30 rounded-lg border border-slate-200 dark:border-slate-700">
+                            <strong class="text-slate-900 dark:text-white block mb-1">Impacts on the USA:</strong>
+                            <p class="text-emerald-600 dark:text-emerald-400 font-semibold">• Positive:</p>
+                            <p class="mb-1">Fills essential labor shortages in low-wage sectors; enriches culture and cuisine.</p>
+                            <p class="text-rose-600 dark:text-rose-400 font-semibold">• Negative:</p>
+                            <p>Spurs political debate on wage suppression, public service spending, and vigilante border patrols (Minutemen).</p>
+                        </div>
+                    </div>
+
+                    <!-- Policy Evolution Timeline -->
+                    <div>
+                        <h3 class="text-base font-semibold text-slate-900 dark:text-white mb-3">Historical US Policy & Border Timeline</h3>
+                        <div class="overflow-x-auto">
+                            <table class="w-full text-xs text-left border-collapse border border-slate-200 dark:border-slate-700">
+                                <thead class="bg-slate-100 dark:bg-slate-700/50 text-slate-900 dark:text-white">
+                                    <tr>
+                                        <th class="p-2 border border-slate-200 dark:border-slate-700 w-1/3">Era / Policy</th>
+                                        <th class="p-2 border border-slate-200 dark:border-slate-700">Actions & Key Outcomes</th>
+                                    </tr>
+                                </thead>
+                                <tbody class="divide-y divide-slate-200 dark:divide-slate-700">
+                                    <tr>
+                                        <td class="p-2 font-bold">1942–1964: Bracero Program</td>
+                                        <td class="p-2">Encouraged agricultural contract labor during WWII; brought over 5 million Mexican workers to the US.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 font-bold">1965 & 1986 Acts</td>
+                                        <td class="p-2">1986 IRCA granted legal status to long-term undocumented residents while introducing penalties for employers hiring unauthorized workers.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 font-bold">1990s Enforcement</td>
+                                        <td class="p-2">Stricter border penalties inadvertently increased reliance on human coyotes/smugglers and discouraged seasonal return trips.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 font-bold">2002–2016 Enforcement</td>
+                                        <td class="p-2">Constructed 850 miles of physical border walls, doubled Border Patrol agents, and executed over 1.2M deportations.</td>
+                                    </tr>
+                                    <tr>
+                                        <td class="p-2 font-bold">Post-2020 Trends</td>
+                                        <td class="p-2">Shift towards temporary legal work visas; economic shifts and stricter border checks saw rising net-zero or return migration to Mexico.</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+
+        <!-- ================= FLASHCARDS TAB ================= -->
+        <div id="view-flashcards" class="tab-view hidden space-y-6 no-print">
+            <div class="text-center max-w-xl mx-auto">
+                <h2 class="text-2xl font-bold text-slate-900 dark:text-white mb-2">Interactive Flashcards</h2>
+                <p class="text-xs text-slate-500 dark:text-slate-400">Click the card to flip between Question and Answer. Use buttons to navigate.</p>
+            </div>
+
+            <!-- Flashcard Display -->
+            <div class="max-w-md mx-auto h-64 cursor-pointer perspective" onclick="flipCard()">
+                <div id="flashcard" class="flashcard w-full h-full relative rounded-2xl shadow-lg border border-slate-200 dark:border-slate-700 bg-white dark:bg-slate-800 text-center flex items-center justify-center p-6">
+                    <div class="flashcard-inner w-full h-full flex items-center justify-center">
+                        <div class="flashcard-front absolute inset-0 p-6 flex flex-col items-center justify-center">
+                            <span class="text-xs font-semibold text-brand-500 uppercase mb-2" id="cardCategory">Category</span>
+                            <p class="text-lg font-bold text-slate-900 dark:text-white" id="cardQuestion">Question loading...</p>
+                            <span class="text-xs text-slate-400 mt-4"><i class="fa-solid fa-rotate mr-1"></i> Click to Flip</span>
+                        </div>
+                        <div class="flashcard-back absolute inset-0 p-6 flex flex-col items-center justify-center bg-brand-50 dark:bg-slate-900 rounded-2xl">
+                            <span class="text-xs font-semibold text-emerald-600 dark:text-emerald-400 uppercase mb-2">Answer</span>
+                            <p class="text-base text-slate-800 dark:text-slate-200" id="cardAnswer">Answer loading...</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Controls -->
+            <div class="flex items-center justify-center gap-4">
+                <button onclick="prevCard()" class="px-4 py-2 bg-slate-200 dark:bg-slate-700 hover:bg-slate-300 rounded-lg text-sm font-medium">
+                    <i class="fa-solid fa-chevron-left"></i> Previous
+                </button>
+                <span id="cardCounter" class="text-sm font-semibold text-slate-500">1 / 10</span>
+                <button onclick="nextCard()" class="px-4 py-2 bg-brand-500 text-white hover:bg-brand-600 rounded-lg text-sm font-medium">
+                    Next <i class="fa-solid fa-chevron-right"></i>
+                </button>
+            </div>
+        </div>
+
+
+        <!-- ================= QUIZ TAB ================= -->
+        <div id="view-quiz" class="tab-view hidden space-y-6 no-print">
+            <div class="max-w-2xl mx-auto bg-white dark:bg-slate-800 p-6 rounded-xl border border-slate-200 dark:border-slate-700 shadow-sm">
+                <div class="flex justify-between items-center mb-6 pb-4 border-b border-slate-200 dark:border-slate-700">
+                    <div>
+                        <h2 class="text-xl font-bold text-slate-900 dark:text-white">Geography Practice Quiz</h2>
+                        <p class="text-xs text-slate-500">Test your knowledge on population and migration.</p>
+                    </div>
+                    <span id="scoreDisplay" class="text-xs font-semibold px-3 py-1 bg-brand-50 text-brand-600 dark:bg-slate-700 dark:text-blue-400 rounded-full">Score: 0</span>
+                </div>
+
+                <div id="quizContainer" class="space-y-6">
+                    <!-- Quiz Questions Rendered JS -->
+                </div>
+
+                <button onclick="resetQuiz()" class="mt-6 w-full py-2.5 bg-slate-100 dark:bg-slate-700 hover:bg-slate-200 dark:hover:bg-slate-600 text-slate-800 dark:text-slate-200 text-sm font-semibold rounded-lg transition-colors">
+                    <i class="fa-solid fa-arrows-rotate mr-2"></i> Reset Quiz
+                </button>
+            </div>
+        </div>
+
+    </main>
+
+    <!-- JS Logic & Charting Initialization -->
+    <script>
+        // Theme Toggle Logic
+        const themeToggle = document.getElementById('themeToggle');
+        themeToggle.addEventListener('click', () => {
+            document.documentElement.classList.toggle('dark');
+            updateChartColors();
+        });
+
+        // Tab Switching Logic
+        function switchTab(tabId) {
+            document.querySelectorAll('.tab-view').forEach(view => view.classList.add('hidden'));
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                btn.classList.remove('tab-active');
+                btn.classList.add('text-slate-500', 'dark:text-slate-400');
+            });
+
+            document.getElementById(`view-${tabId}`).classList.remove('hidden');
+            const activeBtn = document.getElementById(`tab-${tabId}`);
+            activeBtn.classList.add('tab-active');
+            activeBtn.classList.remove('text-slate-500', 'dark:text-slate-400');
+        }
+
+        // Section Scroll Navigation
+        function scrollToSection(sectionId) {
+            const el = document.getElementById(sectionId);
+            if(el) {
+                el.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
+
+        // Search Notes Filter
+        function filterNotes() {
+            const query = document.getElementById('searchInput').value.toLowerCase();
+            const cards = document.querySelectorAll('.note-card');
+
+            cards.forEach(card => {
+                const text = card.textContent.toLowerCase();
+                if(text.includes(query)) {
+                    card.style.display = 'block';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // CHART INSTANCES
+        let worldPopChartInstance, dtmChartInstance, pyramidExpInstance, pyramidConInstance, hungaryTfrInstance, remittancesInstance;
+
+        function getChartTextColor() {
+            return document.documentElement.classList.contains('dark') ? '#94a3b8' : '#475569';
+        }
+
+        function getGridColor() {
+            return document.documentElement.classList.contains('dark') ? 'rgba(148, 163, 184, 0.15)' : 'rgba(203, 213, 225, 0.5)';
+        }
+
+        function initCharts() {
+            const textColor = getChartTextColor();
+            const gridColor = getGridColor();
+
+            // 1. World Population Chart
+            const ctx1 = document.getElementById('worldPopulationChart').getContext('2d');
+            worldPopChartInstance = new Chart(ctx1, {
+                type: 'line',
+                data: {
+                    labels: ['1800', '1900', '1927', '1960', '1974', '1987', '1999', '2011', '2022', '2030 (proj)', '2050 (proj)'],
+                    datasets: [{
+                        label: 'World Population (Billions)',
+                        data: [1.0, 1.6, 2.0, 3.0, 4.0, 5.0, 6.0, 7.0, 8.0, 8.5, 9.8],
+                        borderColor: '#2563eb',
+                        backgroundColor: 'rgba(37, 99, 235, 0.15)',
+                        fill: true,
+                        tension: 0.3,
+                        pointRadius: 4,
+                        pointHoverRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: textColor } },
+                        tooltip: { mode: 'index', intersect: false }
+                    },
+                    scales: {
+                        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                        y: { ticks: { color: textColor }, grid: { color: gridColor }, title: { display: true, text: 'Billions', color: textColor } }
+                    }
+                }
+            });
+
+            // 2. DTM Chart
+            const ctx2 = document.getElementById('dtmChart').getContext('2d');
+            dtmChartInstance = new Chart(ctx2, {
+                type: 'line',
+                data: {
+                    labels: ['Stage 1: High Stat.', 'Stage 2: Early Exp.', 'Stage 3: Late Exp.', 'Stage 4: Low Stat.', 'Stage 5: Declining'],
+                    datasets: [
+                        {
+                            label: 'Crude Birth Rate (CBR)',
+                            data: [38, 38, 22, 11, 8],
+                            borderColor: '#3b82f6',
+                            borderWidth: 3,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Crude Death Rate (CDR)',
+                            data: [36, 18, 10, 10, 11],
+                            borderColor: '#ef4444',
+                            borderWidth: 3,
+                            tension: 0.4
+                        },
+                        {
+                            label: 'Total Population Index',
+                            data: [15, 30, 65, 88, 82],
+                            borderColor: '#10b981',
+                            borderDash: [5, 5],
+                            borderWidth: 2,
+                            tension: 0.3
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: textColor } } },
+                    scales: {
+                        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                        y: { ticks: { color: textColor }, grid: { color: gridColor }, title: { display: true, text: 'Rate per 1,000', color: textColor } }
+                    }
+                }
+            });
+
+            // 2B. Expanding Pyramid Chart (Old at top, Young at bottom)
+            const ctxPyramidExp = document.getElementById('pyramidExpandingChart').getContext('2d');
+            pyramidExpInstance = new Chart(ctxPyramidExp, {
+                type: 'bar',
+                data: {
+                    labels: ['75+ yrs', '60-74 yrs', '45-59 yrs', '30-44 yrs', '15-29 yrs', '0-14 yrs'],
+                    datasets: [
+                        { label: 'Male %', data: [-1, -3, -6, -10, -14, -18], backgroundColor: '#3b82f6' },
+                        { label: 'Female %', data: [1, 3, 6, 10, 14, 17], backgroundColor: '#ec4899' }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: textColor } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(c) { return c.dataset.label + ': ' + Math.abs(c.raw) + '%'; }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: textColor,
+                                callback: function(value) { return Math.abs(value) + '%'; }
+                            },
+                            grid: { color: gridColor }
+                        },
+                        y: { ticks: { color: textColor }, grid: { color: gridColor } }
+                    }
+                }
+            });
+
+            // 2C. Contracting Pyramid Chart (Old at top, Young at bottom)
+            const ctxPyramidCon = document.getElementById('pyramidContractingChart').getContext('2d');
+            pyramidConInstance = new Chart(ctxPyramidCon, {
+                type: 'bar',
+                data: {
+                    labels: ['75+ yrs', '60-74 yrs', '45-59 yrs', '30-44 yrs', '15-29 yrs', '0-14 yrs'],
+                    datasets: [
+                        { label: 'Male %', data: [-4, -8, -11, -9, -6, -5], backgroundColor: '#3b82f6' },
+                        { label: 'Female %', data: [5, 9, 11, 9, 6, 5], backgroundColor: '#ec4899' }
+                    ]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: { labels: { color: textColor } },
+                        tooltip: {
+                            callbacks: {
+                                label: function(c) { return c.dataset.label + ': ' + Math.abs(c.raw) + '%'; }
+                            }
+                        }
+                    },
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: textColor,
+                                callback: function(value) { return Math.abs(value) + '%'; }
+                            },
+                            grid: { color: gridColor }
+                        },
+                        y: { ticks: { color: textColor }, grid: { color: gridColor } }
+                    }
+                }
+            });
+
+            // 3. Hungary TFR Chart
+            const ctx3 = document.getElementById('hungaryTfrChart').getContext('2d');
+            hungaryTfrInstance = new Chart(ctx3, {
+                type: 'line',
+                data: {
+                    labels: ['2000', '2005', '2010', '2011 (Record Low)', '2015 (CSOK Intro)', '2018', '2020', '2023'],
+                    datasets: [
+                        {
+                            label: 'Hungary TFR',
+                            data: [1.32, 1.31, 1.25, 1.23, 1.44, 1.49, 1.56, 1.52],
+                            borderColor: '#8b5cf6',
+                            backgroundColor: 'rgba(139, 92, 246, 0.1)',
+                            fill: true,
+                            tension: 0.2,
+                            pointRadius: 5
+                        },
+                        {
+                            label: 'Replacement Rate Target (2.1)',
+                            data: [2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1, 2.1],
+                            borderColor: '#f59e0b',
+                            borderDash: [6, 4],
+                            pointRadius: 0
+                        }
+                    ]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: textColor } } },
+                    scales: {
+                        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                        y: { ticks: { color: textColor }, grid: { color: gridColor }, min: 1.0, max: 2.3, title: { display: true, text: 'Children per Woman', color: textColor } }
+                    }
+                }
+            });
+
+            // 4. Remittances Chart
+            const ctx4 = document.getElementById('remittancesChart').getContext('2d');
+            remittancesInstance = new Chart(ctx4, {
+                type: 'bar',
+                data: {
+                    labels: ['2010', '2013', '2016', '2019', '2021', '2023'],
+                    datasets: [{
+                        label: 'Remittances to Mexico ($ Billions USD)',
+                        data: [21.3, 22.2, 27.0, 36.4, 51.6, 63.3],
+                        backgroundColor: '#10b981',
+                        borderRadius: 6
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { labels: { color: textColor } } },
+                    scales: {
+                        x: { ticks: { color: textColor }, grid: { color: gridColor } },
+                        y: { ticks: { color: textColor }, grid: { color: gridColor }, title: { display: true, text: '$ Billions USD', color: textColor } }
+                    }
+                }
+            });
+        }
+
+        function updateChartColors() {
+            const textColor = getChartTextColor();
+            const gridColor = getGridColor();
+
+            [worldPopChartInstance, dtmChartInstance, pyramidExpInstance, pyramidConInstance, hungaryTfrInstance, remittancesInstance].forEach(chart => {
+                if(chart) {
+                    chart.options.plugins.legend.labels.color = textColor;
+                    chart.options.scales.x.ticks.color = textColor;
+                    chart.options.scales.x.grid.color = gridColor;
+                    chart.options.scales.y.ticks.color = textColor;
+                    chart.options.scales.y.grid.color = gridColor;
+                    if(chart.options.scales.y.title) chart.options.scales.y.title.color = textColor;
+                    chart.update();
+                }
+            });
+        }
+
+        // FLASHCARDS DATA
+        const flashcardsData = [
+            { cat: "Population", q: "What is the Total Fertility Rate (TFR)?", a: "The average number of children a woman has during her lifetime." },
+            { cat: "Case Study", q: "What was South Korea's TFR in 2023 despite massive pro-natalist spending?", a: "0.72 - the lowest in the world." },
+            { cat: "DTM Model", q: "What happens to birth and death rates in DTM Stage 3?", a: "Death rates stay low while birth rates drop rapidly due to female education and contraception." },
+            { cat: "Hungary Case Study", q: "What is CSOK in Hungary's population policy?", a: "A housing allowance subsidy ($50k–$80k) for couples with 3+ children buying new homes." },
+            { cat: "Migration Term", q: "What is the difference between a Refugee and an Asylum Seeker?", a: "A refugee has officially recognized legal status; an asylum seeker is awaiting a decision on their application." },
+            { cat: "Migration System", q: "What is Singapore's COMPASS system?", a: "A points-based immigration system for skilled workers evaluating Salary, Qualifications, Diversity, and Local Hire Ratio (40 pts needed)." },
+            { cat: "Bilateral Migration", q: "What is the annual remittance amount sent from the US to Mexico?", a: "Around $60 Billion USD annually (Mexico's 2nd largest income source)." },
+            { cat: "Demographics", q: "What is Population Momentum?", a: "Continued population growth despite falling birth rates because a high proportion of the population is in child-bearing years." },
+            { cat: "History", q: "What was the Bracero Program (1942-1964)?", a: "A US-Mexico labor agreement bringing over 5 million Mexican farm workers to the US during/after WWII." },
+            { cat: "DTM Stage 5", q: "What defines DTM Stage 5?", a: "TFR drops below replacement rate (2.1), leading to an aging and contracting population." }
+        ];
+
+        let currentCardIndex = 0;
+
+        function updateCard() {
+            const cardData = flashcardsData[currentCardIndex];
+            document.getElementById('cardCategory').innerText = cardData.cat;
+            document.getElementById('cardQuestion').innerText = cardData.q;
+            document.getElementById('cardAnswer').innerText = cardData.a;
+            document.getElementById('cardCounter').innerText = `${currentCardIndex + 1} / ${flashcardsData.length}`;
+            document.getElementById('flashcard').classList.remove('flipped');
+        }
+
+        function flipCard() {
+            document.getElementById('flashcard').classList.toggle('flipped');
+        }
+
+        function nextCard() {
+            currentCardIndex = (currentCardIndex + 1) % flashcardsData.length;
+            updateCard();
+        }
+
+        function prevCard() {
+            currentCardIndex = (currentCardIndex - 1 + flashcardsData.length) % flashcardsData.length;
+            updateCard();
+        }
+
+        // QUIZ DATA & LOGIC
+        const quizData = [
+            {
+                q: "What is the replacement fertility rate required to keep a population stable?",
+                options: ["1.5 children per woman", "2.1 children per woman", "2.8 children per woman", "3.0 children per woman"],
+                correct: 1
+            },
+            {
+                q: "Which country spent $270B+ on pro-natalist policies but saw TFR fall to 0.72?",
+                options: ["Japan", "Hungary", "South Korea", "Nigeria"],
+                correct: 2
+            },
+            {
+                q: "Which DTM stage is characterized by high birth rates and rapidly falling death rates?",
+                options: ["Stage 1", "Stage 2", "Stage 3", "Stage 4"],
+                correct: 1
+            },
+            {
+                q: "What is a key criticism of Hungary's pro-natalist CSOK housing subsidies?",
+                options: ["It only applies to single parents", "It disproportionately benefits higher earners who qualify for loans", "It forces people to leave the country", "It raised birth rates too fast"],
+                correct: 1
+            },
+            {
+                q: "What is the primary negative impact of emigration on origin countries like Mexico?",
+                options: ["High inflation", "Brain drain and loss of young labor force", "Overcrowded schools", "Excessive housing costs"],
+                correct: 1
+            }
+        ];
+
+        let userScores = {};
+
+        function renderQuiz() {
+            const container = document.getElementById('quizContainer');
+            container.innerHTML = '';
+
+            quizData.forEach((item, qIndex) => {
+                const qBox = document.createElement('div');
+                qBox.className = 'space-y-3 border-b border-slate-100 dark:border-slate-700/60 pb-5';
+
+                let optionsHtml = '';
+                item.options.forEach((opt, oIndex) => {
+                    optionsHtml += `
+                        <button onclick="checkAnswer(${qIndex}, ${oIndex})" id="btn-${qIndex}-${oIndex}" class="quiz-opt-btn w-full text-left p-2.5 rounded-lg border border-slate-200 dark:border-slate-700 hover:bg-slate-50 dark:hover:bg-slate-700/50 text-xs transition-colors">
+                            ${opt}
+                        </button>
+                    `;
+                });
+
+                qBox.innerHTML = `
+                    <p class="font-semibold text-sm text-slate-900 dark:text-white">${qIndex + 1}. ${item.q}</p>
+                    <div class="grid sm:grid-cols-2 gap-2">${optionsHtml}</div>
+                `;
+                container.appendChild(qBox);
+            });
+        }
+
+        function checkAnswer(qIndex, oIndex) {
+            const question = quizData[qIndex];
+            const isCorrect = oIndex === question.correct;
+            
+            userScores[qIndex] = isCorrect ? 1 : 0;
+
+            for (let i = 0; i < question.options.length; i++) {
+                const btn = document.getElementById(`btn-${qIndex}-${i}`);
+                btn.disabled = true;
+                if(i === question.correct) {
+                    btn.className = "w-full text-left p-2.5 rounded-lg border text-xs bg-emerald-100 dark:bg-emerald-950/60 border-emerald-500 font-bold text-emerald-800 dark:text-emerald-300";
+                } else if(i === oIndex && !isCorrect) {
+                    btn.className = "w-full text-left p-2.5 rounded-lg border text-xs bg-rose-100 dark:bg-rose-950/60 border-rose-500 text-rose-800 dark:text-rose-300";
+                }
+            }
+
+            const totalScore = Object.values(userScores).reduce((a, b) => a + b, 0);
+            document.getElementById('scoreDisplay').innerText = `Score: ${totalScore} / ${quizData.length}`;
+        }
+
+        function resetQuiz() {
+            userScores = {};
+            document.getElementById('scoreDisplay').innerText = `Score: 0 / ${quizData.length}`;
+            renderQuiz();
+        }
+
+        // Init App & Charts on Load
+        window.onload = function() {
+            updateCard();
+            renderQuiz();
+            initCharts();
+        };
+    </script>
+</body>
+</html>

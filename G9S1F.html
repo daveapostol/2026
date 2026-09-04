@@ -1,0 +1,1152 @@
+<!DOCTYPE html>
+<html lang="en" class="h-full bg-slate-900 text-slate-100">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Coastal Geography & Storm Management Reviewer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- FontAwesome Icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        ocean: {
+                            50: '#f0f9ff',
+                            100: '#e0f2fe',
+                            400: '#38bdf8',
+                            500: '#0ea5e9',
+                            600: '#0284c7',
+                            800: '#075985',
+                            900: '#0c4a6e',
+                            950: '#082f49',
+                        },
+                        emeraldCustom: '#10b981',
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom scrollbars */
+        ::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #0f172a;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #334155;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #475569;
+        }
+        
+        /* Perspective for 3D Flashcard flip */
+        .perspective-1000 {
+            perspective: 1000px;
+        }
+        .transform-style-3d {
+            transform-style: preserve-3d;
+        }
+        .backface-hidden {
+            backface-visibility: hidden;
+        }
+        .rotate-y-180 {
+            transform: rotateY(180deg);
+        }
+        
+        /* Glassmorphism */
+        .glass-panel {
+            background: rgba(30, 41, 59, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+        }
+        .glass-card {
+            background: rgba(15, 23, 42, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+    </style>
+</head>
+<body class="h-full flex flex-col font-sans bg-slate-950 text-slate-100 antialiased selection:bg-cyan-500 selection:text-white">
+
+    <!-- Header -->
+    <header class="sticky top-0 z-50 glass-panel border-b border-slate-800 bg-slate-900/80 backdrop-blur-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Brand Title -->
+                <div class="flex items-center gap-3">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-tr from-cyan-500 to-blue-600 flex items-center justify-center text-white shadow-lg shadow-cyan-500/20">
+                        <i class="fa-solid font-bold fa-water text-lg"></i>
+                    </div>
+                    <div>
+                        <h1 class="text-lg font-bold bg-gradient-to-r from-white via-slate-200 to-slate-400 bg-clip-text text-transparent">
+                            Coastal Geo Master
+                        </h1>
+                        <p class="text-xs text-cyan-400 font-mono">IGCSE & A-Level Review Hub</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs (Desktop) -->
+                <nav class="hidden md:flex space-x-1 bg-slate-950/60 p-1 rounded-xl border border-slate-800" id="desktop-nav">
+                    <button onclick="switchTab('notes')" data-tab="notes" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 bg-cyan-600 text-white shadow-sm">
+                        <i class="fa-solid fa-book-open text-xs"></i> Study Notes
+                    </button>
+                    <button onclick="switchTab('engineering')" data-tab="engineering" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                        <i class="fa-solid fa-shield-halved text-xs"></i> Coastal Defence
+                    </button>
+                    <button onclick="switchTab('case-studies')" data-tab="case-studies" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                        <i class="fa-solid fa-earth-americas text-xs"></i> Case Studies
+                    </button>
+                    <button onclick="switchTab('flashcards')" data-tab="flashcards" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                        <i class="fa-solid fa-layer-group text-xs"></i> Flashcards
+                    </button>
+                    <button onclick="switchTab('quiz')" data-tab="quiz" class="tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50">
+                        <i class="fa-solid fa-list-check text-xs"></i> Exam Quiz
+                    </button>
+                </nav>
+
+                <!-- Search Bar -->
+                <div class="relative w-48 sm:w-64">
+                    <input type="text" id="search-input" onkeyup="handleSearch()" placeholder="Search terms, stats..." class="w-full bg-slate-950/80 text-xs text-slate-200 placeholder-slate-500 border border-slate-800 rounded-lg pl-8 pr-3 py-2 focus:outline-none focus:border-cyan-500 focus:ring-1 focus:ring-cyan-500">
+                    <i class="fa-solid fa-magnifying-glass absolute left-2.5 top-2.5 text-xs text-slate-500"></i>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Navigation Bar -->
+        <div class="md:hidden flex overflow-x-auto gap-1 p-2 bg-slate-950 border-t border-slate-800 text-xs no-scrollbar">
+            <button onclick="switchTab('notes')" data-tab="notes" class="tab-btn px-3 py-1.5 rounded-lg whitespace-nowrap bg-cyan-600 text-white font-medium">Study Notes</button>
+            <button onclick="switchTab('engineering')" data-tab="engineering" class="tab-btn px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-400 hover:bg-slate-800">Coastal Defence</button>
+            <button onclick="switchTab('case-studies')" data-tab="case-studies" class="tab-btn px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-400 hover:bg-slate-800">Case Studies</button>
+            <button onclick="switchTab('flashcards')" data-tab="flashcards" class="tab-btn px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-400 hover:bg-slate-800">Flashcards</button>
+            <button onclick="switchTab('quiz')" data-tab="quiz" class="tab-btn px-3 py-1.5 rounded-lg whitespace-nowrap text-slate-400 hover:bg-slate-800">Exam Quiz</button>
+        </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 overflow-y-auto">
+
+        <!-- TAB 1: STUDY NOTES & CONCEPT BROWSER -->
+        <section id="tab-notes" class="tab-content block space-y-6">
+            <!-- Header Banner -->
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800 bg-gradient-to-r from-slate-900 via-slate-900 to-cyan-950/40 relative overflow-hidden">
+                <div class="relative z-10">
+                    <span class="px-2.5 py-1 rounded-full text-xs font-mono font-semibold bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 uppercase tracking-wider">Interactive Syllabus</span>
+                    <h2 class="text-2xl sm:text-3xl font-extrabold text-white mt-2">Comprehensive Coastal Geography</h2>
+                    <p class="text-slate-400 text-sm mt-1 max-w-2xl">Master coastal economic value, hazard risks, hard/soft engineering, tropical storm management (4 Ps), coral reefs, mangroves, and the Florida case study.</p>
+                </div>
+                <div class="absolute -right-10 -bottom-10 opacity-10 text-cyan-400 pointer-events-none">
+                    <i class="fa-solid fa-umbrella-beach text-9xl"></i>
+                </div>
+            </div>
+
+            <!-- Notes Grid -->
+            <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="notes-container">
+
+                <!-- Module 1: Tourism & Economics -->
+                <div class="note-card glass-panel rounded-xl p-5 border border-slate-800 hover:border-cyan-500/50 transition duration-300 flex flex-col justify-between" data-keywords="tourism real estate nature reserves hazards flooding erosion saltwater intrusion">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm font-bold">01</span>
+                            <span class="text-xs font-mono text-slate-400">Section 2.1</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-100 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-coins text-emerald-400 text-sm"></i> Coastal Tourism & Economy
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">Economic opportunities offered by coastal environments alongside significant natural vulnerabilities.</p>
+                        
+                        <div class="space-y-3 text-xs">
+                            <div class="p-2.5 rounded-lg bg-slate-950/50 border border-slate-800">
+                                <span class="font-semibold text-emerald-400 block mb-1">Economic Drivers:</span>
+                                <ul class="list-disc list-inside text-slate-300 space-y-1">
+                                    <li><strong>Attractions:</strong> Beaches, water sports, eco-tourism.</li>
+                                    <li><strong>Nature Reserves:</strong> Wildlife preservation & bio-tourism.</li>
+                                    <li><strong>Real Estate:</strong> High-value seafront properties & rentals.</li>
+                                </ul>
+                            </div>
+                            <div class="p-2.5 rounded-lg bg-slate-950/50 border border-slate-800">
+                                <span class="font-semibold text-rose-400 block mb-1">Key Vulnerabilities & Hazards:</span>
+                                <ul class="list-disc list-inside text-slate-300 space-y-1">
+                                    <li>Hurricanes, storm surges, tsunamis, sea-level rise.</li>
+                                    <li>Land loss forcing community relocation.</li>
+                                    <li><strong>Saltwater Intrusion:</strong> Contaminates freshwater aquifers used for drinking & irrigation.</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module 2: Tropical Storms & 4 Ps -->
+                <div class="note-card glass-panel rounded-xl p-5 border border-slate-800 hover:border-cyan-500/50 transition duration-300 flex flex-col justify-between" data-keywords="tropical storms hurricanes cyclones typhoons preparation planning protection prediction 4 ps">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-8 h-8 rounded-lg bg-cyan-500/10 text-cyan-400 flex items-center justify-center text-sm font-bold">02</span>
+                            <span class="text-xs font-mono text-slate-400">Section 2.2</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-100 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-hurricane text-cyan-400 text-sm"></i> Tropical Storms & The 4 Ps
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">Systematic framework for reducing storm risks: Preparation, Planning, Protection, Prediction.</p>
+
+                        <div class="space-y-2 text-xs">
+                            <div class="p-2 rounded bg-slate-950/60 border-l-2 border-amber-400">
+                                <strong class="text-amber-400">Preparation:</strong> Emergency response plans, stockpiling supplies, evacuation route education, securing loose objects.
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/60 border-l-2 border-blue-400">
+                                <strong class="text-blue-400">Planning:</strong> Long-term land-use zoning (avoiding high-risk areas) and building codes.
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/60 border-l-2 border-emerald-400">
+                                <strong class="text-emerald-400">Protection:</strong> Hard engineering (sea walls, levees) and soft buffers (mangroves).
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/60 border-l-2 border-purple-400">
+                                <strong class="text-purple-400">Prediction:</strong> Satellite tracking, weather modeling, early warning broadcasts.
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module 3: Coral Reef Ecosystems -->
+                <div class="note-card glass-panel rounded-xl p-5 border border-slate-800 hover:border-cyan-500/50 transition duration-300 flex flex-col justify-between" data-keywords="coral reefs bleaching zooxanthellae galapagos maldives marine protected areas mpa latitude">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-8 h-8 rounded-lg bg-pink-500/10 text-pink-400 flex items-center justify-center text-sm font-bold">03</span>
+                            <span class="text-xs font-mono text-slate-400">Section 2.3</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-100 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-fish text-pink-400 text-sm"></i> Coral Reef Ecosystems
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">'Rainforests of the sea' providing critical biodiversity, economic value, and coastal buffer.</p>
+
+                        <div class="space-y-2 text-xs">
+                            <div class="p-2 rounded bg-slate-950/50 border border-slate-800">
+                                <span class="text-pink-300 font-semibold">Distribution & Conditions:</span>
+                                <p class="text-slate-300">Located between <strong>30° N and 30° S</strong> in warm, salty, clear ocean waters.</p>
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/50 border border-slate-800">
+                                <span class="text-rose-400 font-semibold">Coral Bleaching Mechanics:</span>
+                                <p class="text-slate-300">Thermal stress causes corals to expel symbiotic microalgae living in their tissues. Persistently high water temperatures lead to coral mortality.</p>
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/50 border border-slate-800">
+                                <span class="text-emerald-400 font-semibold">Management Examples:</span>
+                                <p class="text-slate-300"><strong>Galápagos MPA:</strong> Limits tourists & uses entry fees for conservation. <strong>Maldives:</strong> Coral propagation & fragment transplanting.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module 4: Mangrove Ecosystems -->
+                <div class="note-card glass-panel rounded-xl p-5 border border-slate-800 hover:border-cyan-500/50 transition duration-300 flex flex-col justify-between" data-keywords="mangroves brackish carbon sink sundarbans aquaculture indonesia hooghly river">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-8 h-8 rounded-lg bg-emerald-500/10 text-emerald-400 flex items-center justify-center text-sm font-bold">04</span>
+                            <span class="text-xs font-mono text-slate-400">Section 2.3</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-100 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-tree text-emerald-400 text-sm"></i> Mangrove Forests
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">Salt-tolerant coastal ecosystems providing shoreline stabilization and carbon storage.</p>
+
+                        <div class="space-y-2 text-xs">
+                            <div class="p-2 rounded bg-slate-950/50 border border-slate-800">
+                                <span class="text-emerald-300 font-semibold">Key Role & Carbon Sink:</span>
+                                <p class="text-slate-300">Roots trap sediment & absorb storm energy. India's <strong>Sundarbans</strong> stores <strong>~4,000 metric tons of carbon/ha</strong>.</p>
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/50 border border-slate-800">
+                                <span class="text-amber-400 font-semibold">Threats:</span>
+                                <p class="text-slate-300">Deforestation (Vietnam/Indonesia), Hooghly River industrial pollution, sea-level rise in low islands (Kiribati).</p>
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/50 border border-slate-800">
+                                <span class="text-cyan-300 font-semibold">Sustainable Aquaculture:</span>
+                                <p class="text-slate-300">Integrated mangrove-shrimp farming in Indonesia balances economic yield with habitat preservation.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module 5: Florida Geology & Erosion -->
+                <div class="note-card glass-panel rounded-xl p-5 border border-slate-800 hover:border-cyan-500/50 transition duration-300 flex flex-col justify-between" data-keywords="florida fdep critical erosion limestone sandstone coastline miami beach fdep">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-8 h-8 rounded-lg bg-orange-500/10 text-orange-400 flex items-center justify-center text-sm font-bold">05</span>
+                            <span class="text-xs font-mono text-slate-400">Case Study 2.4</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-100 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-map-location-dot text-orange-400 text-sm"></i> Florida Geology & Erosion
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">Causes and state-level statistics regarding critical beach erosion in Florida, USA.</p>
+
+                        <div class="space-y-2 text-xs">
+                            <div class="p-2 rounded bg-slate-950/50 border border-slate-800">
+                                <span class="text-orange-300 font-semibold">Physical Geography:</span>
+                                <p class="text-slate-300">Flattest US state (max elevation 105 m). Composed of easily eroded <strong>limestone and sandstone</strong> with zero natural cliff barriers.</p>
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/50 border border-slate-800">
+                                <span class="text-rose-400 font-semibold">Erosion Stat (FDEP July 2023):</span>
+                                <p class="text-slate-300">Out of 1,328 km of sandy beaches, <strong>696 km is classified as critically eroded</strong>, threatening development & habitats.</p>
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/50 border border-slate-800">
+                                <span class="text-cyan-300 font-semibold">Impacted Hotspots:</span>
+                                <p class="text-slate-300">Miami Beach, Fort Lauderdale, Naples, Sarasota, Everglades, Florida Keys.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Module 6: Florida Erosion & Storm Response -->
+                <div class="note-card glass-panel rounded-xl p-5 border border-slate-800 hover:border-cyan-500/50 transition duration-300 flex flex-col justify-between" data-keywords="hurricane idalia miami beach army corps Virginia key beach nourishment fcmp fdem">
+                    <div>
+                        <div class="flex items-center justify-between mb-3">
+                            <span class="w-8 h-8 rounded-lg bg-purple-500/10 text-purple-400 flex items-center justify-center text-sm font-bold">06</span>
+                            <span class="text-xs font-mono text-slate-400">Case Study 2.4</span>
+                        </div>
+                        <h3 class="text-lg font-bold text-slate-100 mb-2 flex items-center gap-2">
+                            <i class="fa-solid fa-building-shield text-purple-400 text-sm"></i> Florida Coastal Protection
+                        </h3>
+                        <p class="text-xs text-slate-400 mb-4 leading-relaxed">Financial expenditures, soft living shorelines, and Hurricane Idalia mitigation outcomes.</p>
+
+                        <div class="space-y-2 text-xs">
+                            <div class="p-2 rounded bg-slate-950/50 border border-slate-800">
+                                <span class="text-purple-300 font-semibold">Nourishment Costs:</span>
+                                <p class="text-slate-300">Since 1935, over <strong>$1.9 billion</strong> spent. State & local governments spend <strong>$60M–$100M/year</strong> ($30M–$50M each).</p>
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/50 border border-slate-800">
+                                <span class="text-emerald-300 font-semibold">Living Shorelines & Engineering:</span>
+                                <p class="text-slate-300">Miami Beach 2022–2023 project ($40.4M at $50/yd³ sand). Virginia Key volunteers planted native trees (May 2022).</p>
+                            </div>
+                            <div class="p-2 rounded bg-slate-950/50 border border-slate-800">
+                                <span class="text-amber-300 font-semibold">Hurricane Idalia (Aug 2023):</span>
+                                <p class="text-slate-300">Category 4 at Keaton Beach (185 km/h winds, 2.7m surge). FDEM early warnings kept fatalities to <strong>10</strong> despite $3.6B damage.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 2: COASTAL DEFENCE & ENGINEERING MATRIX -->
+        <section id="tab-engineering" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800 bg-slate-900">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <i class="fa-solid fa-shield-halved text-cyan-400"></i> Hard vs. Soft Engineering Matrix
+                </h2>
+                <p class="text-slate-400 text-sm mt-1">Interactive comparison of coastal defense techniques, longevity, financial costs, visual impacts, and mechanics.</p>
+            </div>
+
+            <!-- Engineering Filter / Comparison Table -->
+            <div class="overflow-x-auto glass-panel rounded-xl border border-slate-800">
+                <table class="w-full text-left text-xs text-slate-300">
+                    <thead class="bg-slate-950 text-slate-200 uppercase font-mono border-b border-slate-800">
+                        <tr>
+                            <th class="p-4">Strategy</th>
+                            <th class="p-4">Category</th>
+                            <th class="p-4">Mechanics</th>
+                            <th class="p-4">Longevity</th>
+                            <th class="p-4">Cost / Maintenance</th>
+                            <th class="p-4">Drawbacks & Impacts</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-slate-800/60 font-sans">
+                        <!-- Sea Walls -->
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="p-4 font-bold text-slate-100 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span> Sea Walls
+                            </td>
+                            <td class="p-4"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 font-mono text-[10px] uppercase border border-rose-500/20">Hard</span></td>
+                            <td class="p-4">Massive concrete structures that physically reflect wave energy back to sea.</td>
+                            <td class="p-4 font-mono text-cyan-400">Up to 50 yrs</td>
+                            <td class="p-4 text-amber-400 font-semibold">Very High Initial & Repair</td>
+                            <td class="p-4 text-slate-400">Emsores, expensive maintenance, high wave reflection causes toe erosion.</td>
+                        </tr>
+                        <!-- Groynes -->
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="p-4 font-bold text-slate-100 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span> Groynes
+                            </td>
+                            <td class="p-4"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 font-mono text-[10px] uppercase border border-rose-500/20">Hard</span></td>
+                            <td class="p-4">Wooden/stone barriers at 90° to shore trapping sediment from longshore drift.</td>
+                            <td class="p-4 font-mono text-cyan-400">Up to 40 yrs</td>
+                            <td class="p-4 text-amber-400">Moderate to High</td>
+                            <td class="p-4 text-slate-400">Starves down-drift beaches of sediment, increasing erosion downstream.</td>
+                        </tr>
+                        <!-- Rock Armour / Rip-rap -->
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="p-4 font-bold text-slate-100 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span> Rock Armour / Rip-rap
+                            </td>
+                            <td class="p-4"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 font-mono text-[10px] uppercase border border-rose-500/20">Hard</span></td>
+                            <td class="p-4">Heavy granite boulders absorbing wave energy while letting backwash drain through gaps.</td>
+                            <td class="p-4 font-mono text-cyan-400">Long-lasting</td>
+                            <td class="p-4 text-slate-300">Expensive (Imported)</td>
+                            <td class="p-4 text-slate-400">Visually unappealing, transport costs are high, hazardous for beachgoers.</td>
+                        </tr>
+                        <!-- Revetments -->
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="p-4 font-bold text-slate-100 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span> Revetments
+                            </td>
+                            <td class="p-4"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 font-mono text-[10px] uppercase border border-rose-500/20">Hard</span></td>
+                            <td class="p-4">Sloped wooden or concrete fences that absorb energy and break wave impact.</td>
+                            <td class="p-4 font-mono text-cyan-400">10-30 yrs</td>
+                            <td class="p-4 text-slate-300">Expensive to build, cheap maintenance</td>
+                            <td class="p-4 text-slate-400">Intrusive aesthetic impact, restricts beach access.</td>
+                        </tr>
+                        <!-- Gabions -->
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="p-4 font-bold text-slate-100 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span> Gabions
+                            </td>
+                            <td class="p-4"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 font-mono text-[10px] uppercase border border-rose-500/20">Hard</span></td>
+                            <td class="p-4">Wire mesh cages filled with small stones placed at cliff bases.</td>
+                            <td class="p-4 font-mono text-cyan-400">5-10 yrs</td>
+                            <td class="p-4 text-emerald-400 font-semibold">Low Initial Cost</td>
+                            <td class="p-4 text-slate-400">Metal cages rust easily; less durable against powerful storm waves.</td>
+                        </tr>
+                        <!-- Offshore Breakwaters -->
+                        <tr class="hover:bg-slate-800/30 transition">
+                            <td class="p-4 font-bold text-slate-100 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-rose-500"></span> Breakwaters
+                            </td>
+                            <td class="p-4"><span class="px-2 py-0.5 rounded bg-rose-500/10 text-rose-400 font-mono text-[10px] uppercase border border-rose-500/20">Hard</span></td>
+                            <td class="p-4">Submerged or offshore stone mounds built parallel to shore to force wave breaking.</td>
+                            <td class="p-4 font-mono text-cyan-400">30+ yrs</td>
+                            <td class="p-4 text-amber-400">Very High Construction</td>
+                            <td class="p-4 text-slate-400">Can be overtopped at high tide, disrupts navigation, alters currents.</td>
+                        </tr>
+                        <!-- Beach Nourishment -->
+                        <tr class="hover:bg-slate-800/30 transition bg-emerald-950/10">
+                            <td class="p-4 font-bold text-slate-100 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Beach Nourishment
+                            </td>
+                            <td class="p-4"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono text-[10px] uppercase border border-emerald-500/20">Soft</span></td>
+                            <td class="p-4">Adding sand/shingle from inland or seabed to widen natural beach buffers.</td>
+                            <td class="p-4 font-mono text-amber-400">Short (1-5 yrs)</td>
+                            <td class="p-4 text-amber-400">High Recurring (FL: $30M-$50M/yr)</td>
+                            <td class="p-4 text-slate-400">Requires continuous replenishment; transport costs high ($50/yd³).</td>
+                        </tr>
+                        <!-- Managed Retreat / Realignment -->
+                        <tr class="hover:bg-slate-800/30 transition bg-emerald-950/10">
+                            <td class="p-4 font-bold text-slate-100 flex items-center gap-2">
+                                <span class="w-2 h-2 rounded-full bg-emerald-500"></span> Managed Retreat
+                            </td>
+                            <td class="p-4"><span class="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 font-mono text-[10px] uppercase border border-emerald-500/20">Soft</span></td>
+                            <td class="p-4">Allowing low-value land to flood naturally, establishing saltmarsh habitats.</td>
+                            <td class="p-4 font-mono text-cyan-400">Permanent / Long</td>
+                            <td class="p-4 text-emerald-400">Low Maintenance</td>
+                            <td class="p-4 text-slate-400">Requires financial compensation for displaced landowners & farmers.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <!-- Shoreline Management Plan Policies -->
+            <div class="glass-panel p-6 rounded-xl border border-slate-800">
+                <h3 class="text-lg font-bold text-slate-100 mb-3 flex items-center gap-2">
+                    <i class="fa-solid fa-compass-drafting text-cyan-400"></i> Shoreline Management Plan (SMP) Policies
+                </h3>
+                <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 text-xs">
+                    <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
+                        <span class="px-2 py-0.5 rounded bg-blue-500/20 text-blue-400 font-mono text-[10px] font-semibold">POLICY 1</span>
+                        <h4 class="font-bold text-slate-200 mt-2">Hold the existing defence line</h4>
+                        <p class="text-slate-400 mt-1">Maintain current engineering structures to retain shoreline in its present position.</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
+                        <span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-mono text-[10px] font-semibold">POLICY 2</span>
+                        <h4 class="font-bold text-slate-200 mt-2">Advance the existing line</h4>
+                        <p class="text-slate-400 mt-1">Build new defenses seaward of the existing line to reclaim eroded land.</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
+                        <span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-mono text-[10px] font-semibold">POLICY 3</span>
+                        <h4 class="font-bold text-slate-200 mt-2">Managed realignment</h4>
+                        <p class="text-slate-400 mt-1">Allow coastline to move naturally inland under control, creating natural salt marsh buffers.</p>
+                    </div>
+                    <div class="p-4 rounded-xl bg-slate-950/70 border border-slate-800">
+                        <span class="px-2 py-0.5 rounded bg-rose-500/20 text-rose-400 font-mono text-[10px] font-semibold">POLICY 4</span>
+                        <h4 class="font-bold text-slate-200 mt-2">No active intervention</h4>
+                        <p class="text-slate-400 mt-1">Do not invest in defenses or maintenance; allow natural coastal processes to take over.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 3: CASE STUDIES EXPLORER -->
+        <section id="tab-case-studies" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800 bg-slate-900">
+                <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                    <i class="fa-solid fa-earth-americas text-cyan-400"></i> Global Geography Case Studies
+                </h2>
+                <p class="text-slate-400 text-sm mt-1">In-depth examination of named exemplars required for exam evaluation questions.</p>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+                <!-- Case Study 1: Florida, USA -->
+                <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🇺🇸</span>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">Florida Coastal Management & Hurricane Idalia</h3>
+                                <p class="text-xs text-slate-400 font-mono">2nd Longest US Coastline | Flattest State (Max 105m)</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded bg-orange-500/10 text-orange-400 text-xs font-mono font-bold border border-orange-500/20">Core Case Study</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                            <span class="text-slate-400 block font-mono text-[10px]">CRITICAL EROSION (FDEP 2023)</span>
+                            <span class="text-lg font-bold text-rose-400">696 km</span>
+                            <span class="text-slate-400 block text-[11px]">out of 1,328 km beaches</span>
+                        </div>
+                        <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                            <span class="text-slate-400 block font-mono text-[10px]">ANNUAL NOURISHMENT COST</span>
+                            <span class="text-lg font-bold text-cyan-400">$60M–$100M</span>
+                            <span class="text-slate-400 block text-[11px]">($30M-$50M state + local)</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 text-xs text-slate-300">
+                        <p><strong>Geology & Causes:</strong> Soft limestone and sandstone rocks easily erode under wave energy from Atlantic Ocean and Gulf of Mexico. Urbanization interferes with longshore drift.</p>
+                        <p><strong>Miami Beach Army Corps Project (2022-2023):</strong> $40.4 million spent trucking inland sand at $50 per cubic yard.</p>
+                        <p><strong>Hurricane Idalia (August 2023):</strong> Landfall at Keaton Beach as Cat 4 (185 km/h winds, 2.7m storm surge). FDEM early warnings & states of emergency restricted fatalities to 10 despite $3.6 billion in structural damage.</p>
+                        <p><strong>Living Shorelines:</strong> Virginia Key tree planting (May 2022) & salt marsh restoration via Florida Coastal Management Program (FCMP).</p>
+                    </div>
+                </div>
+
+                <!-- Case Study 2: Cyclone Idai (2019) -->
+                <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🇲🇿</span>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">Cyclone Idai (Southern Africa)</h3>
+                                <p class="text-xs text-slate-400 font-mono">March 2019 | Mozambique, Malawi & Zimbabwe</p>
+                            </div>
+                        </div>
+                        <span class="px-2.5 py-1 rounded bg-cyan-500/10 text-cyan-400 text-xs font-mono font-bold border border-cyan-500/20">LIC / MIC Context</span>
+                    </div>
+
+                    <div class="grid grid-cols-2 gap-3 text-xs">
+                        <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                            <span class="text-slate-400 block font-mono text-[10px]">FATALITIES</span>
+                            <span class="text-lg font-bold text-rose-500">1,000+ Deaths</span>
+                            <span class="text-slate-400 block text-[11px]">2nd deadliest southern storm</span>
+                        </div>
+                        <div class="p-3 rounded-lg bg-slate-950/60 border border-slate-800">
+                            <span class="text-slate-400 block font-mono text-[10px]">CROP DESTRUCTION</span>
+                            <span class="text-lg font-bold text-amber-400">715,000 ha</span>
+                            <span class="text-slate-400 block text-[11px]">affected 1.5M people</span>
+                        </div>
+                    </div>
+
+                    <div class="space-y-2 text-xs text-slate-300">
+                        <p><strong>Primary Impacts:</strong> Torrential rainfall, severe inland and coastal flooding, total destruction of poorly reinforced residential housing stock.</p>
+                        <p><strong>Secondary Impacts:</strong> Widespread waterborne cholera outbreaks from contaminated standing floodwaters; catastrophic agricultural loss leading to severe food insecurity across the region.</p>
+                    </div>
+                </div>
+
+                <!-- Case Study 3: Hurricane Irma (Florida vs Caribbean) -->
+                <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🌴</span>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">Hurricane Irma Comparison</h3>
+                                <p class="text-xs text-slate-400 font-mono">Preparedness Differential: Florida vs. Caribbean</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-xs text-slate-300">
+                        <p><strong>Caribbean Impact:</strong> Struck Caribbean islands at Category 5 (highest possible rating). Despite hurricane-resistant home designs, wind speeds exceeded structural tolerance thresholds, causing total devastation on islands like Barbuda. Disaster aid from UK/French/Dutch governments faced severe delays.</p>
+                        <p><strong>Florida Mitigation:</strong> Downgraded to Category 4 near Florida Keys. Early prediction gave 1 week warning—allowing residents to board up windows, install shutters, and execute orderly evacuations. Strict building code compliance avoided widespread collapse.</p>
+                    </div>
+                </div>
+
+                <!-- Case Study 4: Ecosystem Exemplars (Galápagos & Sundarbans) -->
+                <div class="glass-panel p-6 rounded-xl border border-slate-800 space-y-4">
+                    <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                        <div class="flex items-center gap-3">
+                            <span class="text-2xl">🐢</span>
+                            <div>
+                                <h3 class="text-lg font-bold text-white">Galápagos & Sundarbans Reserves</h3>
+                                <p class="text-xs text-slate-400 font-mono">Ecosystem Management Exemplars</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="space-y-2 text-xs text-slate-300">
+                        <p><strong>Galápagos Marine Reserve (MPA):</strong> Strictly regulates tourist entry numbers and charges mandatory entrance fees to directly fund ongoing marine conservation and enforcement against illegal fishing.</p>
+                        <p><strong>Sundarbans Mangrove Forest (India/Bangladesh):</strong> Stores ~4,000 metric tons of carbon per hectare. Threat from Hooghly River industrial runoff is managed via local seedling planting and patrols.</p>
+                    </div>
+                </div>
+
+            </div>
+        </section>
+
+        <!-- TAB 4: FLASHCARDS (LEITNER SYSTEM) -->
+        <section id="tab-flashcards" class="tab-content hidden space-y-6">
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800 bg-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i class="fa-solid fa-layer-group text-cyan-400"></i> Interactive Flashcards
+                    </h2>
+                    <p class="text-slate-400 text-sm mt-1">Master core terms, exact statistics, and definitions. Click card to flip!</p>
+                </div>
+                <div class="flex items-center gap-3 font-mono text-xs">
+                    <span id="flashcard-counter" class="px-3 py-1.5 rounded-lg bg-slate-950 border border-slate-800 text-cyan-400 font-bold">1 / 15</span>
+                    <button onclick="resetFlashcards()" class="px-3 py-1.5 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 transition">
+                        <i class="fa-solid fa-rotate-left"></i> Reset
+                    </button>
+                </div>
+            </div>
+
+            <!-- Flashcard Display Area -->
+            <div class="max-w-2xl mx-auto">
+                <div id="flashcard" onclick="flipCard()" class="perspective-1000 w-full h-80 cursor-pointer">
+                    <div id="card-inner" class="transform-style-3d transition-transform duration-500 w-full h-full relative rounded-2xl shadow-2xl">
+                        <!-- Front side -->
+                        <div class="backface-hidden absolute inset-0 glass-panel border-2 border-slate-800 rounded-2xl p-8 flex flex-col justify-between items-center text-center bg-gradient-to-b from-slate-900 to-slate-950">
+                            <div class="w-full flex justify-between items-center text-xs font-mono text-slate-500">
+                                <span id="card-category" class="px-2 py-1 rounded bg-cyan-500/10 text-cyan-400 border border-cyan-500/20 uppercase">CATEGORY</span>
+                                <span>Click to Reveal</span>
+                            </div>
+                            <h3 id="card-question" class="text-xl sm:text-2xl font-bold text-white px-4 leading-snug">Question text goes here?</h3>
+                            <div class="text-xs text-slate-500 flex items-center gap-1 font-mono">
+                                <i class="fa-solid fa-hand-pointer"></i> Flip card
+                            </div>
+                        </div>
+
+                        <!-- Back side -->
+                        <div class="backface-hidden rotate-y-180 absolute inset-0 glass-panel border-2 border-cyan-500/40 rounded-2xl p-8 flex flex-col justify-between items-center text-center bg-gradient-to-b from-slate-900 via-slate-900 to-cyan-950/50">
+                            <div class="w-full flex justify-between items-center text-xs font-mono text-cyan-400">
+                                <span>ANSWER & DETAILS</span>
+                                <i class="fa-solid fa-lightbulb"></i>
+                            </div>
+                            <p id="card-answer" class="text-base sm:text-lg font-medium text-slate-200 px-4 leading-relaxed">Answer text goes here with all exact numbers and details.</p>
+                            <div id="card-stat" class="text-xs font-mono text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-full border border-emerald-500/20">
+                                Key Exam Fact
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Flashcard Navigation Controls -->
+                <div class="flex items-center justify-between mt-6 px-2">
+                    <button onclick="prevCard()" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-sm font-medium flex items-center gap-2 transition">
+                        <i class="fa-solid fa-arrow-left"></i> Previous
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button onclick="markCard(false)" class="px-4 py-2.5 rounded-xl bg-rose-500/10 hover:bg-rose-500/20 text-rose-400 border border-rose-500/20 text-xs font-semibold flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-xmark"></i> Need Practice
+                        </button>
+                        <button onclick="markCard(true)" class="px-4 py-2.5 rounded-xl bg-emerald-500/10 hover:bg-emerald-500/20 text-emerald-400 border border-emerald-500/20 text-xs font-semibold flex items-center gap-1.5 transition">
+                            <i class="fa-solid fa-check"></i> Mastered
+                        </button>
+                    </div>
+                    <button onclick="nextCard()" class="px-5 py-2.5 rounded-xl bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 text-sm font-medium flex items-center gap-2 transition">
+                        Next <i class="fa-solid fa-arrow-right"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- TAB 5: EXAM QUIZ & SIMULATOR -->
+        <section id="tab-quiz" class="tab-content hidden space-y-6">
+            <!-- Quiz Header -->
+            <div class="glass-panel p-6 rounded-2xl border border-slate-800 bg-slate-900 flex flex-col sm:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-bold text-white flex items-center gap-3">
+                        <i class="fa-solid fa-list-check text-cyan-400"></i> Geography Exam Test Engine
+                    </h2>
+                    <p class="text-slate-400 text-sm mt-1">Evaluate your understanding of coastal data, Florida statistics, and storm management.</p>
+                </div>
+                <div class="flex items-center gap-4">
+                    <div class="text-right">
+                        <span class="text-xs text-slate-400 block font-mono">CURRENT SCORE</span>
+                        <span id="quiz-score" class="text-xl font-extrabold text-cyan-400 font-mono">0 / 0</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Container Card -->
+            <div class="max-w-3xl mx-auto glass-panel p-6 sm:p-8 rounded-2xl border border-slate-800 space-y-6" id="quiz-card">
+                <!-- Progress bar -->
+                <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden border border-slate-800">
+                    <div id="quiz-progress-bar" class="bg-gradient-to-r from-cyan-500 to-blue-600 h-full w-0 transition-all duration-300"></div>
+                </div>
+
+                <div class="flex items-center justify-between text-xs font-mono text-slate-400">
+                    <span id="quiz-question-num" class="text-cyan-400 font-bold">Question 1 of 8</span>
+                    <span id="quiz-question-topic" class="px-2 py-0.5 rounded bg-slate-800 text-slate-300">Topic</span>
+                </div>
+
+                <!-- Question Text -->
+                <h3 id="quiz-question-text" class="text-lg sm:text-xl font-bold text-white leading-snug">
+                    Loading question...
+                </h3>
+
+                <!-- Options Grid -->
+                <div id="quiz-options-container" class="space-y-3">
+                    <!-- Dynamic Options -->
+                </div>
+
+                <!-- Explanation Box (Hidden initially) -->
+                <div id="quiz-explanation" class="hidden p-4 rounded-xl bg-slate-950 border border-slate-800 text-xs space-y-2">
+                    <div class="flex items-center gap-2 font-bold font-mono" id="explanation-status">
+                        <i class="fa-solid fa-circle-info"></i> Explanation
+                    </div>
+                    <p id="explanation-text" class="text-slate-300 leading-relaxed">
+                        Explanation details go here.
+                    </p>
+                </div>
+
+                <!-- Quiz Actions -->
+                <div class="flex justify-end border-t border-slate-800 pt-4">
+                    <button id="quiz-next-btn" onclick="nextQuizQuestion()" class="hidden px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold transition flex items-center gap-2">
+                        Next Question <i class="fa-solid fa-chevron-right text-xs"></i>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Footer -->
+    <footer class="border-t border-slate-800/80 bg-slate-950 py-4 text-center text-xs text-slate-500 font-mono">
+        Coastal Geography Master Reviewer &bull; Fully Self-Contained Exam Prep Tool
+    </footer>
+
+    <script>
+        /* Flashcard Data Structure */
+        const flashcardsData = [
+            {
+                category: "FLORIDA CASE STUDY",
+                question: "According to the FDEP (July 2023), how many kilometers of Florida's sandy beaches are classified as 'critically eroded'?",
+                answer: "696 km out of 1,328 km of sandy beaches are classified as critically eroded.",
+                stat: "696 km / 1,328 km Critically Eroded"
+            },
+            {
+                category: "STORM MANAGEMENT",
+                question: "What are the '4 Ps' used in managing tropical storm hazards?",
+                answer: "Preparation (emergencies/supplies), Planning (land-use/building codes), Protection (sea walls/mangroves), and Prediction (satellite/weather modeling).",
+                stat: "Preparation, Planning, Protection, Prediction"
+            },
+            {
+                category: "FLORIDA EXPENDITURES",
+                question: "How much do the Florida state government and local governments spend combined each year on beach nourishment?",
+                answer: "Between $60 million and $100 million annually ($30M–$50M from state government + $30M–$50M from local governments).",
+                stat: "$60M–$100M Annual Beach Budget"
+            },
+            {
+                category: "FLORIDA GEOLOGY",
+                question: "What geological characteristic makes Florida's bedrock particularly susceptible to wave erosion?",
+                answer: "Much of Florida is composed of soft sedimentary rocks like limestone and sandstone, combined with a lack of natural rocky cliffs or headlands.",
+                stat: "Soft Limestone & Sandstone Bedrock"
+            },
+            {
+                category: "MANGROVES",
+                question: "How much carbon per hectare does the Sundarbans mangrove forest store?",
+                answer: "Approximately 4,000 metric tons of carbon per hectare.",
+                stat: "~4,000 Metric Tons Carbon / ha"
+            },
+            {
+                category: "CORAL REEFS",
+                question: "In what latitudinal range and water conditions are coral reefs typically located?",
+                answer: "Between 30° N and 30° S in warm, salty, clear waters.",
+                stat: "30° N to 30° S Latitude"
+            },
+            {
+                category: "CORAL BLEACHING",
+                question: "What biological process occurs during coral bleaching caused by elevated sea temperatures?",
+                answer: "Thermally stressed corals expel the symbiotic algae (zooxanthellae) living inside their tissues, causing loss of nutrients, color, and eventual death if prolonged.",
+                stat: "Expulsion of Symbiotic Algae"
+            },
+            {
+                category: "HURRICANE IDALIA",
+                question: "When and where did Hurricane Idalia make landfall in Florida, and what were its key stats?",
+                answer: "August 2023 at Keaton Beach as a Category 4 storm with 185 km/h winds, 2.7m storm surge, 10 fatalities, and $3.6 billion in damages.",
+                stat: "Aug 2023 | 185 km/h Winds | $3.6B Damage"
+            },
+            {
+                category: "HARD ENGINEERING",
+                question: "What is a main negative down-drift side effect of building groynes along a coastline?",
+                answer: "Groynes trap sediment on the up-drift side but starve down-drift beaches of sand, accelerating erosion downstream.",
+                stat: "Down-drift Sediment Starvation"
+            },
+            {
+                category: "SOFT ENGINEERING",
+                question: "In May 2022, what green infrastructure project took place at Virginia Key, Florida?",
+                answer: "Volunteers planted native trees and vegetation ahead of the 2023 hurricane season to build a living shoreline buffer.",
+                stat: "Virginia Key Native Tree Planting"
+            },
+            {
+                category: "CASE STUDY - MIAMI",
+                question: "What was the cost per cubic yard of sand imported for the 2022-2023 Miami Beach nourishment project?",
+                answer: "$50 per cubic yard, for a total project cost of $40.4 million carried out by the US Army Corps of Engineers.",
+                stat: "$40.4M Total | $50 per cubic yard"
+            },
+            {
+                category: "CASE STUDY - CYCLONE IDAI",
+                question: "Name two severe secondary impacts of Cyclone Idai (March 2019) in Southern Africa.",
+                answer: "Outbreaks of waterborne diseases (like cholera) in standing floodwaters, and severe food insecurity due to 715,000 hectares of destroyed crops.",
+                stat: "Disease Outbreaks & Food Insecurity"
+            },
+            {
+                category: "ECOSYSTEM THREATS",
+                question: "Which river poses an industrial pollution threat to the Sundarbans mangrove forest in India?",
+                answer: "The Hooghly River, which carries industrial effluent that harms water quality and mangrove health.",
+                stat: "Hooghly River Industrial Runoff"
+            },
+            {
+                category: "PROTECTED AREAS",
+                question: "How does the Galápagos Marine Reserve (MPA) fund its conservation projects?",
+                answer: "By strictly limiting tourist numbers and requiring all visitors to pay an entry fee.",
+                stat: "Tourist Limits & Mandatory Entry Fees"
+            },
+            {
+                category: "AQUACULTURE",
+                question: "What sustainable aquaculture practice in Indonesia preserves mangrove habitats while raising seafood?",
+                answer: "Integrated mangrove-shrimp farming systems.",
+                stat: "Integrated Mangrove-Shrimp Farming"
+            }
+        ];
+
+        /* Quiz Data Structure */
+        const quizData = [
+            {
+                topic: "Florida Case Study",
+                question: "What proportion of Florida's 1,328 km sandy coastline was classified by the FDEP in July 2023 as 'critically eroded'?",
+                options: [
+                    "250 km (~18%)",
+                    "450 km (~33%)",
+                    "696 km (~52%)",
+                    "1,100 km (~82%)"
+                ],
+                correct: 2,
+                explanation: "According to FDEP data from July 2023, 696 km out of Florida's 1,328 km of sandy ocean/gulf beaches are officially classified as critically eroded."
+            },
+            {
+                topic: "Coastal Hazards",
+                question: "Why is saltwater intrusion particularly hazardous for low-lying coastal populations?",
+                options: [
+                    "It degrades ocean water visibility for divers",
+                    "It contaminates freshwater aquifers used for drinking water and irrigation",
+                    "It causes sea walls to dissolve rapidly",
+                    "It prevents corals from absorbing calcium"
+                ],
+                correct: 1,
+                explanation: "Saltwater intrusion occurs when ocean water infiltrates underground freshwater aquifers, spoiling drinking water supplies and agricultural irrigation."
+            },
+            {
+                topic: "Engineering Solutions",
+                question: "Which of the following is an example of Soft Engineering coastal management?",
+                options: [
+                    "Building concrete sea walls",
+                    "Placing granite rip-rap boulders at cliff bases",
+                    "Beach nourishment and living shoreline restoration",
+                    "Constructing offshore breakwaters"
+                ],
+                correct: 2,
+                explanation: "Beach nourishment and planting native vegetation (living shorelines) work with natural processes, making them soft engineering strategies."
+            },
+            {
+                topic: "Mangrove Ecology",
+                question: "Approximately how much carbon is stored per hectare in India's Sundarbans mangrove forest?",
+                options: [
+                    "500 metric tons",
+                    "1,200 metric tons",
+                    "2,500 metric tons",
+                    "4,000 metric tons"
+                ],
+                correct: 3,
+                explanation: "The Sundarbans mangrove forest stores approximately 4,000 metric tons of carbon per hectare, functioning as a vital carbon sink."
+            },
+            {
+                topic: "Tropical Storms Framework",
+                question: "Under the '4 Ps' storm management framework, land-use zoning and building regulations fall under which category?",
+                options: [
+                    "Preparation",
+                    "Planning",
+                    "Protection",
+                    "Prediction"
+                ],
+                correct: 1,
+                explanation: "Planning involves long-term strategies such as land-use zoning (avoiding high-risk building) and setting structural building standards."
+            },
+            {
+                topic: "Coral Reef Biology",
+                question: "Coral bleaching occurs primarily when rising water temperatures force corals to:",
+                options: [
+                    "Absorb excessive salt into their skeleton",
+                    "Expel the microscopic photosynthetic algae living in their tissues",
+                    "Migrate closer to deep ocean trenches",
+                    "Dissolve their limestone bases"
+                ],
+                correct: 1,
+                explanation: "Thermal stress causes corals to expel the zooxanthellae (symbiotic algae) living in their tissues, turning them white and starving them of essential nutrients."
+            },
+            {
+                topic: "Case Study: Hurricane Idalia",
+                question: "Despite making landfall as a Category 4 storm with 185 km/h winds, Hurricane Idalia resulted in only 10 fatalities in Florida primarily due to:",
+                options: [
+                    "The storm missing all coastal towns",
+                    "State of emergency declarations, timely predictions, and FDEM evacuations",
+                    "6-meter sea walls fully surrounding the entire state",
+                    "Mangroves completely absorbing the 2.7m storm surge"
+                ],
+                correct: 1,
+                explanation: "Early warnings, declared states of emergency, designated evacuation zones, and FDEM prep limited casualties to 10 despite $3.6 billion in physical damage."
+            },
+            {
+                topic: "Florida Geography",
+                question: "What is the highest point above sea level in the state of Florida?",
+                options: [
+                    "105 meters",
+                    "320 meters",
+                    "512 meters",
+                    "850 meters"
+                ],
+                correct: 0,
+                explanation: "Florida is the flattest state in the United States; its highest natural point is only 105 meters above sea level, making it extremely vulnerable to flooding."
+            }
+        ];
+
+        /* App State Variables */
+        let currentFlashcardIndex = 0;
+        let isCardFlipped = false;
+        let masteredCards = new Set();
+
+        let currentQuizIndex = 0;
+        let quizScore = 0;
+        let quizAnswered = false;
+
+        // Tab Switcher
+        function switchTab(tabId) {
+            // Hide all tabs
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
+            
+            // Show selected
+            const selectedTab = document.getElementById(`tab-${tabId}`);
+            if (selectedTab) selectedTab.classList.remove('hidden');
+
+            // Update tab button active states
+            document.querySelectorAll('.tab-btn').forEach(btn => {
+                if (btn.getAttribute('data-tab') === tabId) {
+                    btn.className = 'tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 bg-cyan-600 text-white shadow-sm';
+                } else {
+                    btn.className = 'tab-btn px-4 py-2 rounded-lg text-sm font-medium transition-all duration-200 flex items-center gap-2 text-slate-400 hover:text-slate-200 hover:bg-slate-800/50';
+                }
+            });
+
+            // Initialize specific tab logic if needed
+            if (tabId === 'flashcards') updateFlashcardUI();
+            if (tabId === 'quiz' && currentQuizIndex === 0) loadQuizQuestion();
+        }
+
+        // Flashcard Logic
+        function updateFlashcardUI() {
+            const card = flashcardsData[currentFlashcardIndex];
+            const cardInner = document.getElementById('card-inner');
+            
+            // Unflip first
+            isCardFlipped = false;
+            cardInner.classList.remove('rotate-y-180');
+
+            setTimeout(() => {
+                document.getElementById('card-category').innerText = card.category;
+                document.getElementById('card-question').innerText = card.question;
+                document.getElementById('card-answer').innerText = card.answer;
+                document.getElementById('card-stat').innerText = card.stat;
+                
+                document.getElementById('flashcard-counter').innerText = `${currentFlashcardIndex + 1} / ${flashcardsData.length}`;
+            }, 150);
+        }
+
+        function flipCard() {
+            isCardFlipped = !isCardFlipped;
+            const cardInner = document.getElementById('card-inner');
+            if (isCardFlipped) {
+                cardInner.classList.add('rotate-y-180');
+            } else {
+                cardInner.classList.remove('rotate-y-180');
+            }
+        }
+
+        function nextCard() {
+            currentFlashcardIndex = (currentFlashcardIndex + 1) % flashcardsData.length;
+            updateFlashcardUI();
+        }
+
+        function prevCard() {
+            currentFlashcardIndex = (currentFlashcardIndex - 1 + flashcardsData.length) % flashcardsData.length;
+            updateFlashcardUI();
+        }
+
+        function markCard(mastered) {
+            if (mastered) {
+                masteredCards.add(currentFlashcardIndex);
+            } else {
+                masteredCards.delete(currentFlashcardIndex);
+            }
+            nextCard();
+        }
+
+        function resetFlashcards() {
+            currentFlashcardIndex = 0;
+            masteredCards.clear();
+            updateFlashcardUI();
+        }
+
+        // Quiz Logic
+        function loadQuizQuestion() {
+            quizAnswered = false;
+            const q = quizData[currentQuizIndex];
+
+            // Progress bar
+            const progressPercent = ((currentQuizIndex) / quizData.length) * 100;
+            document.getElementById('quiz-progress-bar').style.width = `${progressPercent}%`;
+
+            document.getElementById('quiz-question-num').innerText = `Question ${currentQuizIndex + 1} of ${quizData.length}`;
+            document.getElementById('quiz-question-topic').innerText = q.topic;
+            document.getElementById('quiz-question-text').innerText = q.question;
+            
+            // Hide explanation & next btn
+            document.getElementById('quiz-explanation').classList.add('hidden');
+            document.getElementById('quiz-next-btn').classList.add('hidden');
+
+            // Render Options
+            const container = document.getElementById('quiz-options-container');
+            container.innerHTML = '';
+
+            q.options.forEach((opt, idx) => {
+                const btn = document.createElement('button');
+                btn.className = 'quiz-opt-btn w-full text-left p-4 rounded-xl bg-slate-950/80 hover:bg-slate-800 border border-slate-800/80 text-sm font-medium text-slate-200 transition flex items-center justify-between group';
+                btn.onclick = () => selectQuizAnswer(idx);
+                btn.innerHTML = `
+                    <span>${opt}</span>
+                    <i class="fa-regular fa-circle text-slate-600 group-hover:text-cyan-400"></i>
+                `;
+                container.appendChild(btn);
+            });
+        }
+
+        function selectQuizAnswer(selectedIndex) {
+            if (quizAnswered) return;
+            quizAnswered = true;
+
+            const q = quizData[currentQuizIndex];
+            const optionBtns = document.querySelectorAll('.quiz-opt-btn');
+
+            if (selectedIndex === q.correct) {
+                quizScore++;
+                optionBtns[selectedIndex].className = 'quiz-opt-btn w-full text-left p-4 rounded-xl bg-emerald-500/20 border-2 border-emerald-500 text-sm font-bold text-emerald-300 flex items-center justify-between';
+                optionBtns[selectedIndex].querySelector('i').className = 'fa-solid fa-circle-check text-emerald-400';
+                
+                document.getElementById('explanation-status').className = 'flex items-center gap-2 font-bold font-mono text-emerald-400';
+                document.getElementById('explanation-status').innerHTML = '<i class="fa-solid fa-circle-check"></i> Correct!';
+            } else {
+                optionBtns[selectedIndex].className = 'quiz-opt-btn w-full text-left p-4 rounded-xl bg-rose-500/20 border-2 border-rose-500 text-sm font-bold text-rose-300 flex items-center justify-between';
+                optionBtns[selectedIndex].querySelector('i').className = 'fa-solid fa-circle-xmark text-rose-400';
+
+                // Highlight correct one
+                optionBtns[q.correct].className = 'quiz-opt-btn w-full text-left p-4 rounded-xl bg-emerald-500/20 border border-emerald-500/50 text-sm font-medium text-emerald-300 flex items-center justify-between';
+
+                document.getElementById('explanation-status').className = 'flex items-center gap-2 font-bold font-mono text-rose-400';
+                document.getElementById('explanation-status').innerHTML = '<i class="fa-solid fa-circle-xmark"></i> Incorrect';
+            }
+
+            // Update Score Text
+            document.getElementById('quiz-score').innerText = `${quizScore} / ${currentQuizIndex + 1}`;
+
+            // Show explanation
+            document.getElementById('explanation-text').innerText = q.explanation;
+            document.getElementById('quiz-explanation').classList.remove('hidden');
+
+            // Show next button
+            document.getElementById('quiz-next-btn').classList.remove('hidden');
+        }
+
+        function nextQuizQuestion() {
+            currentQuizIndex++;
+            if (currentQuizIndex < quizData.length) {
+                loadQuizQuestion();
+            } else {
+                showQuizResults();
+            }
+        }
+
+        function showQuizResults() {
+            document.getElementById('quiz-progress-bar').style.width = `100%`;
+            const card = document.getElementById('quiz-card');
+            const percent = Math.round((quizScore / quizData.length) * 100);
+
+            card.innerHTML = `
+                <div class="text-center py-8 space-y-4">
+                    <div class="w-20 h-20 rounded-full bg-cyan-500/10 text-cyan-400 border-2 border-cyan-500/30 mx-auto flex items-center justify-center text-3xl font-extrabold">
+                        ${percent}%
+                    </div>
+                    <h3 class="text-2xl font-bold text-white">Quiz Completed!</h3>
+                    <p class="text-slate-400 text-sm max-w-md mx-auto">
+                        You scored <strong class="text-cyan-400">${quizScore}</strong> out of <strong class="text-white">${quizData.length}</strong> questions correctly.
+                    </p>
+                    <button onclick="restartQuiz()" class="px-6 py-2.5 rounded-xl bg-cyan-600 hover:bg-cyan-500 text-white text-sm font-semibold transition inline-flex items-center gap-2">
+                        <i class="fa-solid fa-rotate-right"></i> Retake Exam Quiz
+                    </button>
+                </div>
+            `;
+        }
+
+        function restartQuiz() {
+            currentQuizIndex = 0;
+            quizScore = 0;
+            document.getElementById('quiz-score').innerText = `0 / 0`;
+            location.reload(); // Simple reload or re-render
+        }
+
+        // Global Search Filter across notes
+        function handleSearch() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const cards = document.querySelectorAll('.note-card');
+
+            cards.forEach(card => {
+                const keywords = card.getAttribute('data-keywords') || '';
+                const content = card.innerText.toLowerCase();
+
+                if (content.includes(query) || keywords.includes(query)) {
+                    card.style.display = 'flex';
+                } else {
+                    card.style.display = 'none';
+                }
+            });
+        }
+
+        // Keyboard navigation for flashcards
+        document.addEventListener('keydown', (e) => {
+            const flashcardTab = document.getElementById('tab-flashcards');
+            if (!flashcardTab.classList.contains('hidden')) {
+                if (e.key === 'ArrowRight') nextCard();
+                if (e.key === 'ArrowLeft') prevCard();
+                if (e.key === ' ' || e.key === 'Enter') {
+                    e.preventDefault();
+                    flipCard();
+                }
+            }
+        });
+    </script>
+</body>
+</html>

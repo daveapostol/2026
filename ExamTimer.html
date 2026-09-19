@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Semester 1/2026 Midterm Examinations - Grade 11 Exam Clock</title>
+    <title>Semester 1/2026 Final Examinations - Grade 11 Exam Clock</title>
     <!-- Tailwind CSS for high quality styling -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Google Fonts for crisp readability -->
@@ -33,10 +33,10 @@
             <div>
                 <div class="flex items-center gap-2 mb-1 justify-center md:justify-start">
                     <span class="px-2 py-0.5 text-xs font-bold uppercase rounded bg-indigo-600 text-white animate-pulse">Grade 11</span>
-                    <span class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Semester 1/2026 Midterm Examinations</span>
+                    <span class="text-xs text-slate-400 font-semibold tracking-wider uppercase">Semester 1/2026 Final Examinations</span>
                 </div>
                 <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white flex items-center gap-2">
-                    ตารางสอบกลางภาคเรียนที่ 1/2569
+                    ตารางสอบปลายภาคเรียนที่ 1/2569
                 </h1>
             </div>
             
@@ -78,7 +78,7 @@
                         </div>
                         <div class="text-right">
                             <span class="text-[10px] text-slate-500 block uppercase font-bold tracking-wide">Selected Testing Day</span>
-                            <span id="activeDateDisplay" class="text-sm font-bold text-indigo-400">Monday, 20 July 2026</span>
+                            <span id="activeDateDisplay" class="text-sm font-bold text-indigo-400">Monday, 21 September 2026</span>
                         </div>
                     </div>
 
@@ -121,7 +121,7 @@
                         08:42:45
                     </div>
                     <div class="flex justify-between items-center text-xs text-slate-400 font-medium">
-                        <span id="clockDateDisplay">Monday, 20 July 2026</span>
+                        <span id="clockDateDisplay">Monday, 21 September 2026</span>
                         <div class="flex items-center gap-2">
                             <span class="inline-block w-2 h-2 rounded-full bg-green-500 animate-pulse"></span>
                             <span id="clockFormatLabel">24H MODE</span>
@@ -157,8 +157,8 @@
                         <div>
                             <label class="block text-[10px] uppercase font-bold tracking-wider text-slate-500 mb-1">Simulated Day</label>
                             <select id="simDateSelect" class="w-full bg-slate-900 border border-slate-800 rounded-lg px-2.5 py-1.5 text-xs text-white focus:outline-none focus:border-amber-500">
-                                <option value="2026-07-20">Monday, 20 July 2026</option>
-                                <option value="2026-07-22">Wednesday, 22 July 2026</option>
+                                <option value="2026-09-21">Monday, 21 September 2026</option>
+                                <option value="2026-09-23">Wednesday, 23 September 2026</option>
                             </select>
                         </div>
                         <!-- Simulated Time Selector -->
@@ -190,10 +190,10 @@
                 <!-- Day Select Tabs -->
                 <div class="flex gap-1.5 p-1 bg-slate-900 rounded-xl max-w-sm border border-slate-800">
                     <button id="tabMonday" class="flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition whitespace-nowrap bg-indigo-600 text-white">
-                        Mon, 20 July
+                        Mon, 21 Sep
                     </button>
                     <button id="tabWednesday" class="flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition text-slate-400 hover:text-slate-200">
-                        Wed, 22 July
+                        Wed, 23 Sep
                     </button>
                 </div>
 
@@ -247,8 +247,8 @@
                 <div class="flex items-center gap-3 bg-slate-950 p-3 rounded-xl border border-slate-800">
                     <span class="text-xs font-bold uppercase tracking-wider text-slate-400">Target Day to Edit:</span>
                     <select id="editorDaySelect" class="bg-slate-900 border border-slate-800 text-sm font-semibold rounded-lg px-3 py-1 text-white focus:outline-none focus:ring-1 focus:ring-indigo-500">
-                        <option value="2026-07-20">Monday, 20 July 2026</option>
-                        <option value="2026-07-22">Wednesday, 22 July 2026</option>
+                        <option value="2026-09-21">Monday, 21 September 2026</option>
+                        <option value="2026-09-23">Wednesday, 23 September 2026</option>
                     </select>
                 </div>
 
@@ -283,7 +283,7 @@
 
     <script>
         const DEFAULT_SCHEDULE = {
-            "2026-07-20": [ // Monday, 20 July 2026
+            "2026-09-21": [ // Monday, 21 September 2026
                 { id: "m1", start: "07:50", end: "08:15", subject: "Homeroom" },
                 { id: "m2", start: "08:15", end: "09:45", subject: "English Mathematics / คณิตศาสตร์ (ภาคภาษาอังกฤษ)" },
                 { id: "m3", start: "09:45", end: "10:00", subject: "Morning Break" },
@@ -295,7 +295,7 @@
                 { id: "m8", start: "14:00", end: "14:15", subject: "Afternoon Break" },
                 { id: "m9", start: "14:15", end: "15:25", subject: "SAT Math / ทักษะคณิตศาสตร์" }
             ],
-            "2026-07-22": [ // Wednesday, 22 July 2026
+            "2026-09-23": [ // Wednesday, 23 September 2026
                 { id: "w1", start: "07:50", end: "08:15", subject: "Homeroom" },
                 { id: "w2", start: "08:15", end: "09:45", subject: "Physics ฟิสิกส์ / Business ธุรกิจเบื้องต้น" },
                 { id: "w3", start: "09:45", end: "10:00", subject: "Morning Break" },
@@ -310,16 +310,16 @@
 
         // Date Label Mapping
         const DATE_LABELS = {
-            "2026-07-20": "Monday, 20 July 2026",
-            "2026-07-22": "Wednesday, 22 July 2026"
+            "2026-09-21": "Monday, 21 September 2026",
+            "2026-09-23": "Wednesday, 23 September 2026"
         };
 
         // Application State Management
         let appState = {
             schedule: {},
-            activeDate: "2026-07-20", // Default to Monday
+            activeDate: "2026-09-21", // Default to Monday
             simulatedMode: false,
-            simulatedDate: "2026-07-20",
+            simulatedDate: "2026-09-21",
             simulatedTimeSeconds: 0, // Time in seconds within active day
             speedMultiplier: 1,
             lastClockTick: Date.now(),
@@ -331,7 +331,7 @@
         };
 
         function initStorage() {
-            const saved = localStorage.getItem("grade11_midterm_schedule_v2");
+            const saved = localStorage.getItem("grade11_final_schedule_v1");
             if (saved) {
                 try {
                     appState.schedule = JSON.parse(saved);
@@ -352,7 +352,7 @@
 
         // Synchronize local storage saving
         function saveToStorage() {
-            localStorage.setItem("grade11_midterm_schedule_v2", JSON.stringify(appState.schedule));
+            localStorage.setItem("grade11_final_schedule_v1", JSON.stringify(appState.schedule));
         }
 
         function playChime(chimeType = 'start') {
@@ -505,7 +505,7 @@
                 const d = new Date();
                 const calendarDateStr = `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
                 
-                // If today is actually Mon 20 July or Wed 22 July 2026, auto select date
+                // If today is actually a test date, auto select date
                 if (appState.schedule[calendarDateStr]) {
                     curDateStr = calendarDateStr;
                     appState.activeDate = calendarDateStr;
@@ -816,14 +816,14 @@
         function initEventHandlers() {
             // Monday tab
             document.getElementById("tabMonday").addEventListener("click", () => {
-                appState.activeDate = "2026-07-20";
+                appState.activeDate = "2026-09-21";
                 document.getElementById("tabMonday").className = "flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition whitespace-nowrap bg-indigo-600 text-white";
                 document.getElementById("tabWednesday").className = "flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition text-slate-400 hover:text-slate-200";
             });
 
             // Wednesday tab
             document.getElementById("tabWednesday").addEventListener("click", () => {
-                appState.activeDate = "2026-07-22";
+                appState.activeDate = "2026-09-23";
                 document.getElementById("tabWednesday").className = "flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition whitespace-nowrap bg-indigo-600 text-white";
                 document.getElementById("tabMonday").className = "flex-1 text-xs font-bold py-2 px-4 rounded-lg tracking-wide uppercase transition text-slate-400 hover:text-slate-200";
             });
